@@ -43,7 +43,9 @@ class CreateScript extends Command
         $path = storage_path('lista.xlsx');
         $this->info($path);
         Excel::load($path, function($reader) {
-            $results = $reader->select(array('auxliar', 'capital'))->get();
+            $results = $reader->select(array('auxliar', 'capital'))
+                               ->take(40)
+                               ->get();
             $myfile = fopen(storage_path("runthisoficial.ahk"), "w") or die("Unable to open file!");
             $line ="Run, sigepmv2018.exe";
             fwrite($myfile,$line.PHP_EOL);
@@ -105,13 +107,33 @@ class CreateScript extends Command
             fwrite($myfile,$line.PHP_EOL);
             $line ="MouseClick, left,  460,  283";
             fwrite($myfile,$line.PHP_EOL);
+
+            $contador =1;
+
             foreach($results as $row){
                 //fwrite($myfile
-                fwrite($myfile,'Sleep, 200'.PHP_EOL);
+                //$contador++;
+                fwrite($myfile,'Sleep, 500'.PHP_EOL);
                 //Send, 121631216330051{RIGHT}706.91{ENTER}{DOWN}{LEFT}
-                $txt = "Send,  12163".$row->auxliar."{RIGHT}".$row->capital."{ENTER}{DOWN}{LEFT}";
+                $txt = "Send,  12163";
                 fwrite($myfile, $txt.PHP_EOL);
-                //fwrite ($myfile,'\n');
+                fwrite($myfile,'Sleep, 500'.PHP_EOL);
+                $txt = "Send,  ".trim($row->auxliar)."{RIGHT}";
+                fwrite($myfile, $txt.PHP_EOL);
+                fwrite($myfile,'Sleep, 500'.PHP_EOL);
+                fwrite($myfile,'Send, '.trim($row->capital).'{ENTER}'.PHP_EOL);
+                fwrite($myfile,'Sleep, 500'.PHP_EOL);
+                fwrite($myfile,'Send, {ENTER}{DOWN}'.PHP_EOL);
+                
+                //cuando termina las 20 lineas
+                if($contador<19)
+                {
+                    $contador++;
+                }else{
+                    fwrite($myfile,'Sleep, 500'.PHP_EOL);
+                    fwrite($myfile,'Send, {CTRLDOWN}n{CTRLUP}'.PHP_EOL);
+                }
+              //fwrite ($myfile,'\n');
             }
             //$this->info($results);
         });
