@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
         //
         \App\Console\Commands\CreateScript::class,
         \App\Console\Commands\checkdb::class,
+        \App\Console\Commands\ImportComando::class,
+        \App\Console\Commands\ImportSenasir::class,
     ];
 
     /**
