@@ -51,27 +51,29 @@ class OrderComand extends Command
             global $rows,$rows_not_found;
             
             $rows = array();
+            $rows_not_found = array();
             array_push($rows, array('nro_prestamo','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
+            array_push($rows_not_found, array('nro_prestamo','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
             // $rows = array();
 
             $result = $reader->select(array('nro_prestamo','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado'))
-                            //->take(1000)
+                            //->take(100)
                             ->get();
             foreach($result as $row){
                 
                 $arr= explode('-',$row->matricula);    
                 $ci= $arr[0];
                 $afiliado = DB::table('afiliados_comando')->where('ci',$ci)->first();
-                if($afiliado){
-                    // array_merge($row,['c_ci'=>$afiliado->ci]);
-                    //$row['c_ci'] = $afiliado->ci;
-                    // $row['c_paterno'] = $afiliado->paterno;
-                    // $row['c_materno'] = $afiliado->materno;
-                    // $row['c_primer_nombre'] = $afiliado->primer_nombre;
-                    // $row['c_segundo_nombre'] = $afiliado->segundo_nombre;
-                    // $row['c_descuento'] = $afiliado->descuento;
+                if( isset($afiliado->id)){
+                    
+                    DB::table('afiliados_comando')
+                        ->where('id', $afiliado->id)
+                        ->update(['tipo' => 'cuota']);
                     array_push($rows,array($row->nro_prestamo,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,$afiliado->descuento));
                     $this->info($row);
+                }else{
+                    array_push($rows_not_found,array($row->nro_prestamo,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));
+                    
                 }
                 //$this->info($row);
                 
@@ -95,16 +97,16 @@ class OrderComand extends Command
                             $cells->setFontWeight('bold');
                             });
                         });
-                    // $excel->sheet('no_encontrados',function($sheet) {
-                    //         global $rows,$rows_not_found,$row_empy_capital;
-                    //         $sheet->fromModel($rows_not_found,null, 'A1', false, false);
-                    //         $sheet->cells('A1:C1', function($cells) {
-                    //         // manipulate the range of cells
-                    //         $cells->setBackground('#058A37');
-                    //         $cells->setFontColor('#ffffff');  
-                    //         $cells->setFontWeight('bold');
-                    //         });
-                    //     });
+                    $excel->sheet('no_encontrados',function($sheet) {
+                            global $rows,$rows_not_found,$row_empy_capital;
+                            $sheet->fromModel($rows_not_found,null, 'A1', false, false);
+                            $sheet->cells('A1:C1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
                     // $excel->sheet('no_captital_0',function($sheet) {
                     //         global $rows,$rows_not_found,$row_empy_capital;
                     //         $sheet->fromModel($row_empy_capital,null, 'A1', false, false);

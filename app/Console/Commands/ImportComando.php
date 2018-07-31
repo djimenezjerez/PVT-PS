@@ -60,7 +60,8 @@ class ImportComando extends Command
                           'materno'=> trim($row->apm),
                           'primer_nombre'=> trim($row->nom1),
                           'segundo_nombre'=> trim($row->nom2),
-                          'descuento'=> floatval(str_replace(",","",$row->desc_mes))
+                          'descuento'=> floatval(str_replace(",","",$row->desc_mes)),
+                          'tipo'=> ''
                           ]);
             }
             

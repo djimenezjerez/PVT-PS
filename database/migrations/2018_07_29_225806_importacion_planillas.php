@@ -26,6 +26,7 @@ class ImportacionPlanillas extends Migration
             $table->string('primer_nombre');
             $table->string('segundo_nombre')->nullable();
             $table->decimal('descuento',8,2);
+            $table->string('tipo')->nulleable()->default(null);
             $table->timestamps();
         });
         Schema::create('afiliados_senasir', function(Blueprint $table) {
