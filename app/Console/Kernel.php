@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
         \App\Console\Commands\CreateScript::class,
+        \App\Console\Commands\OrderComand::class,
         \App\Console\Commands\checkdb::class,
         \App\Console\Commands\ImportComando::class,
         \App\Console\Commands\ImportSenasir::class,
