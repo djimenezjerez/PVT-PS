@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\checkdb::class,
         \App\Console\Commands\ImportComando::class,
         \App\Console\Commands\ImportSenasir::class,
+        \App\Console\Commands\Test::class,
     ];
 
     /**
