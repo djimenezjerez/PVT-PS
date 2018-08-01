@@ -44,7 +44,7 @@ class OrderComand extends Command
         global $rows,$rows_not_found;
 
         $this->info("Ordenando XD");
-        $path = storage_path('cuotas.xlsx');
+        $path = storage_path('sismu.xlsx');
         Excel::selectSheetsByIndex(0)->load($path , function($reader) {
             
             // reader methods
@@ -52,27 +52,31 @@ class OrderComand extends Command
             
             $rows = array();
             $rows_not_found = array();
-            array_push($rows, array('nro_prestamo','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            array_push($rows_not_found, array('nro_prestamo','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
+            array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
+            array_push($rows_not_found, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
             // $rows = array();
 
-            $result = $reader->select(array('nro_prestamo','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado'))
+            $result = $reader->select(array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento'))
                             //->take(100)
                             ->get();
             foreach($result as $row){
                 
                 $arr= explode('-',$row->matricula);    
                 $ci= $arr[0];
-                $afiliado = DB::table('afiliados_comando')->where('ci',$ci)->first();
+                $afiliado = DB::table('afiliados_comando')
+                                ->where('ci',$ci)
+                                //->where('tipo','=','')
+                                ->first();
                 if( isset($afiliado->id)){
                     
                     DB::table('afiliados_comando')
                         ->where('id', $afiliado->id)
-                        ->update(['tipo' => 'cuota']);
-                    array_push($rows,array($row->nro_prestamo,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,$afiliado->descuento));
+                        ->update(['tipo' => $row->tipo_descuento]);
+                    array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
                     $this->info($row);
+
                 }else{
-                    array_push($rows_not_found,array($row->nro_prestamo,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));
+                    array_push($rows_not_found,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));
                     
                 }
                 //$this->info($row);
@@ -84,7 +88,7 @@ class OrderComand extends Command
 
         });
 
-        Excel::create('cuotas_conciliacion',function($excel)
+        Excel::create('global_conciliacion',function($excel)
         {
             global $rows,$rows_not_found,$row_empy_capital;
                     $excel->sheet('encontrados',function($sheet) {
