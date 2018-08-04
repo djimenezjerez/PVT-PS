@@ -21,6 +21,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ImportComando::class,
         \App\Console\Commands\ImportSenasir::class,
         \App\Console\Commands\Test::class,
+        \App\Console\Commands\CheckGar::class,
+        \App\Console\Commands\GetFormat::class,
     ];
 
     /**

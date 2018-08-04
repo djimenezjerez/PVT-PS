@@ -40,25 +40,90 @@ class Test extends Command
     public function handle()
     {
         //
-        $this->info("testeando db");
-        // $query = DB::table('Area')->get();
-        // $colect = json_encode($query);
-        // foreach($query as $r ){
-        //     $this->info(json_encode($r));
+        global $rows,$rows_not_found;
 
-        // }
-        // $this->info(json_decode($colect));
-        $this->info("Ordenando XD");
-        $path = storage_path('AmortizacionActivos (1).xlsx');
+        $this->info("Ordenando No Conciliados XD");
+        $path = storage_path('no_conciliados.xlsx');
         $this->info($path);
-        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
-            $result = $reader->get();
-            $this->info('ingresando al modulo');
-            $this->info($result->count());
-            //  foreach($result as $row)
-            //  {
-            //      $this->info($row);
-            //  }
+        Excel::selectSheetsByIndex(0)->load($path , function($reader) {
+            
+            // reader methods
+            global $rows,$rows_not_found;
+            
+            $rows = array();
+            $rows_not_found = array();
+            array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
+            array_push($rows_not_found, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
+            // $rows = array();
+
+            $result = $reader->select(array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante'))
+                           // ->take(100)
+                            ->get();
+            foreach($result as $row){
+                
+                $arr= explode('-',$row->matricula);    
+                $ci= $arr[0];
+                $afiliado = DB::table('afiliados_comando')
+                                ->where('ci',$ci)
+                                //->where('tipo','=','')
+                                ->first();
+                if( isset($afiliado->id)){
+                    
+                    $total = $row->total_pagado;
+                    
+                        DB::table('afiliados_comando')
+                            ->where('id', $afiliado->id)
+                            ->update(['tipo' => $row->tipo_descuento.'_no_conciliado']);
+                        array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
+                        $this->info($row);
+                    
+                }
+                else{
+                    array_push($rows_not_found,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));      
+                }
+                //$this->info($row);
+                
+            }
+
+
+
+
         });
+
+        Excel::create('no_conciliacion_junio',function($excel)
+        {
+            global $rows,$rows_not_found,$row_empy_capital;
+                    $excel->sheet('conciliados',function($sheet) {
+                            global $rows,$rows_not_found,$row_empy_capital;
+                            $sheet->fromModel($rows,null, 'A1', false, false);
+                            $sheet->cells('A1:C1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                    $excel->sheet('no_conciliados',function($sheet) {
+                            global $rows,$rows_not_found,$row_empy_capital;
+                            $sheet->fromModel($rows_not_found,null, 'A1', false, false);
+                            $sheet->cells('A1:C1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                    // $excel->sheet('no_captital_0',function($sheet) {
+                    //         global $rows,$rows_not_found,$row_empy_capital;
+                    //         $sheet->fromModel($row_empy_capital,null, 'A1', false, false);
+                    //         $sheet->cells('A1:C1', function($cells) {
+                    //         // manipulate the range of cells
+                    //         $cells->setBackground('#058A37');
+                    //         $cells->setFontColor('#ffffff');  
+                    //         $cells->setFontWeight('bold');
+                    //         });
+                    //     });
+        })->store('xls', storage_path());
+        $this->info('Finished');
     }
 }
