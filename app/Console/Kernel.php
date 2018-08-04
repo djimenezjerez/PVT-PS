@@ -16,10 +16,14 @@ class Kernel extends ConsoleKernel
         //
         \App\Console\Commands\CreateScript::class,
         \App\Console\Commands\OrderComand::class,
+        \App\Console\Commands\OrderGar::class,
         \App\Console\Commands\checkdb::class,
         \App\Console\Commands\ImportComando::class,
         \App\Console\Commands\ImportSenasir::class,
         \App\Console\Commands\Sismu::class,
+        \App\Console\Commands\Test::class,
+        \App\Console\Commands\CheckGar::class,
+        \App\Console\Commands\GetFormat::class,
     ];
 
     /**
