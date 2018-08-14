@@ -41,19 +41,22 @@ class OrderComand extends Command
     {
         //
 
-        global $rows,$rows_not_found;
+        global $rows,$rows_garantes,$rows_not_found;
 
         $this->info("Ordenando XD");
-        $path = storage_path('final_planilla.xlsx');
+        // $path = storage_path('final_planilla.xlsx');
+        $path = storage_path('sismu_agilizando_oficial.xlsx');
         $this->info($path);
         Excel::selectSheetsByIndex(0)->load($path , function($reader) {
             
             // reader methods
-            global $rows,$rows_not_found;
+            global $rows,$rows_garantes,$rows_not_found;
             
             $rows = array();
             $rows_not_found = array();
+            $rows_garantes = array();
             array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
+            array_push($rows_garantes, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
             array_push($rows_not_found, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
             // $rows = array();
 
@@ -76,11 +79,20 @@ class OrderComand extends Command
                         DB::table('afiliados_comando')
                             ->where('id', $afiliado->id)
                             ->update(['tipo' => $row->tipo_descuento]);
-                        array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
+                        
+                        if(trim($row->tipo_descuento)=="GARANTE")
+                        {
+                           $this->info('------------------garante------------------');
+                            array_push($rows_garantes,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
+                        }else{
+                            array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
+                        }
                         $this->info($row);
+                        
                     }else{
-                        array_push($rows_not_found,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
+                        array_push($rows_not_found,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*'));
                     }
+                    
                 }
                 // else{
                 //     array_push($rows_not_found,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));
@@ -95,11 +107,11 @@ class OrderComand extends Command
 
         });
 
-        Excel::create('conciliacion_junio_01',function($excel)
+        Excel::create('primera_conciliacion',function($excel)
         {
-            global $rows,$rows_not_found,$row_empy_capital;
-                    $excel->sheet('conciliados',function($sheet) {
-                            global $rows,$rows_not_found,$row_empy_capital;
+            global $rows,$rows_garantes,$rows_not_found;
+                    $excel->sheet('conciliados_desc_auto',function($sheet) {
+                            global $rows,$rows_garantes,$rows_not_found;
                             $sheet->fromModel($rows,null, 'A1', false, false);
                             $sheet->cells('A1:C1', function($cells) {
                             // manipulate the range of cells
@@ -108,8 +120,18 @@ class OrderComand extends Command
                             $cells->setFontWeight('bold');
                             });
                         });
-                    $excel->sheet('no_conciliados',function($sheet) {
-                            global $rows,$rows_not_found,$row_empy_capital;
+                    $excel->sheet('conciliados_garantes',function($sheet) {
+                            global $rows,$rows_garantes,$rows_not_found;
+                            $sheet->fromModel($rows_garantes,null, 'A1', false, false);
+                            $sheet->cells('A1:C1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                    $excel->sheet('nuevo_sismu_planilla',function($sheet) {
+                            global $rows,$rows_garantes,$rows_not_found;
                             $sheet->fromModel($rows_not_found,null, 'A1', false, false);
                             $sheet->cells('A1:C1', function($cells) {
                             // manipulate the range of cells
@@ -118,16 +140,6 @@ class OrderComand extends Command
                             $cells->setFontWeight('bold');
                             });
                         });
-                    // $excel->sheet('no_captital_0',function($sheet) {
-                    //         global $rows,$rows_not_found,$row_empy_capital;
-                    //         $sheet->fromModel($row_empy_capital,null, 'A1', false, false);
-                    //         $sheet->cells('A1:C1', function($cells) {
-                    //         // manipulate the range of cells
-                    //         $cells->setBackground('#058A37');
-                    //         $cells->setFontColor('#ffffff');  
-                    //         $cells->setFontWeight('bold');
-                    //         });
-                    //     });
         })->store('xls', storage_path());
         $this->info('Finished');
     }
