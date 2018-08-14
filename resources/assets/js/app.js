@@ -7,7 +7,10 @@
 
 require('./bootstrap');
 
+import Vuetify from 'vuetify';
+
 window.Vue = require('vue');
+Vue.use(Vuetify)
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -18,5 +21,17 @@ window.Vue = require('vue');
 Vue.component('example-component', require('./components/ExampleComponent.vue'));
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    data: () => ({
+        dialog: false,
+        drawer: null,
+        items: [
+          { icon: 'print', text: 'Reportes' },
+          { icon: 'history', text: 'Historial' }
+          
+        ]
+      }),
+      props: {
+        source: String
+      }
 });
