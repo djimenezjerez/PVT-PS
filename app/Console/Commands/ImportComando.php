@@ -41,7 +41,7 @@ class ImportComando extends Command
     {
         //
         $this->info('Iniciando Modulo de Importacion');
-        $path = storage_path('AmortizacionActivos.xlsx');
+        $path = storage_path('desc_muserpol_JUNIO2018.xls');
         Excel::selectSheetsByIndex(0)->load($path, function($reader) {
             
             $result = $reader->select(array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'))
