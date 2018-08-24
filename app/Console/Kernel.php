@@ -24,6 +24,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Test::class,
         \App\Console\Commands\CheckGar::class,
         \App\Console\Commands\GetFormat::class,
+        \App\Console\Commands\DepurarComando::class,
+        \App\Console\Commands\AltasComando::class,
     ];
 
     /**
