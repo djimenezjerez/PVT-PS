@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\GetFormat::class,
         \App\Console\Commands\DepurarComando::class,
         \App\Console\Commands\AltasComando::class,
+        \App\Console\Commands\ProcesarNoEncontrados::class,
     ];
 
     /**
