@@ -47,20 +47,24 @@ class ProcesarNoEncontrados extends Command
         $path = storage_path('excel/export/Sismu registrados.xls');
         Excel::selectSheetsByIndex(3)->load($path, function($reader) {
             
-            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_indebidos;
+            global $rows_exacta,$rows_not_found,$rows_noreg,$rows_desc_menor,$rows_indebidos,$rows_gar,$rows_gar_noreg;
 
             $rows_exacta = Array();
             $rows_not_found = Array();
-            $rows_desc_mayor = Array();
+            $rows_noreg = Array();
             $rows_desc_menor = Array();
             $rows_indebidos = Array();
+            $rows_gar = Array();
+            $rows_gar_noreg = Array();
             
             array_push($rows_not_found,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
             array_push($rows_indebidos,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
+            array_push($rows_gar_noreg,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
+            array_push($rows_noreg,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
             
             array_push($rows_exacta,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo'));
-            array_push($rows_desc_mayor,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo'));
             array_push($rows_desc_menor,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo'));
+            array_push($rows_gar,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo'));
 
         
 
@@ -88,12 +92,104 @@ class ProcesarNoEncontrados extends Command
                     if($prestamos)
                     {
                         //verificar los siguientes casos : 1 prestamo 1 garante, 2 prestamos, 2 prestamos 1 garante, 2 prestamos 2 garantes XD
-                        if($prestamos->count()>1)
-                        {
+                       foreach($prestamos as $prestamo){
 
-                        }else{
+                            $amortizacion = DB::table('Amortizacion')
+                                            ->join('Prestamos','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
+                                            ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                                            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                                            ->where('Padron.PadTipo','=','ACTIVO')
+                                            ->where('Prestamos.IdPrestamo','=',$prestamo->IdPrestamo)
+                                            ->where('Amortizacion.AmrNroCpte','=','D-07/18')
+                                            ->where('Amortizacion.AmrSts','!=','X')
+                                            ->where('Padron.IdPadron','=',$padron->IdPadron)
+                                            ->first();
+                            if($amortizacion)
+                            {
+                                $descuento = $descuento - $amortizacion->AmrTotPag;
+                                array_push($rows_exacta,array($amortizacion->IdPrestamo,$amortizacion->PresNumero,$amortizacion->PresFechaDesembolso,$amortizacion->PrdDsc,$amortizacion->PresCuotaMensual,$amortizacion->AmrFecPag,$amortizacion->AmrFecTrn,$amortizacion->AmrCap,$amortizacion->AmrInt,$amortizacion->AmrIntPen,$amortizacion->AmrOtrCob,$amortizacion->AmrNroCpte,$amortizacion->AmrTipPAgo,$amortizacion->AmrTotPag,$descuento,$amortizacion->PadMatricula,$amortizacion->PadCedulaIdentidad,utf8_encode($amortizacion->PadMaterno),utf8_encode($amortizacion->PadPaterno),utf8_encode($amortizacion->PadNombres),utf8_encode($amortizacion->PadNombres2do),$amortizacion->PadTipo));
+                            }
+                            else
+                            {
+                                //ver en caso de ser primera cuota plan de pagos hdps
+                                $descuento = $descuento - $prestamo->PresCuotaMensual;
+                                array_push($rows_indebidos,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$descuento,$prestamo->PresNumero));
+                            }
 
-                        }
+                       }
+                       if($descuento>0)//ver garantizados
+                       {
+                            $sigla = 'GAR-';
+                            $paterno = str_split( $padron->PadPaterno);
+                            if($paterno){
+                                
+                                    $sigla = $sigla.trim($paterno[0]);
+                                
+                            }
+
+                            $materno = str_split( $padron->PadMaterno);
+                            
+                            if($materno){
+                                $sigla= $sigla.trim($materno[0]);
+                            }
+                            $nombres = str_split( $padron->PadNombres);
+                            if($nombres)
+                            {
+                                $sigla = $sigla.trim($nombres[0]);
+                            }
+
+                            //verificar a quien esta garantizando XD 
+                            $garantizos = DB::table('PrestamosLevel1')
+                                        ->where('IdPadronGar','=',$padron->IdPadron)
+                                        ->get();
+                            if($garantizos)
+                            {
+                                $prestamos_vigentes = array();
+                                $descuento_prestamos = 0;
+                                foreach($garantizos as $garantizo){
+                                    $prestamo = DB::table('Prestamos')->where('IdPrestamo',$garantizo->IdPrestamo)->where('PresEstPtmo','=','V')->first();
+                                    if($prestamo)
+                                    {
+                                        $descuento_prestamos += $prestamo->PresCuotaMensual;
+                                        array_push($prestamos_vigentes,$prestamo);
+                                    }
+                                }
+                            
+                                foreach($prestamos_vigentes as $prestamo_vigente){
+                                    
+                                    $amortizacion = DB::table('Amortizacion')
+                                                        ->join('Prestamos','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
+                                                        ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                                                        ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                                                        ->where('Padron.PadTipo','=','ACTIVO')
+                                                        ->where('Prestamos.IdPrestamo','=',$prestamo_vigente->IdPrestamo)
+                                                        ->where('Amortizacion.AmrNroCpte','=',$sigla)
+                                                        ->where('Amortizacion.AmrSts','!=','X')
+                                                        ->where('Padron.IdPadron','=',$padron->IdPadron)
+                                                        ->first();
+                                    if($amortizacion)
+                                    {
+                                        $descuento = $descuento - $amortizacion->AmrTotPag;
+                                        array_push($rows_gar,array($amortizacion->IdPrestamo,$amortizacion->PresNumero,$amortizacion->PresFechaDesembolso,$amortizacion->PrdDsc,$amortizacion->PresCuotaMensual,$amortizacion->AmrFecPag,$amortizacion->AmrFecTrn,$amortizacion->AmrCap,$amortizacion->AmrInt,$amortizacion->AmrIntPen,$amortizacion->AmrOtrCob,$amortizacion->AmrNroCpte,$amortizacion->AmrTipPAgo,$amortizacion->AmrTotPag,$descuento,$amortizacion->PadMatricula,$amortizacion->PadCedulaIdentidad,utf8_encode($amortizacion->PadMaterno),utf8_encode($amortizacion->PadPaterno),utf8_encode($amortizacion->PadNombres),utf8_encode($amortizacion->PadNombres2do),$amortizacion->PadTipo));
+                                    }else
+                                    {
+                                        array_push($rows_gar_noreg,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$descuento));
+                                    }
+                                }
+
+                                if($descuento>0) // cobro indebido
+                                {
+                                    $this->info($ci.' cobro indevido :V' );
+                                    array_push($rows_indebidos,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$descuento,'sobrante'));
+                                }
+                            
+                            }
+                            else{//cobro indebido
+                                $this->info($ci.' cobro indevido :V' );
+                                array_push($rows_indebidos,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
+                            }
+                       }// garantizados hdps
+
 
                     }else{ //solo es garante
                         //sigla
@@ -133,33 +229,35 @@ class ProcesarNoEncontrados extends Command
                                     array_push($prestamos_vigentes,$prestamo);
                                 }
                             }
-                            // if($descuento == $descuento_prestamos) // el policia esta pagando como garante de 1 prestamo o de 2 prestamos exactos
-                            // {
-                                foreach($prestamos_vigentes as $prestamo_vigente){
+                           
+                            foreach($prestamos_vigentes as $prestamo_vigente){
                                    
-                                    $amortizacion = DB::table('Amortizacion')
-                                                        ->join('Prestamos','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
-                                                        ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
-                                                        ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
-                                                        ->where('Padron.PadTipo','=','ACTIVO')
-                                                        ->where('Prestamos.IdPrestamo','=',$prestamo_vigente->IdPrestamo)
-                                                        ->where('Amortizacion.AmrNroCpte','=',$sigla)
-                                                        ->where('Amortizacion.AmrSts','!=','X')
-                                                        ->where('Padron.IdPadron','=',$padron->IdPadron)
-                                                        ->first();
-                                    if($amortizacion)
-                                    {
-                                        if($descuento==$amortizacion->AmrTotPag)
-                                        {
-                                            //conciliado mas
-                                        }
-                                        else{
-                                            // esta pagando mas de un garante --- registrar el prestamo
+                                $amortizacion = DB::table('Amortizacion')
+                                                    ->join('Prestamos','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
+                                                    ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                                                    ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                                                    ->where('Padron.PadTipo','=','ACTIVO')
+                                                    ->where('Prestamos.IdPrestamo','=',$prestamo_vigente->IdPrestamo)
+                                                    ->where('Amortizacion.AmrNroCpte','=',$sigla)
+                                                    ->where('Amortizacion.AmrSts','!=','X')
+                                                    ->where('Padron.IdPadron','=',$padron->IdPadron)
+                                                    ->first();
+                                if($amortizacion)
+                                {
+                                    $descuento = $descuento - $amortizacion->AmrTotPag;
+                                    array_push($rows_gar,array($amortizacion->IdPrestamo,$amortizacion->PresNumero,$amortizacion->PresFechaDesembolso,$amortizacion->PrdDsc,$amortizacion->PresCuotaMensual,$amortizacion->AmrFecPag,$amortizacion->AmrFecTrn,$amortizacion->AmrCap,$amortizacion->AmrInt,$amortizacion->AmrIntPen,$amortizacion->AmrOtrCob,$amortizacion->AmrNroCpte,$amortizacion->AmrTipPAgo,$amortizacion->AmrTotPag,$descuento,$amortizacion->PadMatricula,$amortizacion->PadCedulaIdentidad,utf8_encode($amortizacion->PadMaterno),utf8_encode($amortizacion->PadPaterno),utf8_encode($amortizacion->PadNombres),utf8_encode($amortizacion->PadNombres2do),$amortizacion->PadTipo));
+                                }else
+                                {
+                                    array_push($rows_gar_noreg,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$descuento));
+                                }
+                            }
 
-                                        }
-                                    }
-                                 }
-                            // }
+                            if($descuento>0) // cobro indebido
+                            {
+                                $this->info($ci.' cobro indevido :V' );
+                                array_push($rows_indebidos,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$descuento,'sobrante'));
+                            }
+                           
                         }
                         else{//cobro indebido
                             $this->info($ci.' cobro indevido :V' );
