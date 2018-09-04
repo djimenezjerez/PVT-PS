@@ -27,6 +27,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\DepurarComando::class,
         \App\Console\Commands\AltasComando::class,
         \App\Console\Commands\ProcesarNoEncontrados::class,
+        \App\Console\Commands\OnlyGar::class,
+        \App\Console\Commands\DepurarPrestamos::class,
+        \App\Console\Commands\DepurarGarantes::class,
+        \App\Console\Commands\DepurarPresGar::class,
     ];
 
     /**
