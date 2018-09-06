@@ -42,92 +42,62 @@ class Test extends Command
         //
         global $rows,$rows_not_found;
         
-        $this->info('testeando base prestamos');
-        $areas = DB::table('Area')->get();
-        $this->info(var_dump($areas));
+        $this->info('generando prestamos');
+        //  $areas = DB::table('Area')->get();
+        //$this->info(var_dump($areas));
 
-        // $this->info("Ordenando No Conciliados XD");
-        // $path = storage_path('no_conciliados.xlsx');
-        // $this->info($path);
-        // Excel::selectSheetsByIndex(0)->load($path , function($reader) {
+        $loans = DB::table('Prestamos')->where('PresEstPtmo','=','V')->get();
+
+        $bar = $this->output->createProgressBar(count($loans));
+        global $rows_exacta;
+        $rows_exacta = array();
+        array_push($rows_exacta,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Prestamos.PresCuotaMensual'));
+        foreach($loans as $loan)
+        {
+            $amortizaciones = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->whereRaw("AmrSts!='X' and YEAR(AmrFecPag)=2018")->get();
+            if(sizeof($amortizaciones)>0)
+            {
+                $saldo_anterior = $loan->PresMntDesembolso;
+                // $saldo_actual = $amortizacion[0]->AmrSldAct;
+                $sw = false;
+                foreach($amortizaciones as $amortizacion)
+                {
+                    if($amortizacion->AmrSldAct>$saldo_anterior)
+                    {
+                        $sw = true;
+                    }
+                    $saldo_anterior = $amortizacion->AmrSldAct;
+                }
+                if($sw)
+                {
+                    array_push($rows_exacta,array($loan->IdPrestamo,$loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual));
+                }
+
+            }
+            $bar->advance();
             
-        //     // reader methods
-        //     global $rows,$rows_not_found;
+            // array_push($rows_exacta,array($loan->IdPrestamo,$loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual));
+        }
+
+        Excel::create('prestamos irregulares',function($excel)
+        {
+            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             
-        //     $rows = array();
-        //     $rows_not_found = array();
-        //     array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-        //     array_push($rows_not_found, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-        //     // $rows = array();
-
-        //     $result = $reader->select(array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante'))
-        //                    // ->take(100)
-        //                     ->get();
-        //     foreach($result as $row){
-                
-        //         $arr= explode('-',$row->matricula);    
-        //         $ci= $arr[0];
-        //         $afiliado = DB::table('afiliados_comando')
-        //                         ->where('ci',$ci)
-        //                         //->where('tipo','=','')
-        //                         ->first();
-        //         if( isset($afiliado->id)){
-                    
-        //             $total = $row->total_pagado;
-                    
-        //                 DB::table('afiliados_comando')
-        //                     ->where('id', $afiliado->id)
-        //                     ->update(['tipo' => $row->tipo_descuento.'_no_conciliado']);
-        //                 array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,$row->tipo_descuento,$row->nro_comprobante,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
-        //                 $this->info($row);
-                    
-        //         }
-        //         else{
-        //             array_push($rows_not_found,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));      
-        //         }
-        //         //$this->info($row);
-                
-        //     }
-
-
-
-
-        // });
-
-        // Excel::create('no_conciliacion_junio',function($excel)
-        // {
-        //     global $rows,$rows_not_found,$row_empy_capital;
-        //             $excel->sheet('conciliados',function($sheet) {
-        //                     global $rows,$rows_not_found,$row_empy_capital;
-        //                     $sheet->fromModel($rows,null, 'A1', false, false);
-        //                     $sheet->cells('A1:C1', function($cells) {
-        //                     // manipulate the range of cells
-        //                     $cells->setBackground('#058A37');
-        //                     $cells->setFontColor('#ffffff');  
-        //                     $cells->setFontWeight('bold');
-        //                     });
-        //                 });
-        //             $excel->sheet('no_conciliados',function($sheet) {
-        //                     global $rows,$rows_not_found,$row_empy_capital;
-        //                     $sheet->fromModel($rows_not_found,null, 'A1', false, false);
-        //                     $sheet->cells('A1:C1', function($cells) {
-        //                     // manipulate the range of cells
-        //                     $cells->setBackground('#058A37');
-        //                     $cells->setFontColor('#ffffff');  
-        //                     $cells->setFontWeight('bold');
-        //                     });
-        //                 });
-        //             // $excel->sheet('no_captital_0',function($sheet) {
-        //             //         global $rows,$rows_not_found,$row_empy_capital;
-        //             //         $sheet->fromModel($row_empy_capital,null, 'A1', false, false);
-        //             //         $sheet->cells('A1:C1', function($cells) {
-        //             //         // manipulate the range of cells
-        //             //         $cells->setBackground('#058A37');
-        //             //         $cells->setFontColor('#ffffff');  
-        //             //         $cells->setFontWeight('bold');
-        //             //         });
-        //             //     });
+                    $excel->sheet('prestamos',function($sheet) {
+                            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor;
+            
+                            $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                            $sheet->cells('A1:C1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                  
+        })->store('xls', storage_path('excel/export'));
+        $bar->finish();
         // })->store('xls', storage_path());
-        // $this->info('Finished');
+        $this->info('Finished');
     }
 }
