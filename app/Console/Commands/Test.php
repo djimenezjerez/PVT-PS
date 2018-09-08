@@ -83,17 +83,17 @@ class Test extends Command
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             
-                    $excel->sheet('prestamos',function($sheet) {
-                            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor;
-            
-                            $sheet->fromModel($rows_exacta,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
-                            // manipulate the range of cells
-                            $cells->setBackground('#058A37');
-                            $cells->setFontColor('#ffffff');  
-                            $cells->setFontWeight('bold');
-                            });
-                        });
+                $excel->sheet('prestamos',function($sheet) {
+                    global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor;
+    
+                    $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                    $sheet->cells('A1:C1', function($cells) {
+                    // manipulate the range of cells
+                    $cells->setBackground('#058A37');
+                    $cells->setFontColor('#ffffff');  
+                    $cells->setFontWeight('bold');
+                    });
+                });
                   
         })->store('xls', storage_path('excel/export'));
         $bar->finish();

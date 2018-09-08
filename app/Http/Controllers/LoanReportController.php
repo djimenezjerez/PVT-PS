@@ -86,6 +86,11 @@ class LoanReportController extends Controller
 
     public function Loans()
     {
+        // aumenta el tiempo máximo de ejecución de este script a 150 min: 
+        ini_set ('max_execution_time', 9000); 
+        // aumentar el tamaño de memoria permitido de este script: 
+        ini_set ('memory_limit', '960M');
+
         $loans = DB::table('Prestamos')->where('PresEstPtmo','=','V')->get();
 
         global $rows_exacta;
@@ -96,16 +101,16 @@ class LoanReportController extends Controller
             $amortizaciones = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->whereRaw("AmrSts='X' and YEAR(AmrFecPag)=2018")->get();
             if(sizeof($amortizaciones)>0)
             {
-                $saldo_anterior = $amortizaciones[0]->AmrSldAct+1;
+                $saldo_anterior = $loan->PresMntDesembolso;
                 // $saldo_actual = $amortizacion[0]->AmrSldAct;
                 $sw = false;
                 foreach($amortizaciones as $amortizacion)
                 {
-                    if($amortizacion->AmrSldAct<$saldo_anterior)
+                    if($amortizacion->AmrSldAct>$saldo_anterior)
                     {
                         $sw = true;
                     }
-                  
+                    $saldo_anterior = $amortizacion->AmrSldAct;
                 }
                 if($sw)
                 {
