@@ -1,9 +1,7 @@
 <template>
-
  <v-card class="elevation-12">
     <v-card-title>
-      Prestamos Negativos
-      <!-- <v-btn @click="ver">ver</v-btn>  -->
+      Prestamos
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
@@ -20,18 +18,17 @@
     >
       <template slot="items" slot-scope="props">
         <td>{{ props.item.PresNumero }}</td>
-        <td class="text-xs-right">{{ props.item.AmrTotPag }}</td>
-        <td class="text-xs-right">{{ props.item.AmrSldAnt }}</td>
-        <td class="text-xs-right">{{ props.item.AmrOtrCob }}</td>
-        <td class="text-xs-right">{{ props.item.AmrIntPen }}</td>
-        <td class="text-xs-right">{{ props.item.AmrInt }}</td>
+        <td class="text-xs-right">{{ props.item.PresFechaDesembolso }}</td>
+        <td class="text-xs-right">{{ props.item.PresCuotaMensual }}</td>
+        <td class="text-xs-right">{{ props.item.PresSaldoAct }}</td>
+        <td class="text-xs-right">{{ props.item.PadTipo }}</td>
+        <td class="text-xs-right">{{ props.item.PadCedulaIdentidad }}</td>
       </template>
       <v-alert slot="no-results" :value="true" color="error" icon="warning">
         Your search for "{{ search }}" found no results.
       </v-alert>
     </v-data-table>
   </v-card>
-  
 </template>
 <script>
 export default {
@@ -46,23 +43,23 @@ export default {
                 sortable: true,
                 value: 'PresNumero'
               },
-              { text: 'Total Pagado', value: 'AmrTotPag' },
-              { text: 'Saldo Anterior', value: 'AmrSldAnt' },
-              { text: 'Otros Cobros', value: 'AmrOtrCob' },
-              { text: 'Interes Penal', value: 'AmrIntPen' },
-              { text: 'Interes ', value: 'AmrInt' }
+              { text: 'Fecha Desembolso', value: 'PresFechaDesembolso' },
+              { text: 'Cuota', value: 'PresCuotaMensual' },
+              { text: 'Saldo', value: 'PresSaldoAct' },
+              { text: 'Tipo', value: 'PadTipo' },
+              { text: 'CI ', value: 'PadCedulaIdentidad' }
             ],
             }
     },
     created(){
           var self = this; 
           axios
-           .get('/api/negative_loans')
+           .get('/api/loans_senasir')
            .then(function(response) {
                 //this.data.loans = response.data;
                 console.log('obteniendo lista ')
                 self.loans = response.data;
-              //  console.log(dat.loans);
+                console.log(self.loans);
             });
   
     },

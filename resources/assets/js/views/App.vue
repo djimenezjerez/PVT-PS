@@ -123,6 +123,7 @@
       drawer: null,
       items: [
         { icon: 'dashboard', text: 'Inicio' , link: '/' },
+        { icon: 'folder_shared', text: 'Prestamos' , link: '/loans' },
         { icon: 'assignment_late', text: 'Prestamos Negativos' , link: '/negative_loans' },
         { icon: 'group', text: 'Reportes' , link: '/report' },
       ]

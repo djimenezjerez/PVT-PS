@@ -20,6 +20,6 @@
     },
     "dependencies": {
         "vue-router": "^3.0.1",
-        "vuetify": "^1.1.11"
+        "vuetify": "^1.2.3"
     }
 }

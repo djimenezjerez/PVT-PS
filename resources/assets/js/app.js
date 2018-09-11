@@ -19,30 +19,11 @@ Vue.use(VueRouter)
  */
 Vue.component('example-component', require('./components/ExampleComponent.vue'));
 import App from './views/App';
-import Home from './views/Welcome';
-import Report from './views/Report';
-import NegativeLoans from './views/NegativeLoans';
+import {routes} from './routes.js';
 
 const router = new VueRouter({
   mode: 'history',
-  routes: [
-      {
-          path: '/',
-          name: 'home',
-          component: Home
-      },
-      {
-          path: '/report',
-          name: 'report',
-          component: Report
-      },
-      {
-          path: '/negative_loans',
-          name: 'negavitve_loans',
-          component: NegativeLoans
-      },
-      
-  ],
+  routes
 });
 
 

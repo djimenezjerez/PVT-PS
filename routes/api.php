@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 Route::resource('reporte','LoanReportController');
 Route::get('reporte_prestamos','LoanReportController@Loans');
 Route::get('negative_loans','LoanController@negative_loans');
+Route::get('loans_senasir','LoanController@loans_senasir');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

@@ -108,4 +108,27 @@ class LoanController extends Controller
         //Log::info(json_encode($loans));
        return json_encode($loans);
     }
+    public function loans_senasir()
+    {
+        // $loans = DB::table('Prestamos')
+        //             ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
+        //             ->where('Prestamos.PresEstPtmo','=','V')
+        //             ->whereRaw('Amortizacion.AmrInt < 0 or Amortizacion.AmrIntPen < 0 or Amortizacion.AmrTotPag < 0 or Amortizacion.AmrSldAnt <0 or Amortizacion.AmrOtrCob <0')
+        //             ->where('Amortizacion.AmrSts','!=','X')
+        //             //->select('Prestamos.PresNumero',' Amortizacion.AmrInt',' Amortizacion.AmrIntPen','Amortizacion.AmrTotPag','Amortizacion.AmrSldAnt','Amortizacion.AmrOtrCob')
+        //             ->groupBy('Prestamos.PresNumero',' Amortizacion.AmrInt',' Amortizacion.AmrIntPen','Amortizacion.AmrTotPag','Amortizacion.AmrSldAnt','Amortizacion.AmrOtrCob')
+        //             ->get();
+     
+        $loans =DB::table('Prestamos')->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                                        ->where('Prestamos.PresEstPtmo','=','V')
+                                        ->where('Prestamos.PresSaldoAct','>',0)
+                                        ->where('Padron.PadTipo','=','PASIVO')
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad')
+                                        ->get();
+
+       // return Response::json($loans);
+        //Log::info(var_dump($loans));
+        //Log::info(json_encode($loans));
+       return json_encode($loans);
+    }
 }
