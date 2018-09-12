@@ -140,4 +140,72 @@ class LoanReportController extends Controller
                   
         })->download('xls');
     }
+    public function loans_senasir_report()
+    {
+        $loans =DB::table('Prestamos')->leftJoin('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+        ->where('Prestamos.PresEstPtmo','=','V')
+        ->where('Prestamos.PresSaldoAct','>',0)
+        ->where('Padron.PadTipo','=','PASIVO')
+        ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
+        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula')
+      //  ->take(40)
+        ->get();
+
+        global $prestamos;
+        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','PrimerNombre','SegundoNombre','Paterno','Materno','Recurrencia')];
+
+        foreach($loans as $loan)
+        {
+        $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
+
+        // $loan->PresNumero = utf8_encode(trim($padron->PresNumero));
+        $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+        $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+        $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+        $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+
+        $amortizacion = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->get();
+        if(sizeof($amortizacion)>0)
+        {
+        $loan->State = 'Recurrente';
+        }else{
+        $loan->State = 'Nuevo';
+        }
+
+
+        //Log::info(json_encode($padron));
+        array_push($prestamos,array(
+                $loan->PresFechaDesembolso,
+                $loan->PresNumero,
+                $loan->PresCuotaMensual,
+                $loan->PresSaldoAct,
+                $loan->PadTipo,
+                $loan->PadMatricula,
+                $loan->PadCedulaIdentidad,
+                $loan->PadNombres,
+                $loan->PadNombres2do,
+                $loan->PadPaterno,
+                $loan->PadMaterno,
+                $loan->State,
+        ));
+        }
+
+        Excel::create('prestamos altas senasir',function($excel)
+        {
+            global $prestamos;
+            
+                    $excel->sheet('presamos vigentes',function($sheet) {
+                            global $prestamos;
+                            $sheet->fromModel($prestamos,null, 'A1', false, false);
+                            $sheet->cells('A1:C1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                  
+        })->download('xls');
+               
+    }
 }
