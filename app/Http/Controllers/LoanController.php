@@ -6,6 +6,7 @@ use App\Loan;
 use Illuminate\Http\Request;
 use DB;
 use Log;
+use Datetime;
 class LoanController extends Controller
 {
     /**
@@ -110,15 +111,7 @@ class LoanController extends Controller
     }
     public function loans_senasir()
     {
-        // $loans = DB::table('Prestamos')
-        //             ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
-        //             ->where('Prestamos.PresEstPtmo','=','V')
-        //             ->whereRaw('Amortizacion.AmrInt < 0 or Amortizacion.AmrIntPen < 0 or Amortizacion.AmrTotPag < 0 or Amortizacion.AmrSldAnt <0 or Amortizacion.AmrOtrCob <0')
-        //             ->where('Amortizacion.AmrSts','!=','X')
-        //             //->select('Prestamos.PresNumero',' Amortizacion.AmrInt',' Amortizacion.AmrIntPen','Amortizacion.AmrTotPag','Amortizacion.AmrSldAnt','Amortizacion.AmrOtrCob')
-        //             ->groupBy('Prestamos.PresNumero',' Amortizacion.AmrInt',' Amortizacion.AmrIntPen','Amortizacion.AmrTotPag','Amortizacion.AmrSldAnt','Amortizacion.AmrOtrCob')
-        //             ->get();
-        //ini_set('default_charset', 'Modern_Spanish_CI_AS');
+    
         $loans =DB::table('Prestamos')->leftJoin('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
                                         ->where('Prestamos.PresEstPtmo','=','V')
                                         ->where('Prestamos.PresSaldoAct','>',0)
@@ -171,5 +164,77 @@ class LoanController extends Controller
         }
    
        return json_encode($prestamos);
+    }
+    public function loans_in_arrears()
+    {
+        
+        $loans =DB::table('Prestamos')->leftJoin('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                                        ->where('Prestamos.PresEstPtmo','=','V')
+                                        ->where('Prestamos.PresSaldoAct','>',0)
+                                        ->where('Padron.PadTipo','=','PASIVO')
+                                        // ->where('Prestamos.IdPrestamo','=',53251)
+                                        // ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                    //  ->take(40)
+                                        ->get();
+        $prestamos = [];
+
+        foreach($loans as $loan)
+        {
+            $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
+            $diff=0;
+            // $loan->PresNumero = utf8_encode(trim($padron->PresNumero));
+            $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+            $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+            $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+            $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+
+            $amortizaciones = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','<>','X')->get();
+            $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
+            if($departamento)
+            {
+                $loan->City =$departamento->DepDsc; 
+            }else{
+                $loan->City = '';
+            }
+            if(sizeof($amortizaciones)>0)
+            {
+                
+                $loan->State = 'Recurrente';
+                
+                if($loan->PresSaldoAct < $loan->PresCuotaMensual)
+                {
+                    $loan->Discount = $loan->PresSaldoAct;
+                }else
+                {
+                    $loan->Discount = $loan->PresCuotaMensual;
+                }
+                $amortizacion =   DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->orderBy('AmrNroPag','desc')->first();
+
+             
+                $year = self::dateDifference($amortizacion->AmrFecPag,'2018-08-31','%y');
+                $diff  = self::dateDifference($amortizacion->AmrFecPag,'2018-08-31');
+                $diff = (int) ($diff+($year*12));
+              
+                $loan->Diff = $diff;
+                $amortizacion = null;
+            }
+            if($diff>2)
+            {
+                Log::info('diff:'.$diff);
+                array_push($prestamos,$loan);
+            }
+        }
+        return json_encode($prestamos);
+    }
+    function dateDifference($date_1 , $date_2 , $differenceFormat = '%m' )
+    {
+        $datetime1 = date_create($date_1);
+        $datetime2 = date_create($date_2);
+        
+        $interval = date_diff($datetime1, $datetime2);
+        
+        return $interval->format($differenceFormat);
+        
     }
 }

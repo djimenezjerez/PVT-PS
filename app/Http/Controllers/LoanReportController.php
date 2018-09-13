@@ -230,4 +230,111 @@ class LoanReportController extends Controller
         })->download('xls');
                
     }
+    function dateDifference($date_1 , $date_2 , $differenceFormat = '%m' )
+    {
+        $datetime1 = date_create($date_1);
+        $datetime2 = date_create($date_2);
+        
+        $interval = date_diff($datetime1, $datetime2);
+        
+        return $interval->format($differenceFormat);
+        
+    }
+    public function loans_pasivo_mora_report()
+    {
+        $loans =DB::table('Prestamos')->leftJoin('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                                        ->where('Prestamos.PresEstPtmo','=','V')
+                                        ->where('Prestamos.PresSaldoAct','>',0)
+                                        ->where('Padron.PadTipo','=','PASIVO')
+                                        // ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                      //  ->take(40)
+                                        ->get();
+    
+        global $prestamos;
+        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad','Mese Mora')];
+
+        foreach($loans as $loan)
+        {
+            $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
+            $diff=0;
+            // $loan->PresNumero = utf8_encode(trim($padron->PresNumero));
+            $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+            $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+            $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+            $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+
+            $amortizaciones = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','<>','X')->get();
+            $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
+            if($departamento)
+            {
+                $loan->City =$departamento->DepDsc; 
+            }else{
+                $loan->City = '';
+            }
+            if(sizeof($amortizaciones)>0)
+            {
+                
+                $loan->State = 'Recurrente';
+                
+                if($loan->PresSaldoAct < $loan->PresCuotaMensual)
+                {
+                    $loan->Discount = $loan->PresSaldoAct;
+                }else
+                {
+                    $loan->Discount = $loan->PresCuotaMensual;
+                }
+                $amortizacion =   DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->orderBy('AmrNroPag','desc')->first();
+
+             
+                $year = self::dateDifference($amortizacion->AmrFecPag,'2018-08-31','%y');
+                $diff  = self::dateDifference($amortizacion->AmrFecPag,'2018-08-31');
+                $diff = (int) ($diff+($year*12));
+              
+                $loan->Diff = $diff;
+                $amortizacion = null;
+            }
+
+
+
+            if($diff>2)
+            {
+                array_push($prestamos,array(
+                        $loan->PresFechaDesembolso,
+                        $loan->PresNumero,
+                        $loan->PresCuotaMensual,
+                        $loan->PresSaldoAct,
+                        $loan->PadTipo,
+                        $loan->PadMatricula,
+                        $loan->PadCedulaIdentidad,
+                        $loan->PadNombres,
+                        $loan->PadNombres2do,
+                        $loan->PadPaterno,
+                        $loan->PadMaterno,
+                        $loan->State,
+                        $loan->Discount,
+                        $loan->City,
+                        $loan->Diff,
+                ));
+            }
+        }
+
+        Excel::create('prestamos en morar',function($excel)
+        {
+            global $prestamos;
+            
+                    $excel->sheet('mora al 31_08_2018',function($sheet) {
+                            global $prestamos;
+                            $sheet->fromModel($prestamos,null, 'A1', false, false);
+                            $sheet->cells('A1:N1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                  
+        })->download('xls');
+               
+    }
 }

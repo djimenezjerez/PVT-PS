@@ -2,6 +2,8 @@ import Home from './views/Welcome';
 import Report from './views/Report';
 import NegativeLoans from './views/NegativeLoans';
 import Loans from './views/loans/Index';
+import LoansInArrears from './views/loans/LoansInArrears';
+
 
 export const routes = [
     {
@@ -23,5 +25,10 @@ export const routes = [
         path: '/loans',
         name: 'loans',
         component: Loans
+    },
+    {
+        path: '/loans_in_arriears',
+        name: 'loans_in_arriears',
+        component: LoansInArrears
     },
 ];

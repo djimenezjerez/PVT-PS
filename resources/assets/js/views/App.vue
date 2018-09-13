@@ -124,7 +124,8 @@
       items: [
         { icon: 'dashboard', text: 'Inicio' , link: '/' },
         { icon: 'folder_shared', text: 'Prestamos  Senasir' , link: '/loans' },
-        { icon: 'assignment_late', text: 'Prestamos Negativos' , link: '/negative_loans' },
+        // { icon: 'assignment_late', text: 'Prestamos Negativos' , link: '/negative_loans' },
+        { icon: 'assignment_late', text: 'Prestamos en Mora Pasivos' , link: '/loans_in_arriears' },
         { icon: 'group', text: 'Reportes' , link: '/report' },
       ]
     }),
