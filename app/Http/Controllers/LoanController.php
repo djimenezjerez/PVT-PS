@@ -124,8 +124,8 @@ class LoanController extends Controller
                                         ->where('Prestamos.PresSaldoAct','>',0)
                                         ->where('Padron.PadTipo','=','PASIVO')
                                         ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
-                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.PresOfCredUsr')
-                                      //  ->take(40)
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                    //  ->take(40)
                                         ->get();
     
         $prestamos = [];
@@ -141,7 +141,7 @@ class LoanController extends Controller
             $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
 
             $amortizacion = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->get();
-            $departamento = DB::table('Departamento')->where('DepCod','=',$loan->PresOfCredUsr)->first();
+            $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
             if($departamento)
             {
 
@@ -153,18 +153,23 @@ class LoanController extends Controller
             {
                 $loan->State = 'Recurrente';
                 
-                // $loan->discount = 
+                if($loan->PresSaldoAct < $loan->PresCuotaMensual)
+                {
+                    $loan->Discount = $loan->PresSaldoAct;
+                }else
+                {
+                    $loan->Discount = $loan->PresCuotaMensual;
+                }
 
             }else{
                 $loan->State = 'Nuevo';
+                $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->first();
+                $loan->Discount = $plan_de_pago->PlanCuotaMensual;
             }
-                        //Log::info(json_encode($padron));
+
             array_push($prestamos,$loan);
         }
-        // Log::info(json_encode($prestamos));
-        // return Response::json($loans);
-        //Log::info(var_dump($loans));
-        //Log::info(json_encode($loans));
+   
        return json_encode($prestamos);
     }
 }

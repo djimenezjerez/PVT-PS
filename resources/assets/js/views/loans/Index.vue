@@ -53,9 +53,10 @@
         <td class="text-xs-left">{{ props.item.PadNombres }}</td>
         <td class="text-xs-left">{{ props.item.PadNombres2do }}</td>
         <td class="text-xs-left">{{ props.item.PadPaterno }}</td>
-        <td class="text-xs-left">{{ props.item.Materno }}</td>
+        <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
         <td class="text-xs-left">{{ props.item.State }}</td>
         <td class="text-xs-left">{{ props.item.City }}</td>
+        <td class="text-xs-left">{{ props.item.Discount }}</td>
         <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
       </template>
       <v-alert slot="no-results" :value="true" color="error" icon="warning">
@@ -81,8 +82,9 @@ export default {
               { text: '2do Nombre ', value: 'PadNombres2do' },
               { text: 'Paterno ', value: 'PadPaterno' },
               { text: 'Materno ', value: 'PadMaterno' },
-              { text: 'Estado ', value: 'State' },
+              { text: 'Frecuencia ', value: 'State' },
               { text: 'Departamento', value: 'City' },
+              { text: 'Descuento ', value: 'Discount' },
               { text: 'Accion ' }
             ],
             dialog: false,

@@ -143,16 +143,16 @@ class LoanReportController extends Controller
     public function loans_senasir_report()
     {
         $loans =DB::table('Prestamos')->leftJoin('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
-        ->where('Prestamos.PresEstPtmo','=','V')
-        ->where('Prestamos.PresSaldoAct','>',0)
-        ->where('Padron.PadTipo','=','PASIVO')
-        ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
-        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula')
-      //  ->take(40)
-        ->get();
-
+                                        ->where('Prestamos.PresEstPtmo','=','V')
+                                        ->where('Prestamos.PresSaldoAct','>',0)
+                                        ->where('Padron.PadTipo','=','PASIVO')
+                                        ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                      //  ->take(40)
+                                        ->get();
+    
         global $prestamos;
-        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','PrimerNombre','SegundoNombre','Paterno','Materno','Recurrencia')];
+        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad')];
 
         foreach($loans as $loan)
         {
@@ -165,12 +165,32 @@ class LoanReportController extends Controller
         $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
 
         $amortizacion = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->get();
+        $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
+        if($departamento)
+        {
+
+            $loan->City =$departamento->DepDsc; 
+        }else{
+            $loan->City = '';
+        }
         if(sizeof($amortizacion)>0)
         {
-        $loan->State = 'Recurrente';
+            $loan->State = 'Recurrente';
+            
+            if($loan->PresSaldoAct < $loan->PresCuotaMensual)
+            {
+                $loan->Discount = $loan->PresSaldoAct;
+            }else
+            {
+                $loan->Discount = $loan->PresCuotaMensual;
+            }
+
         }else{
-        $loan->State = 'Nuevo';
+            $loan->State = 'Nuevo';
+            $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->first();
+            $loan->Discount = $plan_de_pago->PlanCuotaMensual;
         }
+
 
 
         //Log::info(json_encode($padron));
@@ -187,6 +207,8 @@ class LoanReportController extends Controller
                 $loan->PadPaterno,
                 $loan->PadMaterno,
                 $loan->State,
+                $loan->Discount,
+                $loan->City,
         ));
         }
 
@@ -197,7 +219,7 @@ class LoanReportController extends Controller
                     $excel->sheet('presamos vigentes',function($sheet) {
                             global $prestamos;
                             $sheet->fromModel($prestamos,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
+                            $sheet->cells('A1:N1', function($cells) {
                             // manipulate the range of cells
                             $cells->setBackground('#058A37');
                             $cells->setFontColor('#ffffff');  
