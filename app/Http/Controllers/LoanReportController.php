@@ -252,7 +252,7 @@ class LoanReportController extends Controller
                                         ->get();
     
         global $prestamos;
-        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad','Mese Mora')];
+        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','Ext','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad','Mese Mora')];
 
         foreach($loans as $loan)
         {
@@ -263,6 +263,7 @@ class LoanReportController extends Controller
             $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
             $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
             $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+            $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
 
             $amortizaciones = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','<>','X')->get();
             $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
@@ -293,29 +294,53 @@ class LoanReportController extends Controller
               
                 $loan->Diff = $diff;
                 $amortizacion = null;
+
+
             }
 
 
 
-            if($diff>2)
+            if($diff>=2)
             {
-                array_push($prestamos,array(
-                        $loan->PresFechaDesembolso,
-                        $loan->PresNumero,
-                        $loan->PresCuotaMensual,
-                        $loan->PresSaldoAct,
-                        $loan->PadTipo,
-                        $loan->PadMatricula,
-                        $loan->PadCedulaIdentidad,
-                        $loan->PadNombres,
-                        $loan->PadNombres2do,
-                        $loan->PadPaterno,
-                        $loan->PadMaterno,
-                        $loan->State,
-                        $loan->Discount,
-                        $loan->City,
-                        $loan->Diff,
-                ));
+                $pres_mora = array(
+                    $loan->PresFechaDesembolso,
+                    $loan->PresNumero,
+                    $loan->PresCuotaMensual,
+                    $loan->PresSaldoAct,
+                    $loan->PadTipo,
+                    $loan->PadMatricula,
+                    $loan->PadCedulaIdentidad,
+                    $loan->PadExpCedula,
+                    $loan->PadNombres,
+                    $loan->PadNombres2do,
+                    $loan->PadPaterno,
+                    $loan->PadMaterno,
+                    $loan->State,
+                    $loan->Discount,
+                    $loan->City,
+                    $loan->Diff,
+                );
+
+                $garantes_id = DB::table('PrestamosLevel1')->where('IdPrestamo','=',$loan->IdPrestamo)->get();
+                if(sizeof($garantes_id)>0)
+                {
+                    foreach($garantes_id as $garante_id)
+                    {
+                        $padron_gar = DB::table('Padron')->where('IdPadron','=',$garante_id->IdPadronGar)->first();
+                        array_push($pres_mora, $padron_gar->PadMatricula,
+                                               $padron_gar->PadCedulaIdentidad,
+                                               $padron_gar->PadExpCedula,
+                                               $padron_gar->PadNombres,
+                                               $padron_gar->PadNombres2do,
+                                               $padron_gar->PadPaterno,
+                                               $padron_gar->PadMaterno,
+                                               $padron_gar->PadTipo,
+                                               '*'
+                                    );
+                    }
+                }
+
+                array_push($prestamos,$pres_mora);
             }
         }
 

@@ -219,7 +219,7 @@ class LoanController extends Controller
                 $loan->Diff = $diff;
                 $amortizacion = null;
             }
-            if($diff>2)
+            if($diff>=2)
             {
                 Log::info('diff:'.$diff);
                 array_push($prestamos,$loan);
