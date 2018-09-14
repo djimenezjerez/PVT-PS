@@ -152,7 +152,7 @@ class LoanReportController extends Controller
                                         ->get();
     
         global $prestamos;
-        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','Matricula','CI','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad')];
+        $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad')];
 
         foreach($loans as $loan)
         {
@@ -163,6 +163,8 @@ class LoanReportController extends Controller
         $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
         $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
         $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+        $loan->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+        $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
 
         $amortizacion = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->get();
         $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
@@ -200,8 +202,10 @@ class LoanReportController extends Controller
                 $loan->PresCuotaMensual,
                 $loan->PresSaldoAct,
                 $loan->PadTipo,
+                $loan->PadMatriculaTit,
                 $loan->PadMatricula,
                 $loan->PadCedulaIdentidad,
+                $loan->PadExpCedula,
                 $loan->PadNombres,
                 $loan->PadNombres2do,
                 $loan->PadPaterno,
