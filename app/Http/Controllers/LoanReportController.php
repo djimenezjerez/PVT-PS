@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
+use Log;
 class LoanReportController extends Controller
 {
     /**
@@ -365,5 +366,83 @@ class LoanReportController extends Controller
                   
         })->download('xls');
                
+    }
+    public function activos_cancelados()
+    {
+        ini_set ('max_execution_time', 360000); 
+        // aumentar el tamaño de memoria permitido de este script: 
+        ini_set ('memory_limit', '960M');
+        global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+        $path = storage_path('excel/import/MUSERPOL AGOSTO 2018.xls');
+        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
+            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+            $rows_exacta = Array();
+            $rows_not_found = Array();
+            
+            array_push($rows_not_found,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
+            array_push($rows_exacta,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes','Nro Prestamo','cuota','Saldo'));
+            
+            // array_push($rows_exacta,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo','nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
+        
+            $result = $reader->select(array('ci','app','apm', 'nom1', 'nom2', 'desc_mes'))
+           // ->take(500)
+            ->get();
+            Log::info(sizeof($result));
+            foreach($result as $row){
+                
+                $ci = trim($row->ci);
+                $descuento = floatval(str_replace(",","",$row->desc_mes));
+                Log::info($row->ci);
+                $padron = DB::table('Padron')->where('PadCedulaIdentidad','=',''.$row->ci)->first();
+                if($padron)
+                {
+                    $prestamos = DB::table('Prestamos')->where('Prestamos.PresEstPtmo','=','V')
+                                                      ->where('Prestamos.PresSaldoAct','>',0)
+                                                      ->get();
+                    if(sizeof($prestamos)>0)
+                    {
+                        foreach($prestamos as $prestamo)
+                        {
+                            if($row->desc_mes == $prestamo->PresSaldoAct)
+                            {
+                                array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual, $prestamo->PresSaldoAct));            
+                            }
+                        }
+                    }
+
+
+                }else{
+                    array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
+                }
+            }
+
+        });
+
+        Excel::create('prestamos cancelados',function($excel)
+        {
+            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+            
+                    $excel->sheet('prestamo cancelados',function($sheet) {
+                        global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+                            $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                            $sheet->cells('A1:N1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                    $excel->sheet('no encontrados',function($sheet) {
+                        global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+                            $sheet->fromModel($prestamos,null, 'A1', false, false);
+                            $sheet->cells('A1:N1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                  
+        })->download('xls');
     }
 }
