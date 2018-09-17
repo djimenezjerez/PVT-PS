@@ -369,7 +369,7 @@ class LoanReportController extends Controller
     }
     public function activos_cancelados()
     {
-        ini_set ('max_execution_time', 360000); 
+        ini_set ('max_execution_time', 36000); 
         // aumentar el tamaño de memoria permitido de este script: 
         ini_set ('memory_limit', '960M');
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
@@ -385,36 +385,43 @@ class LoanReportController extends Controller
             // array_push($rows_exacta,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo','nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
         
             $result = $reader->select(array('ci','app','apm', 'nom1', 'nom2', 'desc_mes'))
-           // ->take(500)
+            // ->take(500)
             ->get();
-            Log::info(sizeof($result));
+            // $bar = $this->output->createProgressBar(count($result));
+         //   $this->info(sizeof($result));
             foreach($result as $row){
                 
                 $ci = trim($row->ci);
                 $descuento = floatval(str_replace(",","",$row->desc_mes));
-                Log::info($row->ci);
-                $padron = DB::table('Padron')->where('PadCedulaIdentidad','=',''.$row->ci)->first();
-                if($padron)
+                // Log::info($row->ci);
+                // $padron = DB::table('Padron')->where('PadCedulaIdentidad','=',''.$row->ci)->first();
+                $prestamos = DB::table('Prestamos')->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                                                    ->where('Prestamos.PresEstPtmo','=','V')
+                                                    ->where('Prestamos.PresSaldoAct','>',0)
+                                                    ->where('Padron.PadCedulaIdentidad','=',''.$row->ci)
+                                                    ->get();
+                if(sizeof($prestamos)>0)
                 {
-                    $prestamos = DB::table('Prestamos')->where('Prestamos.PresEstPtmo','=','V')
-                                                      ->where('Prestamos.PresSaldoAct','>',0)
-                                                      ->get();
-                    if(sizeof($prestamos)>0)
-                    {
+                    // $prestamos = DB::table('Prestamos')->where('Prestamos.PresEstPtmo','=','V')
+                    //                                   ->where('Prestamos.PresSaldoAct','>',0)
+                    //                                   ->get();
+                   
                         foreach($prestamos as $prestamo)
                         {
                             if($row->desc_mes == $prestamo->PresSaldoAct)
                             {
-                                array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual, $prestamo->PresSaldoAct));            
+                                array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual, $prestamo->PresSaldoAct));            
                             }
                         }
-                    }
+                  
 
 
                 }else{
                     array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
                 }
+                // $bar->advance();
             }
+            // $bar->finish();
 
         });
 
@@ -434,7 +441,7 @@ class LoanReportController extends Controller
                         });
                     $excel->sheet('no encontrados',function($sheet) {
                         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-                            $sheet->fromModel($prestamos,null, 'A1', false, false);
+                            $sheet->fromModel($rows_not_found,null, 'A1', false, false);
                             $sheet->cells('A1:N1', function($cells) {
                             // manipulate the range of cells
                             $cells->setBackground('#058A37');

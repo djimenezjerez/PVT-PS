@@ -7,7 +7,13 @@
     <v-icon>sim_card_alert</v-icon>
       Irregulares
     </v-btn>
-  
+      <v-btn small color="success" @click="downloadCancelados" 
+        :disabled="dialog"
+        :loading="dialog"
+      >
+      <v-icon>sim_card_alert</v-icon>
+        Prestamos Cancelados
+      </v-btn>
     <v-dialog
       v-model="dialog"
       hide-overlay
@@ -42,25 +48,43 @@ export default {
     },
     // define methods under the `methods` object
     methods: {
-      download: function (event) {
-        // `this` inside methods point to the Vue instance
-        self = this;
-        self.dialog = true
-      //  self.dialog = true;
-      axios({
-          url: '/api/reporte_prestamos',
-          method: 'GET',
-          responseType: 'blob', // important
-        }).then((response) => {
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', 'prestamos_irregulares.xls');
-          document.body.appendChild(link);
-          link.click();
-            self.dialog = false;
-        });
-      }
+          download: function (event) {
+            // `this` inside methods point to the Vue instance
+            self = this;
+            self.dialog = true
+          //  self.dialog = true;
+              axios({
+                  url: '/api/reporte_prestamos',
+                  method: 'GET',
+                  responseType: 'blob', // important
+                }).then((response) => {
+                  const url = window.URL.createObjectURL(new Blob([response.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', 'prestamos_irregulares.xls');
+                  document.body.appendChild(link);
+                  link.click();
+                    self.dialog = false;
+                });
+          },
+          downloadCancelados()
+          {
+              self = this;
+              self.dialog = true
+                axios({
+                  url: '/api/activos_cancelados',
+                  method: 'GET',
+                  responseType: 'blob', // important
+                }).then((response) => {
+                  const url = window.URL.createObjectURL(new Blob([response.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', 'Activos_cancelados.xls');
+                  document.body.appendChild(link);
+                  link.click();
+                    self.dialog = false;
+                });
+          }
     },
     watch: {
       dialog (val) {
