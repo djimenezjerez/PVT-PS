@@ -20,6 +20,7 @@ Route::get('loans_in_arrears','LoanController@loans_in_arrears');
 Route::get('loans_senasir_report','LoanReportController@loans_senasir_report');
 Route::get('activos_cancelados','LoanReportController@activos_cancelados');
 Route::get('loans_pasivo_mora_report','LoanReportController@loans_pasivo_mora_report');
+Route::get('loans_activo_mora_report','LoanReportController@loans_activo_mora_report');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

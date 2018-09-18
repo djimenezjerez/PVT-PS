@@ -6,21 +6,21 @@ use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
 use DB;
 use Log;
-class DepurarPrestamosCancelados extends Command
+class NuevosPrestamos extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'prestamos:DepurarPrestamosCancelados';
+    protected $signature = 'prestamos:NuevosPrestamos';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'paso 1';
+    protected $description = 'paso 2';
 
     /**
      * Create a new command instance.
@@ -41,46 +41,43 @@ class DepurarPrestamosCancelados extends Command
     {
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/import/comando agosto oficial.xls');
-        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
+        $path = storage_path('excel/export/prestamos cancelados.xls');
+        Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
             $rows_not_found = Array();
             
             array_push($rows_not_found,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
-            array_push($rows_exacta,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes','Nro Prestamo','cuota','Saldo'));
+            array_push($rows_exacta,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes','Nro Prestamo','cuota','Primera cuota','Saldo'));
             
             // array_push($rows_exacta,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo','nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
         
             $result = $reader->select(array('ci','app','apm', 'nom1', 'nom2', 'desc_mes'))
-            ->get();
+                             //->take(100)
+                             ->get();
+            
+            
+
+
             $bar = $this->output->createProgressBar(count($result));
             $this->info(sizeof($result));
             foreach($result as $row){
                 
                 $ci = trim($row->ci);
-                $prestamos = DB::table('Prestamos')->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                $prestamo = DB::table('Prestamos') ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                                                    ->join('PlanPagosPlan','PlanPagosPlan.IdPrestamo','=','Prestamos.IdPrestamo')
                                                     ->where('Prestamos.PresEstPtmo','=','V')
-                                                    ->where('Prestamos.PresSaldoAct','>',0)
+                                                    ->where('Prestamos.PresSaldoAnt','=',0)
                                                     ->where('Padron.PadCedulaIdentidad','=',''.$row->ci)
-                                                    ->get();
-                if(sizeof($prestamos)>0)
+                                                    ->whereRaw('day(PlanPagosPlan.PlanFechaPago) = 31 and MONTH(PlanPagosPlan.PlanFechaPago)=8 and YEAR(PlanPagosPlan.PlanFechaPago) = 2018 and PlanPagosPlan.IdPlanNroCouta = 1')
+                                                    ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
+                                                    ->groupBy('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
+                                                    ->first();
+                if($prestamo)
                 {
-                   $sw = false;
-                    foreach($prestamos as $prestamo)
-                    {
-                        if($row->desc_mes == $prestamo->PresSaldoAct)
-                        {
-                            array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual, $prestamo->PresSaldoAct));            
-                        }else{
-                            if(!$sw)
-                            {
-                                $sw= true;
-                                array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
-                            }
-                        }
+                    // $this->info(json_encode($prestamo));
+                    array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual,$prestamo->PlanCuotaMensual, $prestamo->PresSaldoAct));            
                         
-                    }
                 }else{
                     array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
                 }
@@ -90,11 +87,11 @@ class DepurarPrestamosCancelados extends Command
 
         });
 
-        Excel::create('prestamos cancelados',function($excel)
+        Excel::create('prestamos 2_nuevos',function($excel)
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             
-                    $excel->sheet('prestamo cancelados',function($sheet) {
+                    $excel->sheet('prestamo nuevos',function($sheet) {
                         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
                             $sheet->fromModel($rows_exacta,null, 'A1', false, false);
                             $sheet->cells('A1:N1', function($cells) {
@@ -117,5 +114,6 @@ class DepurarPrestamosCancelados extends Command
                   
         })->store('xls', storage_path('excel/export'));
         $this->info('Finished');
+
     }
 }

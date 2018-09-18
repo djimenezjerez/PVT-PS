@@ -33,6 +33,9 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\DepurarPresGar::class,
         \App\Console\Commands\DepurarPrestamosCancelados::class,
         \App\Console\Commands\CheckCommand::class,
+        \App\Console\Commands\NuevosPrestamos::class,
+        \App\Console\Commands\PrestamosExactos::class,
+        \App\Console\Commands\IndevidosPrimeraCuota::class,
     ];
 
     /**

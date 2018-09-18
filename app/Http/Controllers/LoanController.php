@@ -227,6 +227,7 @@ class LoanController extends Controller
         }
         return json_encode($prestamos);
     }
+  
     function dateDifference($date_1 , $date_2 , $differenceFormat = '%m' )
     {
         $datetime1 = date_create($date_1);
