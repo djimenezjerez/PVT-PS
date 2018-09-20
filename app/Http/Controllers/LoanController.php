@@ -238,4 +238,65 @@ class LoanController extends Controller
         return $interval->format($differenceFormat);
         
     }
+
+    public function loans_command()
+    {
+        $loans = DB::table('Prestamos')
+                        ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                        ->where('Prestamos.PresEstPtmo','=','V')
+                        ->where('Prestamos.PresSaldoAct','>',0)
+                        ->where('Padron.PadTipo','=','ACTIVO')
+                        ->whereNotIn('Padron.PadTipRentAFPSENASIR',["AFP'S FUTURO","AFP'S PREVISION","AFPS' PREVISION","LA VITALICIA","SENASIR"])
+                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                       // ->take(3000)
+                        ->get();
+        global $prestamos,$prestamos_sin_plan;
+        $prestamos_sin_plan = [];
+        $prestamos =[];
+        foreach($loans  as $loan)
+        {   
+            $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
+            $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+            $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+            $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+            $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+            $loan->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+            $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+            $amortizacion = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->get();
+            $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
+
+            if($departamento)
+            {
+
+                $loan->City =$departamento->DepDsc; 
+            }else{
+                $loan->City = '';
+            }
+            if(sizeof($amortizacion)>0)
+            {
+                $loan->State = 'Recurrente';
+                
+                if($loan->PresSaldoAct < $loan->PresCuotaMensual)
+                {
+                    $loan->Discount = $loan->PresSaldoAct;
+                }else
+                {
+                    $loan->Discount = $loan->PresCuotaMensual;
+                }
+
+            }else{
+                $loan->State = 'Nuevo';
+                $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->first();
+               
+                $loan->Discount = $plan_de_pago->PlanCuotaMensual;
+
+            }
+
+            array_push($prestamos,$loan);
+
+        }
+
+        return json_encode($prestamos);
+    }
+   
 }

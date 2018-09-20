@@ -3,7 +3,7 @@ import Report from './views/Report';
 import NegativeLoans from './views/NegativeLoans';
 import Loans from './views/loans/Index';
 import LoansInArrears from './views/loans/LoansInArrears';
-
+import LoansCommand from './views/loans/IndexCommand';
 
 export const routes = [
     {
@@ -30,5 +30,10 @@ export const routes = [
         path: '/loans_in_arriears',
         name: 'loans_in_arriears',
         component: LoansInArrears
+    },
+    {
+        path: '/loans_command',
+        name: 'loans_command',
+        component: LoansCommand
     },
 ];

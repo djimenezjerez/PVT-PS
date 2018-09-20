@@ -36,6 +36,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\NuevosPrestamos::class,
         \App\Console\Commands\PrestamosExactos::class,
         \App\Console\Commands\IndevidosPrimeraCuota::class,
+        \App\Console\Commands\PlanillaComando::class,
+        \App\Console\Commands\TratadoEspecial::class,
     ];
 
     /**
