@@ -57,6 +57,7 @@ class PlanillaComando extends Command
         $bar = $this->output->createProgressBar(count($loans));
         foreach($loans  as $loan)
         {   
+            $is_new = false;
             $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
             $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
             $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
@@ -85,33 +86,40 @@ class PlanillaComando extends Command
                 {
                     $loan->Discount = $loan->PresCuotaMensual;
                 }
+                $is_new = true;
 
             }else{
                 $loan->State = 'Nuevo';
-                $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->first();
-               
-                $loan->Discount = $plan_de_pago->PlanCuotaMensual;
+                $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->where('PlanFechaPago','=','2018-09-30')->first();
+                if($plan_de_pago)
+                {
+                    $is_new = true;
+                    $loan->Discount = $plan_de_pago->PlanCuotaMensual;
+                }
 
             }
-
-            array_push($prestamos,array(
-                $loan->PresFechaDesembolso,
-                $loan->PresNumero,
-                $loan->PresCuotaMensual,
-                $loan->PresSaldoAct,
-                $loan->PadTipo,
-                $loan->PadMatriculaTit,
-                $loan->PadMatricula,
-                $loan->PadCedulaIdentidad,
-                $loan->PadExpCedula,
-                $loan->PadNombres,
-                $loan->PadNombres2do,
-                $loan->PadPaterno,
-                $loan->PadMaterno,
-                $loan->State,
-                $loan->Discount,
-                $loan->City,
-        ));
+            if($is_new)
+            {
+                array_push($prestamos,array(
+                    $loan->PresFechaDesembolso,
+                    $loan->PresNumero,
+                    $loan->PresCuotaMensual,
+                    $loan->PresSaldoAct,
+                    $loan->PadTipo,
+                    $loan->PadMatriculaTit,
+                    $loan->PadMatricula,
+                    $loan->PadCedulaIdentidad,
+                    $loan->PadExpCedula,
+                    $loan->PadNombres,
+                    $loan->PadNombres2do,
+                    $loan->PadPaterno,
+                    $loan->PadMaterno,
+                    $loan->State,
+                    $loan->Discount,
+                    $loan->City,
+                ));
+            }
+           
 
             $bar->advance();
         }
