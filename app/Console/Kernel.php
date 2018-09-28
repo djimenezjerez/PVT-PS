@@ -38,6 +38,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\IndevidosPrimeraCuota::class,
         \App\Console\Commands\PlanillaComando::class,
         \App\Console\Commands\TratadoEspecial::class,
+        \App\Console\Commands\CobranzasConsilidador::class,
+        \App\Console\Commands\CobranzasCancelados::class,
+        \App\Console\Commands\CobranzasPendientes::class,
+        \App\Console\Commands\CobranzasComprobantes::class,
     ];
 
     /**

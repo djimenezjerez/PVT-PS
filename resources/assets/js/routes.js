@@ -4,6 +4,7 @@ import NegativeLoans from './views/NegativeLoans';
 import Loans from './views/loans/Index';
 import LoansInArrears from './views/loans/LoansInArrears';
 import LoansCommand from './views/loans/IndexCommand';
+import Amortization from './views/Amortization';
 
 export const routes = [
     {
@@ -35,5 +36,10 @@ export const routes = [
         path: '/loans_command',
         name: 'loans_command',
         component: LoansCommand
+    },
+    {
+        path: '/amortization',
+        name: 'amortization',
+        component: Amortization
     },
 ];

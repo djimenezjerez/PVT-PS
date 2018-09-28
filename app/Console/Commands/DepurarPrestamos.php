@@ -21,7 +21,7 @@ class DepurarPrestamos extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Conciliador XD 1 ';
 
     /**
      * Create a new command instance.
@@ -44,8 +44,8 @@ class DepurarPrestamos extends Command
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
 
         $this->info('Iniciando Modulo de Importacion');
-        $path = storage_path('excel/export/clasifiacion de garantes.xls');
-        Excel::selectSheetsByIndex(1)->load($path, function($reader) {
+        $path = storage_path('excel/import/comando agosto oficial.xls');
+        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
             
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
 
@@ -86,7 +86,7 @@ class DepurarPrestamos extends Command
                                 ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                                 ->where('Padron.PadTipo','=','ACTIVO')
                                 ->where('Prestamos.PresEstPtmo','=','V')
-                                ->where('Amortizacion.AmrNroCpte','=','D-07/18')
+                                ->where('Amortizacion.AmrNroCpte','=','D-09/18')
                                 ->where('Amortizacion.AmrSts','!=','X')
                                 ->where('Padron.PadMatricula','=',''.$ci)
                                 //->select('Prestamos.IdPrestamo',' Prestamos.PresNumero','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','Amortizacion.AmrNroCpte','Amortizacion.AmrTotPag','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do')
@@ -115,7 +115,7 @@ class DepurarPrestamos extends Command
                                 ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                                 ->where('Padron.PadTipo','=','ACTIVO')
                                 ->where('Prestamos.PresEstPtmo','=','V')
-                                ->where('Amortizacion.AmrNroCpte','=','D-07/18')
+                                ->where('Amortizacion.AmrNroCpte','=','D-09/18')
                                 ->where('Amortizacion.AmrSts','!=','X')
                                 ->where('Padron.PadMatricula','=',''.$ci)
                                 ->where('Prestamos.IdPrestamo','!=',$amortizacion->IdPrestamo)
