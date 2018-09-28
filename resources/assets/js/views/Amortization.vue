@@ -50,7 +50,7 @@
         :headers="headers"
         :items="providers"
         :pagination.sync="pagination"
-        hide-actions
+         hide-actions
         >
         <template slot="headers" slot-scope="props" >
            <tr>
@@ -162,17 +162,13 @@ export default {
         editedItem: -1,
         page:1,
         last_page:1,
-        order: true
+        order: true,
+        paginationRows: 10,
       }
     },
     mounted()
     {
         this.search('PresNumero');
-        // this.getData('/api/amortizacion',this.getParams())
-        //     .then((data)=>{
-        //         this.providers = data.data;
-        //         this.last_page = data.last_page;
-        //     });
     },
     created(){
         //   axios.get('/api/amortizacion/create')
@@ -183,16 +179,6 @@ export default {
     },
     methods:{
         
-        getItems(url){
-            return new Promise((resolve,reject)=>{
-               this.loading = true;
-               axios.get(url)
-                    .then((response) => {
-                        this.loading = false;
-                        resolve(response.data);
-                    });
-            });
-        },
         getData(url,parameters){
             return new Promise((resolve,reject)=>{
                this.loading = true;
@@ -206,11 +192,8 @@ export default {
             });
         },
         next(page){
-            // console.log(page);
-            this.getItems('/api/amortizacion?page='+page+'&search='+this.filterValue+'&sorted='+this.filterName+'&order=asc').then((data)=>{
-                this.providers = data.data;
-                this.last_page = data.last_page;
-            });
+            this.page = page;
+            this.search(this.filterName);
         },
         search(filter){
             
@@ -228,44 +211,31 @@ export default {
             this.headers.forEach(element => {
                 params[element.value] = element.input;
             });
-            let orderBy = this.pagination.descending==true?'asc':'desc';
             params['sorted']=this.filterName;
-            params['order']=orderBy;
-            // console.log(params);
+            params['order']=this.pagination.descending==true?'asc':'desc';
+            params['page']=this.page;
+            params['pagination_rows']=this.paginationRows;
             return params;
         },
         toggleOrder (filter) {
+            this.filterName = filter;
             this.search(filter).then(()=>{
-                this.pagination.sortBy = filter; 
+                this.pagination.sortBy = this.filterName; 
                 this.pagination.descending = !this.pagination.descending
             });    
         },
        
-        editItem (item) {
-            this.editedIndex = this.providers.indexOf(item)
-            this.editedItem = Object.assign({}, item)
-            this.dialog = true
-        },
-        save () {
-            // if (this.editedIndex > -1) {
-            // Object.assign(this.providers[this.editedIndex], this.editedItem)
-            // } else {
-                this.providers.push(this.editedItem)
-            // }
-            this.close()
-        }
+      
     },
     watch: {
         filterValue (fv) {      
             if (fv =='') {
-                this.search('PresNumero');
+                this.search(this.filterName);
             }
         }
     },
     computed:{
-        formTitle () {
-            return this.editedIndex === -1 ? 'Nuevo Proveedor' : 'Editar Proveedor'
-        }
+      
     }
 }
 </script>

@@ -14,9 +14,6 @@ class AmortizationController extends Controller
      */
     public function index()
     {
-        // ini_set ('max_execution_time', 36000); 
-        // // aumentar el tamaño de memoria permitido de este script: 
-        // ini_set ('memory_limit', '960M');
         switch(request('sorted'))
         {
             case 'PresNumero': 
@@ -45,25 +42,77 @@ class AmortizationController extends Controller
                 break;
         }
    
-        $order = request('order');
+        $order = request('order'??'');
+        $pagination_rows = request('pagination_rows'??10);
         $PresNumero = request('PresNumero')??'';
         $AmrFecPag = request('AmrFecPag')??'';
+        $AmrTipPAgo = request('AmrTipPAgo')??'';
+        $AmrNroCpte = request('AmrNroCpte')??'';
+        $PadCedulaIdentidad = request('PadCedulaIdentidad')??'';
+        $PadNombres = request('PadNombres')??'';
+        $PadNombres2do = request('PadNombres2do')??'';
+        $PadPaterno = request('PadPaterno')??'';
+        $PadMaterno = request('PadMaterno')??'';
+        $PadTipo = request('PadTipo')??'';
+        
+        $conditions = [];
+        if($PresNumero != '')
+        {
+            array_push($conditions,array('Prestamos.PresNumero','like',"%{$PresNumero}%"));
+        }
+        if($AmrFecPag != '')
+        {
+            array_push($conditions,array('Amortizacion.AmrFecPag','=',$AmrFecPag));
+        }
+        if($AmrTipPAgo != '')
+        {
+            array_push($conditions,array('Amortizacion.AmrTipPAgo','=',$AmrTipPAgo));
+        }
+        if($AmrNroCpte != '')
+        {
+            array_push($conditions,array('Amortizacion.AmrNroCpte','=',$AmrNroCpte));
+        }
+        if($PadCedulaIdentidad != '')
+        {
+            array_push($conditions,array('Padron.PadCedulaIdentidad','like',"%{$PadCedulaIdentidad}%"));
+        }
+        if($PadNombres != '')
+        {
+            array_push($conditions,array('Padron.PadNombres','like',"%{$PadNombres}%"));
+        }
+        if($PadNombres2do != '')
+        {
+            array_push($conditions,array('Padron.PadNombres2do','like',"%{$PadNombres2do}%"));
+        }
+        if($PadPaterno != '')
+        {
+            array_push($conditions,array('Padron.PadPaterno','like',"%{$PadPaterno}%"));
+        }
+        if($PadMaterno != '')
+        {
+            array_push($conditions,array('Padron.PadMaterno','like',"%{$PadMaterno}%"));
+        }
+        if($PadTipo != '')
+        {
+            array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
+        }
+
+        Log::info($conditions);
+
         $amortizaciones = DB::table('Prestamos')
                             ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
                             ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
-                            ->where('Prestamos.PresNumero','like',"%{$PresNumero}%")
-                            ->orWhere('Amortizacion.AmrFecPag','=',$AmrFecPag)
+                            ->where($conditions)
                             ->where('Prestamos.PresEstPtmo','=','V')
                             ->where('Prestamos.PresSaldoAct','>',0)
                             ->where('Padron.PadTipo','=','ACTIVO')
                             ->where('Amortizacion.AmrSts','!=','X')
-                            // ->where('Amortizacion.AmrFecPag','=','2018-07-31')
                             ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                      'Padron.IdPadron',
                                      'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte'
                                     )
                             ->orderBy($sorted,$order)
-                            ->paginate(10);
+                            ->paginate($pagination_rows);
 
         $amortizaciones->getCollection()->transform(function ($item) {
          
@@ -75,7 +124,7 @@ class AmortizationController extends Controller
             $item->PadMaterno =utf8_encode(trim($padron->PadMaterno));
             $item->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
             $item->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
-         
+
             return $item;
         });
 
