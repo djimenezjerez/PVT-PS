@@ -14,33 +14,33 @@ class AmortizationController extends Controller
      */
     public function index()
     {
-        switch(request('sorted'))
-        {
-            case 'PresNumero': 
-            case 'PresFechaDesembolso': 
-                $sorted = 'Prestamos.'.request('sorted');
-                break;
-            case 'AmrFecPag':
-            case 'AmrFecTrn':
-            case 'AmrCap':
-            case 'AmrInt':
-            case 'AmrIntPen':
-            case 'AmrOtrCob':
-            case 'AmrTotPag':
-            case 'AmrTipPAgo':
-            case 'AmrNroCpte':
-                $sorted = 'Amortizacion.'.request('sorted');
-                break;
-            case 'PadTipo':
-            case 'PadNombres':
-            case 'PadNombres2do':
-            case 'PadPaterno':
-            case 'PadMaterno':
-            case 'PadCedulaIdentidad':
-            case 'PadExpCedula':
-                $sorted = 'Padron.'.request('sorted');
-                break;
-        }
+        // switch(request('sorted'))
+        // {
+        //     case 'PresNumero': 
+        //     case 'PresFechaDesembolso': 
+        //         $sorted = 'Prestamos.'.request('sorted');
+        //         break;
+        //     case 'AmrFecPag':
+        //     case 'AmrFecTrn':
+        //     case 'AmrCap':
+        //     case 'AmrInt':
+        //     case 'AmrIntPen':
+        //     case 'AmrOtrCob':
+        //     case 'AmrTotPag':
+        //     case 'AmrTipPAgo':
+        //     case 'AmrNroCpte':
+        //         $sorted = 'Amortizacion.'.request('sorted');
+        //         break;
+        //     case 'PadTipo':
+        //     case 'PadNombres':
+        //     case 'PadNombres2do':
+        //     case 'PadPaterno':
+        //     case 'PadMaterno':
+        //     case 'PadCedulaIdentidad':
+        //     case 'PadExpCedula':
+        //         $sorted = 'Padron.'.request('sorted');
+        //         break;
+        // }
    
         $order = request('order'??'');
         $pagination_rows = request('pagination_rows'??10);
@@ -97,8 +97,6 @@ class AmortizationController extends Controller
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
 
-        Log::info($conditions);
-
         $amortizaciones = DB::table('Prestamos')
                             ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
                             ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
@@ -111,7 +109,7 @@ class AmortizationController extends Controller
                                      'Padron.IdPadron',
                                      'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte'
                                     )
-                            ->orderBy($sorted,$order)
+                            ->orderBy('Prestamos.PresNumero')
                             ->paginate($pagination_rows);
 
         $amortizaciones->getCollection()->transform(function ($item) {
@@ -127,9 +125,7 @@ class AmortizationController extends Controller
 
             return $item;
         });
-
         return response()->json($amortizaciones->toArray());
-    
     }
 
     /**

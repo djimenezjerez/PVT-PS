@@ -3,52 +3,11 @@
         <v-card-title>
         Amortizaciones
         <v-spacer></v-spacer>
-        <!-- <v-dialog v-model="dialog" max-width="800px" max-high="40px">
-            <v-btn slot="activator" color="primary" dark class="mb-2">Nuevo</v-btn>
-            <v-card>
-            <v-card-title>
-                <span class="headline">{{ formTitle }}</span>
-            </v-card-title>
-        
-            <v-card-text v-if="newProvider">
-                <v-container grid-list-md>
-                <v-layout wrap>
-                    <v-flex xs12 sm6 md6>
-                    <v-text-field v-model="newProvider.name" label="Nro"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                    <v-text-field v-model="newProvider.offer" label="Oferta"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md12>
-                    <v-text-field v-model="newProvider.direccion1" label="Direccion 1"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md12>
-                    <v-text-field v-model="newProvider.direccion2" label="Direccion 2"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md12>
-                    <v-text-field v-model="newProvider.city" label="Ciudad"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                    <v-text-field v-model="newProvider.balance" label="Balance"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12 sm6 md6>
-                    <v-text-field v-model="newProvider.debit" label="Debito"></v-text-field>
-                    </v-flex>
-                </v-layout>
-                </v-container>
-            </v-card-text>
-
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" flat @click.native="close">Cancelar</v-btn>
-                <v-btn color="blue darken-1" flat @click.native="save">Guardar</v-btn>
-            </v-card-actions>
-            </v-card>
-        </v-dialog>         -->
+ 
         </v-card-title>
         <v-data-table
         :headers="headers"
-        :items="providers"
+        :items="amortizations"
         :pagination.sync="pagination"
          hide-actions
         >
@@ -57,10 +16,11 @@
                 <th v-for="(header,index) in props.headers" :key="index" class="text-xs-left">
                     
                         <v-flex v-if="header.value!='actions'">
-                            <span @click="toggleOrder(header.value)">{{ header.text }}
-                                
-                            </span>
-                            <v-menu 
+                            <v-tooltip bottom>
+                                <span slot="activator">{{header.text}}</span>
+                                <span >{{header.input}}</span>
+                            </v-tooltip>
+                            <v-menu  v-model="header.menu"
                                     :close-on-content-click="false"
                                     >
                                     <v-btn
@@ -68,7 +28,7 @@
                                         icon
                                         v-if="header.sortable!=false"
                                     >
-                                    <v-icon  small>fa-filter</v-icon>
+                                    <v-icon  small :color="header.input!=''?'blue':'black'">fa-filter</v-icon>
                                     </v-btn>
                                     <v-card  >
                                         <v-text-field
@@ -78,12 +38,14 @@
                                         append-icon="search"
                                         :label="`Buscar ${header.text}...`"
                                        
-                                        @keydown.enter="search(header.value)"
+                                        @keydown.enter="search()"
+                                        @keyup.delete="checkInput(header.input)"
+                                        @keyup.esc="header.menu=false"
                                     ></v-text-field>
                                     
                                     </v-card>
                             </v-menu>
-                            <v-icon small @click="toggleOrder(header.value)" v-if="header.value == filterName ">{{pagination.descending==false?'arrow_upward':'arrow_downward'}}</v-icon>
+                            <!-- <v-icon small @click="toggleOrder(header.value)" v-if="header.value == filterName ">{{pagination.descending==false?'arrow_upward':'arrow_downward'}}</v-icon> -->
                         </v-flex>
                 </th>
            </tr>
@@ -140,35 +102,31 @@ export default {
           sortBy: 'PresNumero'
         },
         headers: [
-            { text: 'Nro Prestamo', value: 'PresNumero',input:'' },
-            { text: 'Fecha Pago', value: 'AmrFecPag',input:'' },
-            // { text: 'Tipo', value: 'PadTipo' },
-            // { text: 'Matricula', value: 'PadMatricula' },
-            { text: 'CI', value: 'PadCedulaIdentidad',input:'' },
-            { text: '1er Nombre', value: 'PadNombres',input:'' },
-            { text: '2do Nombre', value: 'PadNombres2do',input:'' },
-            { text: 'Ap. Paterno', value: 'PadPaterno',input:''},
-            { text: 'Ap. Materno',value:'PadMaterno',input:''},
-            { text: 'Total Pagado',value:'AmrTotPag',input:''},
-            { text: 'Nro Comprobneee',value:'AmrNroCpte',input:''},
+            { text: 'Nro Prestamo', value: 'PresNumero',input:'' , menu:false},
+            { text: 'Fecha Pago', value: 'AmrFecPag',input:'' , menu:false},
+            // { text: 'Tipo', value: 'PadTipo' , menu:false},
+            // { text: 'Matricula', value: 'PadMatricula' , menu:false},
+            { text: 'CI', value: 'PadCedulaIdentidad',input:'' , menu:false},
+            { text: '1er Nombre', value: 'PadNombres',input:'' , menu:false},
+            { text: '2do Nombre', value: 'PadNombres2do',input:'' , menu:false},
+            { text: 'Ap. Paterno', value: 'PadPaterno',input:'', menu:false},
+            { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false},
+            { text: 'Total Pagado',value:'AmrTotPag',input:'', menu:false},
+            { text: 'Nro Comprobante',value:'AmrNroCpte',input:'', menu:false},
         ],
-        providers: [],
+        amortizations: [],
         loading: true,
-        filterName: 'name',
-        filterValue: '',
-        newProvider: null,
-        newContacts:[],
-        newContact: null,
-        editedItem: -1,
-        page:1,
         last_page:1,
-        order: true,
+        total:0,
+        from:0,
+        to:0,
+        page:1,
         paginationRows: 10,
       }
     },
     mounted()
     {
-        this.search('PresNumero');
+        this.search();
     },
     created(){
         //   axios.get('/api/amortizacion/create')
@@ -193,15 +151,15 @@ export default {
         },
         next(page){
             this.page = page;
-            this.search(this.filterName);
+            this.search();
         },
-        search(filter){
+        search(){
             
-            this.filterName = filter;
             return new Promise((resolve,reject)=>{   
                 this.getData('/api/amortizacion',this.getParams()).then((data)=>{
-                    this.providers = data.data;
+                    this.amortizations = data.data;
                     this.last_page = data.last_page;
+                    // this.page = data.first_page;
                     resolve();
                 });
             });
@@ -211,26 +169,33 @@ export default {
             this.headers.forEach(element => {
                 params[element.value] = element.input;
             });
-            params['sorted']=this.filterName;
-            params['order']=this.pagination.descending==true?'asc':'desc';
+            // params['sorted']=this.filterName;
+            // params['order']=this.pagination.descending==true?'asc':'desc';
             params['page']=this.page;
             params['pagination_rows']=this.paginationRows;
             return params;
         },
-        toggleOrder (filter) {
-            this.filterName = filter;
-            this.search(filter).then(()=>{
-                this.pagination.sortBy = this.filterName; 
-                this.pagination.descending = !this.pagination.descending
-            });    
-        },
+        checkInput(search)
+        {
+            if(search=='')
+            {
+                this.search();
+            }
+        }
+        // toggleOrder (filter) {
+        //     this.filterName = filter;
+        //     this.search(filter).then(()=>{
+        //         this.pagination.sortBy = this.filterName; 
+        //         this.pagination.descending = !this.pagination.descending
+        //     });    
+        // },
        
       
     },
     watch: {
         filterValue (fv) {      
             if (fv =='') {
-                this.search(this.filterName);
+                this.search();
             }
         }
     },
