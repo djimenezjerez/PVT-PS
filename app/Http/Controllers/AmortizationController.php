@@ -49,7 +49,7 @@ class AmortizationController extends Controller
         
         $excel = request('excel')??'';
         $order = request('order')??'';
-        $pagination_rows = request('pagination_rows');
+        $pagination_rows = request('pagination_rows')??10;
         $PresNumero = request('PresNumero')??'';
         $AmrFecPag = request('AmrFecPag')??'';
         $AmrTipPAgo = request('AmrTipPAgo')??'';
@@ -102,7 +102,7 @@ class AmortizationController extends Controller
         {
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
-
+        Log::info($conditions);
         if($excel!='')//reporte excel hdp 
         {
             global $rows_exacta;
@@ -116,7 +116,6 @@ class AmortizationController extends Controller
                             ->where($conditions)
                             ->where('Prestamos.PresEstPtmo','=','V')
                             ->where('Prestamos.PresSaldoAct','>',0)
-                            ->where('Padron.PadTipo','=','ACTIVO')
                             ->where('Amortizacion.AmrSts','!=','X')
                             ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                      'Padron.IdPadron',
@@ -170,7 +169,7 @@ class AmortizationController extends Controller
                                 ->where($conditions)
                                 ->where('Prestamos.PresEstPtmo','=','V')
                                 ->where('Prestamos.PresSaldoAct','>',0)
-                                ->where('Padron.PadTipo','=','ACTIVO')
+                               
                                 ->where('Amortizacion.AmrSts','!=','X')
                                 ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                         'Padron.IdPadron',

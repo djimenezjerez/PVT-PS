@@ -41,7 +41,6 @@
         <v-data-table
         :headers="headers"
         :items="amortizations"
-        :pagination.sync="pagination"
          hide-actions
         >
         <template slot="headers" slot-scope="props" >
@@ -70,7 +69,7 @@
                                         v-model="header.input"
                                         append-icon="search"
                                         :label="`Buscar ${header.text}...`"
-                                       
+                                        v-focus
                                         @keydown.enter="search()"
                                         @keyup.delete="checkInput(header.input)"
                                         @keyup.esc="header.menu=false"
@@ -86,7 +85,7 @@
         <template slot="items"  slot-scope="props">
             <td class="text-xs-left">{{ props.item.PresNumero }}</td>
             <td class="text-xs-left">{{ props.item.AmrFecPag }}</td>
-            <!-- <td class="text-xs-left">{{ props.item.PadTipo }}</td> -->
+            <td class="text-xs-left">{{ props.item.PadTipo }}</td>
             <!-- <td class="text-xs-left">{{ props.item.PadMatricula }}</td> -->
             <td class="text-xs-left">{{ props.item.PadCedulaIdentidad }}</td>
             <td class="text-xs-left">{{ props.item.PadNombres }}</td>
@@ -144,7 +143,7 @@ export default {
         headers: [
             { text: 'Nro Prestamo', value: 'PresNumero',input:'' , menu:false},
             { text: 'Fecha Pago', value: 'AmrFecPag',input:'' , menu:false},
-            // { text: 'Tipo', value: 'PadTipo' , menu:false},
+            { text: 'Tipo', value: 'PadTipo',input:'', menu:false },
             // { text: 'Matricula', value: 'PadMatricula' , menu:false},
             { text: 'CI', value: 'PadCedulaIdentidad',input:'' , menu:false},
             { text: '1er Nombre', value: 'PadNombres',input:'' , menu:false},
@@ -160,7 +159,7 @@ export default {
         total:0,
         from:0,
         to:0,
-        page:1,
+        page:2,
         paginationRows: 10,
         pagination_select:[10,20,30]
       }
@@ -203,7 +202,7 @@ export default {
                     this.total = data.total;
                     this.from = data.from;
                     this.to = data.to;
-                    // this.page = data.first_page;
+                    // this.page = 1   ;
                     resolve();
                 });
             });
