@@ -2,8 +2,41 @@
      <v-card>
         <v-card-title>
         Amortizaciones
+        <v-btn icon  @click="download">
+            <v-icon color="green">
+                fa-file-excel-o
+            </v-icon>
+        </v-btn>
+        <v-dialog
+          v-model="dialog"
+          hide-overlay
+          persistent
+          width="300"
+        >
+          <v-card
+            color="primary"
+            dark
+          >
+            <v-card-text>
+              Por favor espere
+              <v-progress-linear
+                indeterminate
+                color="white"
+                class="mb-0"
+              ></v-progress-linear>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
         <v-spacer></v-spacer>
- 
+           <v-flex xs1 sm1 md1>
+                <v-combobox
+                v-model="paginationRows"
+                :items="pagination_select"
+                label="Mostrar Registros"
+                @change="search()"
+                ></v-combobox>
+                
+        </v-flex>
         </v-card-title>
         <v-data-table
         :headers="headers"
@@ -90,6 +123,13 @@ phone
              @input="next"
             ></v-pagination>
         </div>   
+         <div class="text-xs-right">
+            
+            <v-flex xs11 sm11 md11>
+                Mostrando {{from}}-{{to}} de {{total}} registros 
+            </v-flex>
+
+        </div>
         <br>
     </v-card>
 </template>
@@ -122,6 +162,7 @@ export default {
         to:0,
         page:1,
         paginationRows: 10,
+        pagination_select:[10,20,30]
       }
     },
     mounted()
@@ -159,6 +200,9 @@ export default {
                 this.getData('/api/amortizacion',this.getParams()).then((data)=>{
                     this.amortizations = data.data;
                     this.last_page = data.last_page;
+                    this.total = data.total;
+                    this.from = data.from;
+                    this.to = data.to;
                     // this.page = data.first_page;
                     resolve();
                 });
@@ -181,6 +225,29 @@ export default {
             {
                 this.search();
             }
+        },
+        download: function (event) {
+            // `this` inside methods point to the Vue instance
+            self = this;
+            self.dialog = true
+            //  self.dialog = true;
+            let parameters = this.getParams();
+            parameters.excel =true;
+            console.log(parameters);
+            axios({
+                url: '/api/amortizacion',
+                method: 'GET',
+                params: parameters,
+                responseType: 'blob', // important
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Amortizaciones.xls');
+                document.body.appendChild(link);
+                link.click();
+                self.dialog = false;
+            });
         }
         // toggleOrder (filter) {
         //     this.filterName = filter;

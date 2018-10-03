@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Log;
 use DB;
 class AmortizationController extends Controller
@@ -14,6 +15,10 @@ class AmortizationController extends Controller
      */
     public function index()
     {
+         // aumenta el tiempo máximo de ejecución de este script a 150 min: 
+         ini_set ('max_execution_time', 9000); 
+         // aumentar el tamaño de memoria permitido de este script: 
+         ini_set ('memory_limit', '960M');
         // switch(request('sorted'))
         // {
         //     case 'PresNumero': 
@@ -41,9 +46,10 @@ class AmortizationController extends Controller
         //         $sorted = 'Padron.'.request('sorted');
         //         break;
         // }
-   
-        $order = request('order'??'');
-        $pagination_rows = request('pagination_rows'??10);
+        
+        $excel = request('excel')??'';
+        $order = request('order')??'';
+        $pagination_rows = request('pagination_rows');
         $PresNumero = request('PresNumero')??'';
         $AmrFecPag = request('AmrFecPag')??'';
         $AmrTipPAgo = request('AmrTipPAgo')??'';
@@ -97,9 +103,16 @@ class AmortizationController extends Controller
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
 
-        $amortizaciones = DB::table('Prestamos')
+        if($excel!='')//reporte excel hdp 
+        {
+            global $rows_exacta;
+            $rows_exacta = Array();
+            //cabezera
+            array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Tipo','Fecha Pago','Fecha Transaccion','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do', 'Capital','Interes','Interes penal','otros cobros','Amortizacion.AmrTotPag','Tipo Descuento','Numero Comprobante'));
+            $amortizaciones = DB::table('Prestamos')
                             ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
                             ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                             ->where($conditions)
                             ->where('Prestamos.PresEstPtmo','=','V')
                             ->where('Prestamos.PresSaldoAct','>',0)
@@ -107,25 +120,80 @@ class AmortizationController extends Controller
                             ->where('Amortizacion.AmrSts','!=','X')
                             ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                      'Padron.IdPadron',
+                                     'Producto.PrdDsc',
                                      'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte'
                                     )
                             ->orderBy('Prestamos.PresNumero')
-                            ->paginate($pagination_rows);
+                            ->get();
 
-        $amortizaciones->getCollection()->transform(function ($item) {
-         
-            $padron = DB::table('Padron')->where('IdPadron',$item->IdPadron)->first();
-            $item->PadTipo = utf8_encode(trim($padron->PadTipo));
-            $item->PadNombres = utf8_encode(trim($padron->PadNombres));
-            $item->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
-            $item->PadPaterno =utf8_encode(trim($padron->PadPaterno));
-            $item->PadMaterno =utf8_encode(trim($padron->PadMaterno));
-            $item->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
-            $item->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+            foreach($amortizaciones as $amortizacion)
+            {
 
-            return $item;
-        });
-        return response()->json($amortizaciones->toArray());
+                    $padron = DB::table('Padron')->where('IdPadron',$amortizacion->IdPadron)->first();
+                    $amortizacion->PadTipo = utf8_encode(trim($padron->PadTipo));
+                    $amortizacion->PadNombres = utf8_encode(trim($padron->PadNombres));
+                    $amortizacion->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                    $amortizacion->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                    $amortizacion->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                    $amortizacion->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                    $amortizacion->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+                    $amortizacion->PadMatricula =utf8_encode(trim($padron->PadMatricula));
+
+                    array_push($rows_exacta,array($amortizacion->PresNumero,$amortizacion->PresFechaDesembolso,$amortizacion->PadTipo,$amortizacion->AmrFecPag,$amortizacion->AmrFecTrn,$amortizacion->PrdDsc,$amortizacion->PadMatricula,$amortizacion->PadCedulaIdentidad,$amortizacion->PadPaterno,$amortizacion->PadMaterno,$amortizacion->PadNombres,$amortizacion->PadNombres2do, $amortizacion->AmrCap,$amortizacion->AmrInt,$amortizacion->AmrIntPen,$amortizacion->AmrOtrCob,$amortizacion->AmrTotPag,$amortizacion->AmrTipPAgo,$amortizacion->AmrNroCpte));    
+            }
+            Excel::create('Amortizaciones',function($excel)
+            {
+                global $rows_exacta;
+                
+                        $excel->sheet('Amortizaciones',function($sheet) {
+                                global $rows_exacta;
+                
+                                $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                                $sheet->cells('A1:C1', function($cells) {
+                                // manipulate the range of cells
+                                $cells->setBackground('#058A37');
+                                $cells->setFontColor('#ffffff');  
+                                $cells->setFontWeight('bold');
+                                });
+                            });
+    
+                      
+            })->download('xls');
+
+        }else{
+
+        
+            //flujo normal
+            $amortizaciones = DB::table('Prestamos')
+                                ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
+                                ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                                ->where($conditions)
+                                ->where('Prestamos.PresEstPtmo','=','V')
+                                ->where('Prestamos.PresSaldoAct','>',0)
+                                ->where('Padron.PadTipo','=','ACTIVO')
+                                ->where('Amortizacion.AmrSts','!=','X')
+                                ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
+                                        'Padron.IdPadron',
+                                        'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte'
+                                        )
+                                ->orderBy('Prestamos.PresNumero')
+                                ->paginate($pagination_rows);
+
+            $amortizaciones->getCollection()->transform(function ($item) {
+            
+                $padron = DB::table('Padron')->where('IdPadron',$item->IdPadron)->first();
+                $item->PadTipo = utf8_encode(trim($padron->PadTipo));
+                $item->PadNombres = utf8_encode(trim($padron->PadNombres));
+                $item->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                $item->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                $item->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                $item->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                $item->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+
+                return $item;
+            });
+            return response()->json($amortizaciones->toArray());
+        }
     }
 
     /**
