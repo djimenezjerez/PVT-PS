@@ -26,6 +26,7 @@ const router = new VueRouter({
   routes
 });
 
+window.moment = require('moment');
 
 
 const app = new Vue({
