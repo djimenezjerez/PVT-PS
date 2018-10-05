@@ -57,7 +57,7 @@ class PartialLoansController extends Controller
                                 global $rows_exacta;
                 
                                 $sheet->fromModel($rows_exacta,null, 'A1', false, false);
-                                $sheet->cells('A1:C1', function($cells) {
+                                $sheet->cells('A1:M1', function($cells) {
                                 // manipulate the range of cells
                                 $cells->setBackground('#058A37');
                                 $cells->setFontColor('#ffffff');  

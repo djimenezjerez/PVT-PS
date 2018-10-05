@@ -2,6 +2,35 @@
  <v-card class="elevation-12">
     <v-card-title>
       Prestamos en Mora
+
+            <v-btn small @click="download" 
+                :disabled="dialog"
+                :loading="dialog"
+                icon
+                > <v-icon color="success"> fa-file-excel-o</v-icon>
+            </v-btn>
+            
+            <v-dialog
+            v-model="dialog"
+            hide-overlay
+            persistent
+            width="300"
+            >
+            <v-card
+                color="primary"
+                dark
+            >
+            <v-card-text>
+            Por favor espere
+            <v-progress-linear
+                indeterminate
+                color="white"
+                class="mb-0"
+            ></v-progress-linear>
+            </v-card-text>
+            </v-card>
+            </v-dialog>
+
       <v-spacer></v-spacer>
       
       <v-text-field
@@ -11,32 +40,31 @@
         single-line
         hide-details
       ></v-text-field>
-       <v-btn small color="success" @click="download" 
-    :disabled="dialog"
-    :loading="dialog"
-        > Excel <v-icon>file_download</v-icon>
-        </v-btn>
-      
-        <v-dialog
-          v-model="dialog"
-          hide-overlay
-          persistent
-          width="300"
+        <v-menu
+          :close-on-content-click="false"
+          v-model="menu2"
+          :nudge-right="40"
+          lazy
+          transition="scale-transition"
+          offset-y
+          full-width
+          max-width="290px"
+          min-width="290px"
         >
-          <v-card
-            color="primary"
-            dark
-          >
-            <v-card-text>
-              Por favor espere
-              <v-progress-linear
-                indeterminate
-                color="white"
-                class="mb-0"
-              ></v-progress-linear>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
+          <v-text-field
+            slot="activator"
+            v-model="date"
+            label="Fecha"
+            hint="Año-Mes-Dia"
+            persistent-hint
+            prepend-icon="event"
+            readonly
+          ></v-text-field>
+          <v-date-picker v-model="date" no-title @input="menu2 = false"></v-date-picker>
+        </v-menu>
+        <v-btn icon>
+            <v-icon color="success" @click="buscar()">refresh</v-icon>
+        </v-btn>
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -83,14 +111,17 @@ export default {
               { text: 'Accion ' }
             ],
             dialog: false,
+            date: '2018-08-31',
+            dateFormatted: null,
+            menu2: false
             }
     },
     created(){
-          axios.get('/api/overdue_loans')
-           .then((response)=>{
-                console.log('obteniendo lista ')
-                this.loans = response.data;
-            });
+            axios.get('/api/overdue_loans')
+            .then((response)=>{
+                    console.log('obteniendo lista ')
+                    this.loans = response.data;
+                });
 
             console.log(moment().format());
   
@@ -98,30 +129,66 @@ export default {
     
     // define methods under the `methods` object
     methods: {
-      generate_link(id){
-          return 'http://sismu.muserpol.gob.bo/musepol/akardex.aspx?'+id;
-        //console.log(this.loans)
-      },
-       download: function (event) {
-        // `this` inside methods point to the Vue instance
-        self = this;
-        self.dialog = true
-      
-        axios({
-            url: '/api/overdue_loans',
-            method: 'GET',
-            params: {excel:true},
-            responseType: 'blob', // important
-          }).then((response) => {
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Mora '+moment().format()+'.xls');
-            document.body.appendChild(link);
-            link.click();
-              self.dialog = false;
-          });
-      }
+        generate_link(id){
+            return 'http://sismu.muserpol.gob.bo/musepol/akardex.aspx?'+id;
+            //console.log(this.loans)
+        },
+         buscar(){
+            console.log("buscando al hdp");
+            console.log(this.getParams());
+
+             axios({
+                url: '/api/overdue_loans',
+                method: 'GET',
+                params: this.getParams(),   
+            }).then((response) => {
+               this.loans = response.data;
+            });
+            // axios.get('/api/overdue_loans',this.getParams())
+            //      .then((response)=>{
+            //             console.log('obteniendo lista ')
+            //             this.loans = response.data;
+            //         });
+        },
+        getParams(){
+            let params={};
+            params.date = this.date;
+            return params;
+        },
+        download: function (event) {
+            // `this` inside methods point to the Vue instance
+            // self = this;
+            // self.dialog = true
+            let parameters = this.getParams();
+             parameters['excel']=true;
+            this.dialog = true;
+            axios({
+                url: '/api/overdue_loans',
+                method: 'GET',
+                params: parameters,
+                responseType: 'blob', // important
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'Mora '+moment().format()+'.xls');
+                document.body.appendChild(link);
+                link.click();
+                this.dialog = false;
+            });
+        },
+        formatDate (date) {
+            if (!date) return null
+
+            const [year, month, day] = date.split('-')
+            return `${month}/${day}/${year}`
+        },
+        parseDate (date) {
+            if (!date) return null
+
+            const [month, day, year] = date.split('/')
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+        }
     
     },
     watch: {
@@ -129,8 +196,18 @@ export default {
         if (!val) return
 
         //setTimeout(() => (this.dialog = false), 4000)
+      },
+      date (val) {
+          console.log(this.date);
+        this.dateFormatted = this.formatDate(this.date)
       }
-    }
+    },
+    computed: {
+      computedDateFormatted () {
+        return this.formatDate(this.date)
+      }
+    },
+
 }
 </script>
 

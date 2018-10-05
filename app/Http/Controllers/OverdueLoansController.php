@@ -16,12 +16,13 @@ class OverdueLoansController extends Controller
     public function index()
     {
         $excel = request('excel')??'';
-
-        $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '2018-08-31') as meses_mora from dbo.Prestamos
+        $date = request('date')??'2018-08-31';
+        // Log::info($excel);
+        $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '".$date."') as meses_mora from dbo.Prestamos
         join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
         join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
         join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo AND Amortizacion.AMRSTS <>'X' ))
-        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('2018-08-31' as datetime)
+        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('".$date."' as datetime)
         order by meses_mora DESC;");
         // $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron from dbo.Prestamos
         // join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
@@ -63,7 +64,7 @@ class OverdueLoansController extends Controller
                                 global $rows_exacta;
                 
                                 $sheet->fromModel($rows_exacta,null, 'A1', false, false);
-                                $sheet->cells('A1:C1', function($cells) {
+                                $sheet->cells('A1:M1', function($cells) {
                                 // manipulate the range of cells
                                 $cells->setBackground('#058A37');
                                 $cells->setFontColor('#ffffff');  
