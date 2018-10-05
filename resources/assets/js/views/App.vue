@@ -124,6 +124,7 @@
       items: [
         { icon: 'dashboard', text: 'Inicio' , link: '/' },
         { icon: 'card_travel', text: 'Mora Parcial' , link: '/partial_loans' },
+        { icon: 'card_travel', text: 'Prestamos en Mora' , link: '/overdue_loans' },
         { icon: 'folder_shared', text: 'Prestamos  Comando ' , link: '/loans_command' },
         { icon: 'folder_shared', text: 'Prestamos  Senasir' , link: '/loans' },
         // { icon: 'assignment_late', text: 'Prestamos Negativos' , link: '/negative_loans' },

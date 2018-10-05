@@ -25,6 +25,7 @@ Route::get('loans_pasivo_mora_report','LoanReportController@loans_pasivo_mora_re
 Route::get('loans_activo_mora_report','LoanReportController@loans_activo_mora_report');
 Route::resource('amortizacion','AmortizationController');
 Route::resource('partial_loans','PartialLoansController');
+Route::resource('overdue_loans','OverdueLoansController');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

@@ -6,6 +6,7 @@ import LoansInArrears from './views/loans/LoansInArrears';
 import PartialDeaultLoans from './views/loans/PartialDeaultLoans';
 import LoansCommand from './views/loans/IndexCommand';
 import Amortization from './views/Amortization';
+import OverdueLoans from './views/loans/OverdueLoans';
 
 export const routes = [
     {
@@ -47,5 +48,10 @@ export const routes = [
         path: '/amortization',
         name: 'amortization',
         component: Amortization
+    },
+    {
+        path: '/overdue_loans',
+        name: 'overdue_loans',
+        component: OverdueLoans
     },
 ];
