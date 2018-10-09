@@ -1,7 +1,7 @@
 <template>
  <v-card class="elevation-12">
     <v-card-title>
-      Prestamos en Mora
+      Prestamos en Mora Total
 
             <v-btn small @click="download" 
                 :disabled="dialog"
@@ -117,13 +117,13 @@ export default {
             }
     },
     created(){
-            axios.get('/api/overdue_loans')
+            axios.get('/api/total_overdue_loans')
             .then((response)=>{
                     console.log('obteniendo lista ')
                     this.loans = response.data;
                 });
 
-            console.log(moment().format());
+            console.log(moment().format('L'));
   
     },
     
@@ -138,13 +138,13 @@ export default {
             console.log(this.getParams());
 
              axios({
-                url: '/api/overdue_loans',
+                url: '/api/total_overdue_loans',
                 method: 'GET',
                 params: this.getParams(),   
             }).then((response) => {
                this.loans = response.data;
             });
-            // axios.get('/api/overdue_loans',this.getParams())
+            // axios.get('/api/total_overdue_loans',this.getParams())
             //      .then((response)=>{
             //             console.log('obteniendo lista ')
             //             this.loans = response.data;
@@ -163,7 +163,7 @@ export default {
              parameters['excel']=true;
             this.dialog = true;
             axios({
-                url: '/api/overdue_loans',
+                url: '/api/total_overdue_loans',
                 method: 'GET',
                 params: parameters,
                 responseType: 'blob', // important

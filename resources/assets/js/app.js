@@ -27,7 +27,7 @@ const router = new VueRouter({
 });
 
 window.moment = require('moment');
-
+require('moment/locale/en-ca');
 
 const app = new Vue({
   el: '#app',

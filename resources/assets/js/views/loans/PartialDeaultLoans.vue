@@ -2,19 +2,11 @@
  <v-card class="elevation-12">
     <v-card-title>
       Prestamos en Mora Parcial
-      <v-spacer></v-spacer>
-      
-      <v-text-field
-        v-model="search"
-        append-icon="search"
-        label="Buscar"
-        single-line
-        hide-details
-      ></v-text-field>
-       <v-btn small color="success" @click="download" 
-    :disabled="dialog"
-    :loading="dialog"
-        > Excel <v-icon>file_download</v-icon>
+      <v-btn small @click="download" 
+      :disabled="dialog"
+      :loading="dialog"
+      icon  
+        > <v-icon color="success"> fa-file-excel-o</v-icon>
         </v-btn>
       
         <v-dialog
@@ -37,6 +29,16 @@
             </v-card-text>
           </v-card>
         </v-dialog>
+      <v-spacer></v-spacer>
+      
+      <v-text-field
+        v-model="search"
+        append-icon="search"
+        label="Buscar"
+        single-line
+        hide-details
+      ></v-text-field>
+       
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -90,7 +92,9 @@ export default {
                 this.loans = response.data;
             });
 
-            console.log(moment().format());
+            
+            console.log(moment().format('L'));
+            console.log(moment().locale());
   
     },
     
