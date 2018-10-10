@@ -1,63 +1,133 @@
 import Home from './views/Welcome';
 import Report from './views/Report';
 import NegativeLoans from './views/NegativeLoans';
-import Loans from './views/loans/Index';
+import Loans from './views/loans/loans';
+import LoansSenasir from './views/loans/Index';
 import LoansInArrears from './views/loans/LoansInArrears';
 import PartialDeaultLoans from './views/loans/PartialDeaultLoans';
 import LoansCommand from './views/loans/IndexCommand';
 import Amortization from './views/Amortization';
 import OverdueLoans from './views/loans/OverdueLoans';
 import TotalOverdueLoans from './views/loans/TotalOverdueLoans';
-
+import Nav from './views/layout/Nav';
+import Toolbar from './views/layout/Toolbar';
+import Login from './views/user/Login';
 export const routes = [
     {
         path: '/',
         name: 'home',
-        component: Home
+        components:{ 
+            default: Home,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/report',
         name: 'report',
-        component: Report
+        components:{ 
+            default: Report,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/negative_loans',
         name: 'negavitve_loans',
-        component: NegativeLoans
+        components:{ 
+            default: NegativeLoans,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/loans',
         name: 'loans',
-        component: Loans
+        components:{ 
+            default: Loans,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
+    },
+    {
+        path: '/loans_senasir',
+        name: 'loans_senasir',
+        components:{ 
+            default: LoansSenasir,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/partial_loans',
         name: 'partial_loans',
-        component: PartialDeaultLoans
+        components:{ 
+            default: PartialDeaultLoans,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/loans_in_arriears',
         name: 'loans_in_arriears',
-        component: LoansInArrears
+        components:{ 
+            default: LoansInArrears,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/loans_command',
         name: 'loans_command',
-        component: LoansCommand
+        components:{ 
+            default: LoansCommand,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/amortization',
         name: 'amortization',
-        component: Amortization
+        components:{ 
+            default: Amortization,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/overdue_loans',
         name: 'overdue_loans',
-        component: OverdueLoans
+        components:{ 
+            default: OverdueLoans,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
     },
     {
         path: '/total_overdue_loans',
         name: 'total_overdue_loans',
-        component: TotalOverdueLoans
+        components:{ 
+            default: TotalOverdueLoans,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
+    },
+    {
+        path: '/login',
+        name: 'login',
+        components:{ 
+            nomenu: Login,
+        }
     },
 ];

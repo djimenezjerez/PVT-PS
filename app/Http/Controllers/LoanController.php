@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Loan;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use DB;
 use Log;
 use Datetime;
@@ -17,7 +18,166 @@ class LoanController extends Controller
     public function index()
     {
         //
+        // aumenta el tiempo máximo de ejecución de este script a 150 min: 
+        ini_set ('max_execution_time', 9000); 
+        // aumentar el tamaño de memoria permitido de este script: 
+        ini_set ('memory_limit', '960M');
         
+        $excel = request('excel')??'';
+        $order = request('order')??'';
+        $pagination_rows = request('pagination_rows')??10;
+        $conditions = [];
+        //filtros
+        $PresNumero = request('PresNumero')??'';
+        $PresFechaDesembolso = request('PresFechaDesembolso')??'';
+        $PadCedulaIdentidad = request('PadCedulaIdentidad')??'';
+        $PadNombres = request('PadNombres')??'';
+        $PadNombres2do = request('PadNombres2do')??'';
+        $PadPaterno = request('PadPaterno')??'';
+        $PadMaterno = request('PadMaterno')??'';
+        $PadTipo = request('PadTipo')??'';
+        $PadExpCedula = request('PadExpCedula')??'';
+        $PadMatricula = request('PadMatricula')??'';
+        $PadMatriculaTit = request('PadMatriculaTit')??'';
+
+        if($PresNumero != '')
+        {
+            array_push($conditions,array('Prestamos.PresNumero','like',"%{$PresNumero}%"));
+        }
+        if($PresFechaDesembolso != '')
+        {
+            array_push($conditions,array('Prestamos.PresFechaDesembolso','=',"$PresFechaDesembolso"));
+        }
+
+        if($PadMatricula != '')
+        {
+            array_push($conditions,array('Padron.PadMatricula','like',"%{$PadMatricula}%"));
+        }
+        if($PadMatriculaTit != '')
+        {
+            array_push($conditions,array('Padron.PadMatriculaTit','like',"%{$PadMatriculaTit}%"));
+        }
+        if($PadExpCedula != '')
+        {
+            array_push($conditions,array('Padron.PadExpCedula','like',"%{$PadExpCedula}%"));
+        }
+
+        if($PadCedulaIdentidad != '')
+        {
+            array_push($conditions,array('Padron.PadCedulaIdentidad','like',"%{$PadCedulaIdentidad}%"));
+        }
+        if($PadNombres != '')
+        {
+            array_push($conditions,array('Padron.PadNombres','like',"%{$PadNombres}%"));
+        }
+        if($PadNombres2do != '')
+        {
+            array_push($conditions,array('Padron.PadNombres2do','like',"%{$PadNombres2do}%"));
+        }
+        if($PadPaterno != '')
+        {
+            array_push($conditions,array('Padron.PadPaterno','like',"%{$PadPaterno}%"));
+        }
+        if($PadMaterno != '')
+        {
+            array_push($conditions,array('Padron.PadMaterno','like',"%{$PadMaterno}%"));
+        }
+        if($PadTipo != '')
+        {
+            array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
+        }
+        if($excel!='')//reporte excel hdp 
+        {
+            global $rows_exacta;
+            $rows_exacta = Array();
+            //cabezera
+            array_push($rows_exacta,array('Nro Prestamo','Fecha de Solicitud','Fecha Desembolso','Monto Desembolsado','Saldo Actual','Nro Comprobante','Ampliacion',
+                                        'Producto',
+                                        'Tipo','Matricula','Matricula Titular',' CI','Extension','1er Nombre','2do Nombre','Paterno','Materno', 'Apellido de Casada'));
+
+                $loans = DB::table('Prestamos')
+                            ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                            ->where($conditions)
+                            ->where('Prestamos.PresEstPtmo','=','V')
+                            ->where('Prestamos.PresSaldoAct','>',0)
+                            ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
+                                            'Padron.IdPadron',
+                                            'Producto.PrdDsc'
+                                            )
+                            ->orderBy('Prestamos.PresNumero')
+                            ->get();
+
+            foreach($loans as $loan)
+            {
+
+                    $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->first();
+                    $loan->PadTipo = utf8_encode(trim($padron->PadTipo));
+                    $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+                    $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                    $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                    $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                    $loan->PadApellidoCasada =utf8_encode(trim($padron->PadApellidoCasada));
+                    $loan->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                    $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+                    $loan->PadMatricula =utf8_encode(trim($padron->PadMatricula));
+                    $loan->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+
+                    array_push($rows_exacta,array($loan->PresNumero,$loan->PresFechaPrestamo,$loan->PresFechaDesembolso,$loan->PresMntDesembolso,$loan->PresSaldoAct,$loan->PresCtbNroCpte,$loan->PresAmp,
+                                                $loan->PrdDsc,
+                                                $loan->PadTipo,$loan->PadMatricula,$loan->PadMatriculaTit,$loan->PadCedulaIdentidad, $loan->PadExpCedula,$loan->PadNombres,$loan->PadNombres2do,$loan->PadPaterno,$loan->PadMaterno,$loan->PadApellidoCasada
+                                            ));    
+            }
+            Excel::create('prestamos',function($excel)
+            {
+                global $rows_exacta;
+                
+                        $excel->sheet('prestamos vigentes',function($sheet) {
+                                global $rows_exacta;
+                
+                                $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                                $sheet->cells('A1:R1', function($cells) {
+                                // manipulate the range of cells
+                                $cells->setBackground('#058A37');
+                                $cells->setFontColor('#ffffff');  
+                                $cells->setFontWeight('bold');
+                                });
+                            });
+    
+                      
+            })->download('xls');
+
+        }else{
+
+            $loans = DB::table('Prestamos')
+                        ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                        ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                        ->where($conditions)
+                        ->where('Prestamos.PresEstPtmo','=','V')
+                        ->where('Prestamos.PresSaldoAct','>',0)
+                        ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp',
+                                        'Padron.IdPadron',
+                                        'Producto.PrdDsc'
+                                        )
+                        ->orderBy('Prestamos.PresNumero')
+                        ->paginate($pagination_rows);
+
+            $loans->getCollection()->transform(function ($item) {
+                $padron = DB::table('Padron')->where('IdPadron',$item->IdPadron)->first();
+                $item->PadTipo = utf8_encode(trim($padron->PadTipo));
+                $item->PadNombres = utf8_encode(trim($padron->PadNombres));
+                $item->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                $item->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                $item->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                $item->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                $item->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+                $item->PadMatricula =utf8_encode(trim($padron->PadMatricula));
+                $item->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+                return $item;
+            });
+
+            return response()->json($loans->toArray());
+        }
     }
 
     /**
@@ -104,9 +264,6 @@ class LoanController extends Controller
                             ->groupBy('Prestamos.PresNumero','Prestamos.PresEstPtmo','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrTotPag','Amortizacion.AmrSldAnt','Amortizacion.AmrOtrCob')
                             //->take(100)
                             ->get();
-       // return Response::json($loans);
-        //Log::info(var_dump($loans));
-        //Log::info(json_encode($loans));
        return json_encode($loans);
     }
     public function loans_senasir()

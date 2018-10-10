@@ -1,3 +1,5 @@
-  <template>
-  <p>Include Graphics</p>
+<template>
+  <div>
+    inicio
+  </div>
 </template>

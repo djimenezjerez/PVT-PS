@@ -9,28 +9,33 @@ require('./bootstrap');
 
 import Vuetify from 'vuetify';
 import VueRouter from 'vue-router';
+import Vuex from 'vuex';
+import App from './views/App';
+import {routes} from './routes.js';
+import {storage} from './storage.js';
+
 window.Vue = require('vue');
-Vue.use(Vuetify)
-Vue.use(VueRouter)
+window.moment = require('moment');
+require('moment/locale/en-ca');
+
+Vue.use(Vuetify);
+Vue.use(VueRouter);
+Vue.use(Vuex);
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
-import App from './views/App';
-import {routes} from './routes.js';
-
 const router = new VueRouter({
   mode: 'history',
   routes
 });
 
-window.moment = require('moment');
-require('moment/locale/en-ca');
+const store = new Vuex.Store(storage);
 
 const app = new Vue({
   el: '#app',
   components: { App },
   router,
+  store
 });
