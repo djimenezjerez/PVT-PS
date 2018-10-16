@@ -20,7 +20,7 @@ class PrestamosDoblesExactos extends Command
      *
      * @var string
      */
-    protected $description = 'paso 4';
+    protected $description = 'paso 4:para subida al sismu hdp';
 
     /**
      * Create a new command instance.

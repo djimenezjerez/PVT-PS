@@ -95,21 +95,8 @@
             <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
            
             <td class="text-xs-left">{{ props.item.PresCtbNroCpte }}</td>
-            <!-- <td class="justify-center layout px-0">
-                <v-icon
-                    small
-                    class="mr-2"
-                    @click="editItem(props.item)"
-                >
-                    edit
-                </v-icon>
-                <v-icon
-                    small
-                    @click="deleteItem(props.item)"
-                >
-                    delete
-                </v-icon>
-            </td> -->
+            <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
+            
         </template>
        
 phone
@@ -154,6 +141,7 @@ export default {
             { text: 'Ap. Paterno', value: 'PadPaterno',input:'', menu:false},
             { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false},
             { text: 'Nro Comprobante',value:'PresCtbNroCpte',input:'', menu:false},
+            { text: 'Accion',value:'actions',input:'', menu:false},
         ],
         amortizations: [],
         loading: true,
@@ -249,7 +237,11 @@ export default {
                 link.click();
                 self.dialog = false;
             });
-        }
+        },
+        generate_link(id){
+            return 'http://sismu.muserpol.gob.bo/musepol/akardex.aspx?'+id;
+            //console.log(this.loans)
+        },
         // toggleOrder (filter) {
         //     this.filterName = filter;
         //     this.search(filter).then(()=>{

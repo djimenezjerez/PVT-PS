@@ -21,7 +21,7 @@ class IndevidosPrimeraCuota extends Command
      *
      * @var string
      */
-    protected $description = 'paso 5';
+    protected $description = 'paso 5: para subida al sismu hdp';
 
     /**
      * Create a new command instance.

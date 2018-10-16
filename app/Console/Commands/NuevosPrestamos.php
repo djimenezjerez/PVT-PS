@@ -20,7 +20,7 @@ class NuevosPrestamos extends Command
      *
      * @var string
      */
-    protected $description = 'paso 2';
+    protected $description = 'paso 2: para subida al sismu hdp';
 
     /**
      * Create a new command instance.

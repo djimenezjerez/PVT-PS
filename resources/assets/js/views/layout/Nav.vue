@@ -76,7 +76,7 @@ export default {
                 { icon: 'date_range', text: 'Prestamos en Mora' , link: '/overdue_loans' },
                 { icon: 'query_builder', text: 'Mora Total' , link: '/total_overdue_loans' },
                 { icon: 'card_travel', text: 'Mora Parcial' , link: '/partial_loans' },
-                // { icon: 'folder_shared', text: 'Prestamos  Comando ' , link: '/loans_command' },
+                { icon: 'folder_shared', text: 'Prestamos  Comando ' , link: '/loans_command' },
                 { icon: 'folder_shared', text: 'Prestamos  Senasir' , link: '/loans_senasir' },
                 // { icon: 'assignment_late', text: 'Prestamos Negativos' , link: '/negative_loans' },
                 { icon: 'assignment_late', text: 'Prestamos en Mora Pasivos' , link: '/loans_in_arriears' },

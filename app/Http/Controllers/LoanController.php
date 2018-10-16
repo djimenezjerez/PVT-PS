@@ -86,6 +86,10 @@ class LoanController extends Controller
         {
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
+
+        // Log::info($PresFechaDesembolso);
+        // $pres = DB::table('Prestamos')->where('PresFechaDesembolso','=',$PresFechaDesembolso)->first();
+        // Log::info(json_encode($pres));
         if($excel!='')//reporte excel hdp 
         {
             global $rows_exacta;
@@ -101,7 +105,7 @@ class LoanController extends Controller
                             ->where($conditions)
                             ->where('Prestamos.PresEstPtmo','=','V')
                             ->where('Prestamos.PresSaldoAct','>',0)
-                            ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
+                            ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
                                             'Padron.IdPadron',
                                             'Producto.PrdDsc'
                                             )
@@ -155,7 +159,7 @@ class LoanController extends Controller
                         ->where($conditions)
                         ->where('Prestamos.PresEstPtmo','=','V')
                         ->where('Prestamos.PresSaldoAct','>',0)
-                        ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp',
+                        ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp',
                                         'Padron.IdPadron',
                                         'Producto.PrdDsc'
                                         )
