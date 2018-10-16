@@ -19,7 +19,7 @@ class TratadoEspecial extends Command
      *
      * @var string
      */
-    protected $description = 'Tratamiento a los 1 antiguo y otros';
+    protected $description = 'Paso 6: para subida al sismu hdp -- Tratamiento especial a los casos no encontrados del paso 5';
 
     /**
      * Create a new command instance.
@@ -41,8 +41,8 @@ class TratadoEspecial extends Command
         //
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/import/1antiguo y otro.xls');
-        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
+        $path = storage_path('excel/export/5_Indevidos 1er cuota.xls');
+        Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
             $rows_not_found = Array();
