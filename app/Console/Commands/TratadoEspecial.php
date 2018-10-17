@@ -41,7 +41,7 @@ class TratadoEspecial extends Command
         //
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/export/5_Indevidos 1er cuota.xls');
+        $path = storage_path('excel/export/5 Indevidos 1era cuota.xls');
         Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
@@ -106,7 +106,7 @@ class TratadoEspecial extends Command
 
         });
 
-        Excel::create('6_tratamiento especial',function($excel)
+        Excel::create('6 tratamiento especial',function($excel)
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             

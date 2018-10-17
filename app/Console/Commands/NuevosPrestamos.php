@@ -20,7 +20,7 @@ class NuevosPrestamos extends Command
      *
      * @var string
      */
-    protected $description = 'paso 2: para subida al sismu hdp';
+    protected $description = 'paso 4: para subida al sismu hdp';
 
     /**
      * Create a new command instance.
@@ -41,7 +41,7 @@ class NuevosPrestamos extends Command
     {
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/export/prestamos cancelados.xls');
+        $path = storage_path('excel/export/3 prestamos cancelados.xls');
         Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
@@ -55,9 +55,6 @@ class NuevosPrestamos extends Command
             $result = $reader->select(array('ci','app','apm', 'nom1', 'nom2', 'desc_mes'))
                              //->take(100)
                              ->get();
-            
-            
-
 
             $bar = $this->output->createProgressBar(count($result));
             $this->info(sizeof($result));
@@ -69,13 +66,13 @@ class NuevosPrestamos extends Command
                                                     ->where('Prestamos.PresEstPtmo','=','V')
                                                     ->where('Prestamos.PresSaldoAnt','=',0)
                                                     ->where('Padron.PadCedulaIdentidad','=',''.$row->ci)
-                                                    ->whereRaw('day(PlanPagosPlan.PlanFechaPago) = 31 and MONTH(PlanPagosPlan.PlanFechaPago)=8 and YEAR(PlanPagosPlan.PlanFechaPago) = 2018 and PlanPagosPlan.IdPlanNroCouta = 1')
+                                                    ->whereRaw('day(PlanPagosPlan.PlanFechaPago) = 30 and MONTH(PlanPagosPlan.PlanFechaPago)=9 and YEAR(PlanPagosPlan.PlanFechaPago) = 2018 and PlanPagosPlan.IdPlanNroCouta = 1')
                                                     ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
-                                                    ->groupBy('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
+                                                    // ->groupBy('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
                                                     ->first();
                 if($prestamo)
                 {
-                    // $this->info(json_encode($prestamo));
+
                     array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual,$prestamo->PlanCuotaMensual, $prestamo->PresSaldoAct));            
                         
                 }else{
@@ -87,7 +84,7 @@ class NuevosPrestamos extends Command
 
         });
 
-        Excel::create('prestamos 2_nuevos',function($excel)
+        Excel::create('4 prestamos nuevos',function($excel)
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             

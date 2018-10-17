@@ -20,7 +20,7 @@ class DepurarPrestamosCancelados extends Command
      *
      * @var string
      */
-    protected $description = 'paso 1: para subida al sismu hdp';
+    protected $description = 'paso 3: para subida al sismu hdp';
 
     /**
      * Create a new command instance.
@@ -41,8 +41,8 @@ class DepurarPrestamosCancelados extends Command
     {
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/import/CMDO Septiembre.xls');
-        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
+        $path = storage_path('excel/export/2 prestamos dobles exactos.xls');
+        Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
             $rows_not_found = Array();
@@ -59,28 +59,16 @@ class DepurarPrestamosCancelados extends Command
             foreach($result as $row){
                 
                 $ci = trim($row->ci);
-                $prestamos = DB::table('Prestamos')->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                $prestamo = DB::table('Prestamos')->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                                                     ->where('Prestamos.PresEstPtmo','=','V')
                                                     ->where('Prestamos.PresSaldoAct','>',0)
                                                     ->where('Padron.PadCedulaIdentidad','=',''.$row->ci)
-                                                    ->get();
-                if(sizeof($prestamos)>0)
-                {
-                   $sw = false;
-                    foreach($prestamos as $prestamo)
-                    {
-                        if($row->desc_mes == $prestamo->PresSaldoAct)
-                        {
-                            array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual, $prestamo->PresSaldoAct));            
-                        }else{
-                            if(!$sw)
-                            {
-                                $sw= true;
-                                array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
-                            }
-                        }
-                        
-                    }
+                                                    ->where('Prestamos.PresSaldoAct','=',$row->desc_mes)
+                                                    ->first();
+                if($prestamo)
+                {   
+                    array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes,$prestamo->PresNumero,$prestamo->PresCuotaMensual, $prestamo->PresSaldoAct));            
+
                 }else{
                     array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
                 }
@@ -90,7 +78,7 @@ class DepurarPrestamosCancelados extends Command
 
         });
 
-        Excel::create('prestamos cancelados',function($excel)
+        Excel::create('3 prestamos cancelados',function($excel)
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             

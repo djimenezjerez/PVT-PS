@@ -20,7 +20,7 @@ class PrestamosDoblesExactos extends Command
      *
      * @var string
      */
-    protected $description = 'paso 4:para subida al sismu hdp';
+    protected $description = 'paso 2:para subida al sismu hdp';
 
     /**
      * Create a new command instance.
@@ -41,7 +41,7 @@ class PrestamosDoblesExactos extends Command
     {
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/export/3_prestamos con descuentos exactos.xls');
+        $path = storage_path('excel/export/1 descuentos exactos.xls');
         Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
@@ -99,7 +99,7 @@ class PrestamosDoblesExactos extends Command
 
         });
 
-        Excel::create('4_prestamos dobles exactos',function($excel)
+        Excel::create('2 prestamos dobles exactos',function($excel)
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             

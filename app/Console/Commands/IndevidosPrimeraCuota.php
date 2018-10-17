@@ -42,7 +42,7 @@ class IndevidosPrimeraCuota extends Command
     {
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/export/4_prestamos dobles exactos.xls');
+        $path = storage_path('excel/export/4 prestamos nuevos.xls');
         Excel::selectSheetsByIndex(1)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
@@ -90,7 +90,7 @@ class IndevidosPrimeraCuota extends Command
 
         });
 
-        Excel::create('5_Indevidos 1er cuota',function($excel)
+        Excel::create('5 Indevidos 1era cuota',function($excel)
         {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             
