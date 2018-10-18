@@ -69,7 +69,7 @@
                                         v-model="header.input"
                                         append-icon="search"
                                         :label="`Buscar ${header.text}...`"
-                                        v-focus
+                                 
                                         @keydown.enter="search()"
                                         @keyup.delete="checkInput(header.input)"
                                         @keyup.esc="header.menu=false"
@@ -94,6 +94,7 @@
             <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
             <td class="text-xs-left">{{ props.item.AmrTotPag }}</td>
             <td class="text-xs-left">{{ props.item.AmrNroCpte }}</td>
+            <td class="text-xs-left">{{ props.item.AmrTipPAgo }}</td>
             <!-- <td class="justify-center layout px-0">
                 <v-icon
                     small
@@ -152,6 +153,7 @@ export default {
             { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false},
             { text: 'Total Pagado',value:'AmrTotPag',input:'', menu:false},
             { text: 'Nro Comprobante',value:'AmrNroCpte',input:'', menu:false},
+            { text: 'Tipo Descuento',value:'AmrTipPAgo',input:'', menu:false},
         ],
         amortizations: [],
         loading: true,

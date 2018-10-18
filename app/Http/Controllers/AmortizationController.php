@@ -15,6 +15,7 @@ class AmortizationController extends Controller
      */
     public function index()
     {
+        // return 'brian y tati';
          // aumenta el tiempo máximo de ejecución de este script a 150 min: 
          ini_set ('max_execution_time', 9000); 
          // aumentar el tamaño de memoria permitido de este script: 
@@ -60,6 +61,7 @@ class AmortizationController extends Controller
         $PadPaterno = request('PadPaterno')??'';
         $PadMaterno = request('PadMaterno')??'';
         $PadTipo = request('PadTipo')??'';
+        $AmrTipPAgo = request('AmrTipPAgo')??'';
         
         $conditions = [];
         if($PresNumero != '')
@@ -77,6 +79,10 @@ class AmortizationController extends Controller
         if($AmrNroCpte != '')
         {
             array_push($conditions,array('Amortizacion.AmrNroCpte','=',$AmrNroCpte));
+        }
+        if($AmrTipPAgo != '')
+        {
+            array_push($conditions,array('Amortizacion.AmrTipPAgo','like',"%{$AmrTipPAgo}%"));
         }
         if($PadCedulaIdentidad != '')
         {
@@ -102,7 +108,8 @@ class AmortizationController extends Controller
         {
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
-        Log::info($conditions);
+
+        // Log::info($conditions);
         if($excel!='')//reporte excel hdp 
         {
             global $rows_exacta;
