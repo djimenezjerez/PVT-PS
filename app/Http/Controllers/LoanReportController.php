@@ -454,7 +454,6 @@ class LoanReportController extends Controller
     }
 
     public function loans_activo_mora_report()
-  
     {
         ini_set ('max_execution_time', 36000); 
         // aumentar el tamaño de memoria permitido de este script: 
@@ -610,7 +609,7 @@ class LoanReportController extends Controller
             $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
             $amortizacion = DB::table('Amortizacion')->where('IdPrestamo','=',$loan->IdPrestamo)->where('AmrSts','!=','X')->get();
             $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
-
+            $sw = false;
             if($departamento)
             {
 
@@ -620,6 +619,7 @@ class LoanReportController extends Controller
             }
             if(sizeof($amortizacion)>0)
             {
+                $sw=true;
                 $loan->State = 'Recurrente';
                 
                 if($loan->PresSaldoAct < $loan->PresCuotaMensual)
@@ -632,30 +632,40 @@ class LoanReportController extends Controller
 
             }else{
                 $loan->State = 'Nuevo';
-                $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->first();
-               
-                $loan->Discount = $plan_de_pago->PlanCuotaMensual;
+                $plan_de_pago = DB::table('PlanPagosPlan')
+                                ->where('IdPrestamo','=',$loan->IdPrestamo)
+                                ->where('IdPlanNroCouta','=',1)
+                                ->whereraw("PlanFechaPago =  cast('2018-10-31' as datetime)")
+                                ->first();
+               if($plan_de_pago)
+               {
+                    $sw=true;
+                   $loan->Discount = $plan_de_pago->PlanCuotaMensual;
+               }
 
             }
-
-            array_push($prestamos,array(
-                $loan->PresFechaDesembolso,
-                $loan->PresNumero,
-                $loan->PresCuotaMensual,
-                $loan->PresSaldoAct,
-                $loan->PadTipo,
-                $loan->PadMatriculaTit,
-                $loan->PadMatricula,
-                $loan->PadCedulaIdentidad,
-                $loan->PadExpCedula,
-                $loan->PadNombres,
-                $loan->PadNombres2do,
-                $loan->PadPaterno,
-                $loan->PadMaterno,
-                $loan->State,
-                $loan->Discount,
-                $loan->City,
-        ));
+            if($sw)
+            {
+                array_push($prestamos,array(
+                    $loan->PresFechaDesembolso,
+                    $loan->PresNumero,
+                    $loan->PresCuotaMensual,
+                    $loan->PresSaldoAct,
+                    $loan->PadTipo,
+                    $loan->PadMatriculaTit,
+                    $loan->PadMatricula,
+                    $loan->PadCedulaIdentidad,
+                    $loan->PadExpCedula,
+                    $loan->PadNombres,
+                    $loan->PadNombres2do,
+                    $loan->PadPaterno,
+                    $loan->PadMaterno,
+                    $loan->State,
+                    $loan->Discount,
+                    $loan->City,
+            ));
+                
+            }
 
             // $bar->advance();
         }

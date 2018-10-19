@@ -40,159 +40,86 @@ class CheckGar extends Command
     {
         //
 
-        global $rows,$rows_not_found,$sin_amortizacion;
-
-        $this->info("revisando supuestos garantes");
-        $path = storage_path('no_encontrados_junio.xlsx');
-        $this->info($path);
-        Excel::selectSheetsByIndex(0)->load($path , function($reader) {
+        global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+        $path = storage_path('excel/import/POS_GAR.xls');
+        Excel::selectSheetsByIndex(0)->load($path, function($reader) {
+            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+            $rows_exacta = Array();
+            $rows_not_found = Array();
             
-            // reader methods
-            global $rows,$rows_not_found,$sin_amortizacion;
+            array_push($rows_not_found,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
+            array_push($rows_exacta,array('nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes','Nro Prestamo1','cuota 1','Saldo 1','Nro Prestamo2','cuota 2','Saldo 2'));
             
-            // $rows = array();
-            // $rows_not_found = array();
-            // array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            // array_push($rows_not_found, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            // // $rows = array();
-            $rows_not_found =array();
-            $sin_amortizacion =array();
-            $rows = array();
-            array_push($sin_amortizacion,array('ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            array_push($rows_not_found,array('ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','tipo_descuento','nro_comprobante','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));   
-            $result = $reader->select(array('ci','paterno','materno','primer_nombre','segundo_nombre','descuento'))
-                            //->take(2)
-                            ->get();
-            $this->info('corriendo casos '.$result->count());
-            
-            $count = 0;
+            // array_push($rows_exacta,array('Prestamos.IdPrestamo',' Prestamos.PresNumero','PresFechaDesembolso','Producto','Prestamos.PresCuotaMensual','Amortizacion.AmrFecPag','Amortizacion.AmrFecTrn','capital','Interes','Interes penal','otros cobros','Amortizacion.AmrNroCpte','Tipo pago','Amortizacion.AmrTotPag','Descuento_comando','Padron.PadMatricula',' Padron.PadCedulaIdentidad','Padron.PadMaterno',' Padron.PadPaterno',' Padron.PadNombres','Padron.PadNombres2do','Padron.Tipo','nit','ci','app','apm', 'nom1', 'nom2', 'desc_mes'));
+        
+            $result = $reader->select(array('ci','app','apm', 'nom1', 'nom2', 'desc_mes'))
+                        // ->take(500)     
+                        ->get();
+            $bar = $this->output->createProgressBar(count($result));
+            $this->info(sizeof($result));
             foreach($result as $row){
-                $padron = DB::table('Padron')->where('PadCedulaIdentidad','like', trim($row->ci))->first();
+                
+                $ci = trim($row->ci);
+            
+                $padron = DB::table('Padron')->where('Padron.PadCedulaIdentidad','=',$row->ci)->first();
+
                 if($padron)
                 {
-                    $count ++;
-                    $this->info($count.'----------------------------------------------------'.$row->ci);
-                    $this->info($padron->IdPadron);
-                    $pre_gar = DB::table('PrestamosLevel1')->where('IdPadronGar',$padron->IdPadron)->first();
-                    if($pre_gar){
-                        
-                        $this->info(json_encode($pre_gar));
-
-                        $paterno = str_split( $padron->PadPaterno);
-                        $sigla = 'GAR-';
-                        if($paterno){
-                            
-                                $sigla = $sigla.trim($paterno[0]);
-                            
-                        }
-
-                        $materno = str_split( $padron->PadMaterno);
-                        
-                        if($materno){
-                            $sigla= $sigla.trim($materno[0]);
-                        }
-                        $nombres = str_split( $padron->PadNombres);
-                        if($nombres)
-                        {
-                            $sigla = $sigla.trim($nombres[0]);
-                        }
-                        $prestamo = DB::table('Prestamos')->where('IdPrestamo',$pre_gar->IdPrestamo)->first() ;
-
-                        $padron_titular= DB::table('Padron')->where('IdPadron',$prestamo->IdPadron)->first();
-
-                        $amortizacion = DB::table('Amortizacion')->whereRaw("IdPrestamo = ".$prestamo->IdPrestamo." and   MONTH(AMORTIZACION.AMRFECPAG) = 06 AND YEAR(AMORTIZACION.AMRFECPAG)= 2018  and AMORTIZACION.AmrNroCpte = '".$sigla."'" )->first();
-                    
-                        //
-                        $producto = DB::table('Producto')->where('PrdCod',$prestamo->PrdCod)->first();
-                        
-                        if($amortizacion)
-                        {
-                            
-                            array_push($rows,array($prestamo->PresNumero,
-                                                    $prestamo->PresFechaDesembolso,
-                                                    $producto->PrdDsc,
-                                                    $padron_titular->PadMatricula,
-                                                    $padron_titular->PadPaterno,
-                                                    $padron_titular->PadMaterno,
-                                                    $padron_titular->PadNombres,
-                                                    '',
-                                                    $amortizacion->AmrCap,   
-                                                    $amortizacion->AmrInt,   
-                                                    $amortizacion->AmrIntPen,
-                                                    $amortizacion->AmrOtrCob,
-                                                    $amortizacion->AmrTotPag,
-                                                    $amortizacion->AmrTipPAgo,
-                                                    $amortizacion->AmrNroCpte,
-                                                    '*',
-                                                    $row->ci,
-                                                    $row->paterno,
-                                                    $row->materno,
-                                                    $row->primer_nombre,
-                                                    $row->segundo_nombre,
-                                                    number_format($row->descuento, 2, ',', '')
-
-                                                ));
-                            $this->info(json_encode($amortizacion));
-                        }else
-                        {
-                            array_push($sin_amortizacion,array($row->ci,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->descuento,$prestamo->PresNumero ));
-                            $this->info('not found');
-                        }
-                    }else
+                       $prestamos=DB::table('PrestamosLevel1')
+                                    ->join('Prestamos','Prestamos.IdPrestamo','=','PrestamosLevel1.IdPrestamo')
+                                    ->where('PrestamosLevel1.IdPadronGar','=',$padron->IdPadron)
+                                    ->where('Prestamos.PresEstPtmo','=','V')
+                                    ->get();
+                    if(sizeof($prestamos)>0)
                     {
-                        array_push($rows_not_found,array($row->ci,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->descuento));
-                        $this->info('no tiene prestamos en teoria XD');
+                        $new_row =array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes);
+                        foreach($prestamos as $prestamo)
+                        {
+                            array_push($new_row,$prestamo->PresNumero,$prestamo->PresCuotaMensual,$prestamo->PresSaldoAct);
+                        }
+                        array_push($rows_exacta,$new_row); 
+
+                    }else{
+                        array_push($rows_exacta,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));    
                     }
-                    
-                    // $this->info();
-                   // $this->info(json_encode($padron));
+
+
+                }else{
+                    array_push($rows_not_found,array($row->nit,$row->ci,$row->app,$row->apm,$row->nom1,$row->nom2,$row->desc_mes));
                 }
-                else{
-                    $this->info('not found');
-                }
-                //$this->info($row);
                 
+                $bar->advance();
             }
-            $this->info('No econtrados sin prestamos -->'.sizeof($rows_not_found));
-            $this->info('No econtrados sin amortizacion -->'.sizeof($sin_amortizacion));
+            $bar->finish();
 
         });
 
-        Excel::create('los_149_casos',function($excel)
+        Excel::create('helper prestamos garantes',function($excel)
         {
-            global $rows,$rows_not_found,$sin_amortizacion; 
-                    $excel->sheet('encontrados_con_amortizacion',function($sheet) {
-                            global $rows,$rows_not_found,$sin_amortizacion; 
-                            $sheet->fromModel($rows,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
+            global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+            
+                    $excel->sheet('prestamos',function($sheet) {
+                        global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
+                            $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                            $sheet->cells('A1:N1', function($cells) {
                             // manipulate the range of cells
                             $cells->setBackground('#058A37');
                             $cells->setFontColor('#ffffff');  
                             $cells->setFontWeight('bold');
                             });
                         });
-                    $excel->sheet('encontrados_sin_amortizacion',function($sheet) {
-                            global $rows,$rows_not_found,$sin_amortizacion;
+                    $excel->sheet('no encontrados',function($sheet) {
+                        global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
                             $sheet->fromModel($rows_not_found,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
+                            $sheet->cells('A1:N1', function($cells) {
                             // manipulate the range of cells
                             $cells->setBackground('#058A37');
                             $cells->setFontColor('#ffffff');  
                             $cells->setFontWeight('bold');
                             });
                         });
-                    $excel->sheet('sin amortizaciones ',function($sheet) {
-                            global $rows,$rows_not_found,$sin_amortizacion;
-                            $sheet->fromModel($sin_amortizacion,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
-                            // manipulate the range of cells
-                            $cells->setBackground('#058A37');
-                            $cells->setFontColor('#ffffff');  
-                            $cells->setFontWeight('bold');
-                            });
-                        });
-        })->store('xls', storage_path());
+                  
+        })->store('xls', storage_path('excel/export'));
         $this->info('Finished');
     }
 }

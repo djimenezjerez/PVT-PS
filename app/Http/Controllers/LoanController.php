@@ -428,7 +428,6 @@ class LoanController extends Controller
 
             if($departamento)
             {
-
                 $loan->City =$departamento->DepDsc; 
             }else{
                 $loan->City = '';
@@ -447,7 +446,11 @@ class LoanController extends Controller
 
             }else{
                 $loan->State = 'Nuevo';
-                $plan_de_pago = DB::table('PlanPagosPlan')->where('IdPrestamo','=',$loan->IdPrestamo)->where('IdPlanNroCouta','=',1)->first();
+                $plan_de_pago = DB::table('PlanPagosPlan')
+                                    ->where('IdPrestamo','=',$loan->IdPrestamo)
+                                    ->where('IdPlanNroCouta','=',1)
+                                    ->whereraw("PlanFechaPago <  cast('2018-10-31' as datetime)")
+                                    ->first();
                
                 $loan->Discount = $plan_de_pago->PlanCuotaMensual;
 
