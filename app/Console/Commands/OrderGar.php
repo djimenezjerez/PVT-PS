@@ -40,81 +40,81 @@ class OrderGar extends Command
     public function handle()
     {
         //
-        $this->info("Ordenando Garantes");
-        $path = storage_path('cuotas.xlsx');
-        Excel::selectSheetsByIndex(0)->load($path , function($reader) {
-            
-            // reader methods
-            global $rows,$rows_not_found;
-            
-            $rows = array();
-            $rows_not_found = array();
-            array_push($rows, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            array_push($rows_not_found, array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado','*','ci','paterno','materno','primer_nombre','segundo_nombre','descuento'));
-            // $rows = array();
-
-            $result = $reader->select(array('nro_prestamo','fecha_desembolso','producto','matricula', 'paterno', 'materno', 'primer_nombre','segundo_nombre', 'capital','interes','interes_penal','otros_cobros','total_pagado'))
-                            ->take(100)
-                            ->get();
-            foreach($result as $row){
-                
-                $arr= explode('-',$row->matricula);    
-                $ci= $arr[0];
-                $afiliado = DB::table('afiliados_comando')->where('ci',$ci)->first();
-                if( isset($afiliado->id)){
-                    
-                    DB::table('afiliados_comando')
-                        ->where('id', $afiliado->id)
-                        ->update(['tipo' => 'garante']);
-                    array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->fecha,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*',$afiliado->ci,$afiliado->paterno,$afiliado->materno,$afiliado->primer_nombre,$afiliado->segundo_nombre,number_format($afiliado->descuento, 2, ',', '')));
-                    $this->info($row);
-                }else{
-                    array_push($rows,array($row->nro_prestamo,$row->fecha_desembolso,$row->producto,$row->matricula,$row->paterno,$row->materno,$row->primer_nombre,$row->segundo_nombre,$row->capital,$row->interes,$row->interes_penal,$row->otros_cobros,$row->total_pagado,'*'));
-                    
-                }
-                //$this->info($row);
-                
-            }
-
-
-
-
-        });
-
-        Excel::create('garantes_conciliacion',function($excel)
+        $excel = 'true';
+        $date = '01/10/2018';
+        // Log::info($excel);
+        $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '2018-09-30') as meses_mora from dbo.Prestamos
+        join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
+        join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+        join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo AND Amortizacion.AMRSTS <>'X' ))
+        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('2018-09-30' as datetime)
+        order by meses_mora DESC;");
+        // $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron from dbo.Prestamos
+        // join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
+        // join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+        // join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo AND Amortizacion.AMRSTS <>'X' ))
+        // where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('2018-08-31' as datetime) ;");
+        $this->info(sizeof($loans));
+        
+        $prestamos= [];
+        global $rows_exacta;
+        $rows_exacta = Array();
+        array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Cutoa Mensual','Saldo Actual','Tipo','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do','Meses Mora','matricula','ci','ext','nom1','nom2','paterno','materno','tipo'));
+        foreach($loans as $loan)
         {
-            global $rows,$rows_not_found,$row_empy_capital;
-                    $excel->sheet('encontrados',function($sheet) {
-                            global $rows,$rows_not_found,$row_empy_capital;
-                            $sheet->fromModel($rows,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
+            $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->first();
+            $loan->PadTipo = utf8_encode(trim($padron->PadTipo));
+            $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+            $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+            $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+            $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+            $loan->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+            $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+            $loan->PadMatricula =utf8_encode(trim($padron->PadMatricula));
+            
+            
+            
+            
+            if($excel!='')//reporte excel hdp 
+            {
+                $row = array($loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual,$loan->PresSaldoAct,$loan->PadTipo,$loan->PrdDsc,$loan->PadMatricula,$loan->PadCedulaIdentidad,$loan->PadPaterno,$loan->PadMaterno,$loan->PadNombres,$loan->PadNombres2do,$loan->meses_mora);
+                
+                $garantes = DB::table('PrestamosLevel1')->where('IdPrestamo','=',$loan->IdPrestamo)->get();
+                if(sizeof($garantes)>0)
+                {
+                    foreach($garantes as $garante)
+                    {
+                        $padron_gar = DB::table('Padron')->where('Padron.IdPadron','=',$garante->IdPadronGar)->first();
+                        array_push($row,utf8_encode(trim($padron_gar->PadMatricula)),utf8_encode(trim($padron_gar->PadCedulaIdentidad)),utf8_encode(trim($padron_gar->PadExpCedula)),utf8_encode(trim($padron_gar->PadNombres)),utf8_encode(trim($padron_gar->PadNombres2do)),utf8_encode(trim($padron_gar->PadPaterno)),utf8_encode(trim($padron_gar->PadMaterno)),utf8_encode(trim($padron_gar->PadTipo)),'*');
+
+                    }
+                }
+                array_push($rows_exacta,$row);    
+            }else{
+                array_push($prestamos,$loan);
+            }
+        }
+       
+        Excel::create('prestamos en mora',function($excel)
+        {
+            global $rows_exacta;
+            
+                    $excel->sheet('mora_parcial',function($sheet) {
+                            global $rows_exacta;
+            
+                            $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                            $sheet->cells('A1:M1', function($cells) {
                             // manipulate the range of cells
                             $cells->setBackground('#058A37');
                             $cells->setFontColor('#ffffff');  
                             $cells->setFontWeight('bold');
                             });
                         });
-                    $excel->sheet('no_encontrados',function($sheet) {
-                            global $rows,$rows_not_found,$row_empy_capital;
-                            $sheet->fromModel($rows_not_found,null, 'A1', false, false);
-                            $sheet->cells('A1:C1', function($cells) {
-                            // manipulate the range of cells
-                            $cells->setBackground('#058A37');
-                            $cells->setFontColor('#ffffff');  
-                            $cells->setFontWeight('bold');
-                            });
-                        });
-                    // $excel->sheet('no_captital_0',function($sheet) {
-                    //         global $rows,$rows_not_found,$row_empy_capital;
-                    //         $sheet->fromModel($row_empy_capital,null, 'A1', false, false);
-                    //         $sheet->cells('A1:C1', function($cells) {
-                    //         // manipulate the range of cells
-                    //         $cells->setBackground('#058A37');
-                    //         $cells->setFontColor('#ffffff');  
-                    //         $cells->setFontWeight('bold');
-                    //         });
-                    //     });
+
+                    
+        
         })->store('xls', storage_path());
         $this->info('Finished');
+       
     }
 }

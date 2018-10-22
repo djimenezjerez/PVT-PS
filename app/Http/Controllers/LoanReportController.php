@@ -598,6 +598,7 @@ class LoanReportController extends Controller
         $prestamos_sin_plan = [];
         $prestamos =[ array('FechaDesembolso','Numero','Cuota','SaldoActual','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','Descuento','ciudad')];
         // $bar = $this->output->createProgressBar(count($loans));
+        $sw = false;
         foreach($loans  as $loan)
         {   
             $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
@@ -635,7 +636,8 @@ class LoanReportController extends Controller
                 $plan_de_pago = DB::table('PlanPagosPlan')
                                 ->where('IdPrestamo','=',$loan->IdPrestamo)
                                 ->where('IdPlanNroCouta','=',1)
-                                ->whereraw("PlanFechaPago =  cast('2018-10-31' as datetime)")
+                                ->where('PlanFechapago','=','2018-10-31')
+                                // ->whereraw("PlanFechaPago = cast('' as datetime)")
                                 ->first();
                if($plan_de_pago)
                {

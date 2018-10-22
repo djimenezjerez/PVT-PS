@@ -34,7 +34,7 @@ class OverdueLoansController extends Controller
         $prestamos= [];
         global $rows_exacta;
         $rows_exacta = Array();
-        array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Cutoa Mensual','Saldo Actual','Tipo','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do','Meses Mora'));
+        array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Cutoa Mensual','Saldo Actual','Tipo','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do','Meses Mora','matricula','ci','ext','nom1','nom2','paterno','materno','tipo'));
         foreach($loans as $loan)
         {
             $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->first();
@@ -46,10 +46,25 @@ class OverdueLoansController extends Controller
             $loan->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
             $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
             $loan->PadMatricula =utf8_encode(trim($padron->PadMatricula));
-        
+            
+            
+            
+            
             if($excel!='')//reporte excel hdp 
             {
-                array_push($rows_exacta,array($loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual,$loan->PresSaldoAct,$loan->PadTipo,$loan->PrdDsc,$loan->PadMatricula,$loan->PadCedulaIdentidad,$loan->PadPaterno,$loan->PadMaterno,$loan->PadNombres,$loan->PadNombres2do,$loan->meses_mora));    
+                $row = array($loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual,$loan->PresSaldoAct,$loan->PadTipo,$loan->PrdDsc,$loan->PadMatricula,$loan->PadCedulaIdentidad,$loan->PadPaterno,$loan->PadMaterno,$loan->PadNombres,$loan->PadNombres2do,$loan->meses_mora);
+                
+                $garantes = DB::table('PrestamosLevel1')->where('IdPrestamo','=',$loan->IdPrestamo)->get();
+                if(sizeof($garantes)>0)
+                {
+                    foreach($garantes as $garante)
+                    {
+                        $padron_gar = DB::table('Padron')->where('Padron.IdPadron','=',$garante->IdPadronGar)->first();
+                        array_push($row,utf8_encode(trim($padron->PadMatricula)),utf8_encode(trim($padron->PadCedulaIdentidad)),utf8_encode(trim($padron->PadExpCedula)),utf8_encode(trim($padron->PadNombres)),utf8_encode(trim($padron->PadNombres2do)),utf8_encode(trim($padron->PadPaterno)),utf8_encode(trim($padron->PadMaterno)),utf8_encode(trim($padron->PadTipo)),'*');
+
+                    }
+                }
+                array_push($rows_exacta,$row);    
             }else{
                 array_push($prestamos,$loan);
             }
