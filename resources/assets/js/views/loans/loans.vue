@@ -251,7 +251,7 @@ export default {
         getParams(){
             let params={};
             this.headers.forEach(element => {
-                params[element.value] = element.input;
+                params[element.value] = element.input.toUpperCase();
             });
             // params['sorted']=this.filterName;
             // params['order']=this.pagination.descending==true?'asc':'desc';

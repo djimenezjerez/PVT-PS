@@ -93,7 +93,7 @@ class LoanController extends Controller
         {
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
-        Log::info('buscando '.$PresFechaDesembolso);
+        
         // Log::info($PresFechaDesembolso);
         // $pres = DB::table('Prestamos')->where('PresFechaDesembolso','=',$PresFechaDesembolso)->first();
         // Log::info(json_encode($pres));
