@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Log;
 use DB;
+use Carbon\Carbon;
 class AmortizationController extends Controller
 {
     /**
@@ -70,7 +71,14 @@ class AmortizationController extends Controller
         }
         if($AmrFecPag != '')
         {
-            array_push($conditions,array('Amortizacion.AmrFecPag','=',$AmrFecPag));
+            $date_from = Carbon::parse($AmrFecPag);
+            $date_to = Carbon::parse($AmrFecPag);
+            $date_to->hour = 23;
+            $date_to->minute = 59;
+            $date_to->second = 59;
+            array_push($conditions,array('Amortizacion.AmrFecPag','<=',$date_to));
+            array_push($conditions,array('Amortizacion.AmrFecPag','>=',$date_from));
+
         }
         if($AmrTipPAgo != '')
         {

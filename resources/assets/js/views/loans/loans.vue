@@ -137,8 +137,7 @@
             <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
             
         </template>
-       
-phone
+
         </v-data-table>
         
         <div class="text-xs-center">

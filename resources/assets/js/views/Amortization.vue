@@ -62,7 +62,7 @@
                                     >
                                     <v-icon  small :color="header.input!=''?'blue':'black'">fa-filter</v-icon>
                                     </v-btn>
-                                    <v-card  >
+                                    <v-card  v-if="header.type=='text'">
                                         <v-text-field
                                          outline
                                          hide-details
@@ -76,7 +76,47 @@
                                     ></v-text-field>
                                     
                                     </v-card>
+                                    <v-card  v-if="header.type=='date'">
+                                        
+                                        <v-list>
+                                            <v-list-tile avatar>
+                                                <v-list-tile-content>
+                                                    <v-menu
+                                                        
+                                                        :close-on-content-click="false"
+                                                        v-model="menu_date"
+                                                        :nudge-right="40"
+                                                        lazy
+                                                        transition="scale-transition"
+                                                        offset-y
+                                                        full-width
+                                                        max-width="290px"
+                                                        min-width="290px"
+                                                    >
+                                                    
+                                                    <v-text-field
+                                                        hide-details
+                                                        slot="activator"
+                                                        v-model="header.input"
+                                                        :label="`Buscar ${header.text}...`"
+                                                        readonly
+                                                    ></v-text-field>
+                                                    <v-date-picker v-model="header.input" no-title @input="menu_date = false"></v-date-picker>
+                                                
+                                                    </v-menu>          
+                                                </v-list-tile-content>
+
+                                                <v-list-tile-avatar>
+                                                <v-icon @click="clearDate(index)">delete</v-icon>
+                                                <v-icon @click="search()">search</v-icon>
+                                                </v-list-tile-avatar>
+
+                                            </v-list-tile>
+                                            </v-list>
+
+                                    </v-card>
                             </v-menu>
+                            
                             <!-- <v-icon small @click="toggleOrder(header.value)" v-if="header.value == filterName ">{{pagination.descending==false?'arrow_upward':'arrow_downward'}}</v-icon> -->
                         </v-flex>
                 </th>
@@ -112,7 +152,6 @@
             </td> -->
         </template>
        
-phone
         </v-data-table>
         
         <div class="text-xs-center">
@@ -142,18 +181,18 @@ export default {
           sortBy: 'PresNumero'
         },
         headers: [
-            { text: 'Nro Prestamo', value: 'PresNumero',input:'' , menu:false},
-            { text: 'Fecha Pago', value: 'AmrFecPag',input:'' , menu:false},
-            { text: 'Tipo', value: 'PadTipo',input:'', menu:false },
-            // { text: 'Matricula', value: 'PadMatricula' , menu:false},
-            { text: 'CI', value: 'PadCedulaIdentidad',input:'' , menu:false},
-            { text: '1er Nombre', value: 'PadNombres',input:'' , menu:false},
-            { text: '2do Nombre', value: 'PadNombres2do',input:'' , menu:false},
-            { text: 'Ap. Paterno', value: 'PadPaterno',input:'', menu:false},
-            { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false},
-            { text: 'Total Pagado',value:'AmrTotPag',input:'', menu:false},
-            { text: 'Nro Comprobante',value:'AmrNroCpte',input:'', menu:false},
-            { text: 'Tipo Descuento',value:'AmrTipPAgo',input:'', menu:false},
+            { text: 'Nro Prestamo', value: 'PresNumero',input:'' , menu:false , type:"text"},
+            { text: 'Fecha Pago', value: 'AmrFecPag',input:'' , menu:false , type:"date"},
+            { text: 'Tipo', value: 'PadTipo',input:'', menu:false  , type:"text"},
+            // { text: 'Matricula', value: 'PadMatricula' , menu:false , type:"text"},
+            { text: 'CI', value: 'PadCedulaIdentidad',input:'' , menu:false , type:"text"},
+            { text: '1er Nombre', value: 'PadNombres',input:'' , menu:false , type:"text"},
+            { text: '2do Nombre', value: 'PadNombres2do',input:'' , menu:false , type:"text"},
+            { text: 'Ap. Paterno', value: 'PadPaterno',input:'', menu:false , type:"text"},
+            { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false , type:"text"},
+            { text: 'Total Pagado',value:'AmrTotPag',input:'', menu:false , type:"text"},
+            { text: 'Nro Comprobante',value:'AmrNroCpte',input:'', menu:false , type:"text"},
+            { text: 'Tipo Descuento',value:'AmrTipPAgo',input:'', menu:false , type:"text"},
         ],
         amortizations: [],
         loading: true,
@@ -161,7 +200,7 @@ export default {
         total:0,
         from:0,
         to:0,
-        page:2,
+        page:1,
         paginationRows: 10,
         pagination_select:[10,20,30]
       }
@@ -195,6 +234,10 @@ export default {
             this.page = page;
             this.search();
         },
+        clearDate(index){
+            this.headers[index].input='';
+            this.search();
+        },
         search(){
             
             return new Promise((resolve,reject)=>{   
@@ -212,7 +255,7 @@ export default {
         getParams(){
             let params={};
             this.headers.forEach(element => {
-                params[element.value] = element.input;
+                params[element.value] = element.input.toUpperCase();
             });
             // params['sorted']=this.filterName;
             // params['order']=this.pagination.descending==true?'asc':'desc';
