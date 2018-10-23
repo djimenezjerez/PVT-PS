@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use DB;
 use Log;
 use Datetime;
+use Carbon\Carbon;
 class LoanController extends Controller
 {
     /**
@@ -46,7 +47,13 @@ class LoanController extends Controller
         }
         if($PresFechaDesembolso != '')
         {
-            array_push($conditions,array('Prestamos.PresFechaDesembolso','=',"$PresFechaDesembolso"));
+            $date_from = Carbon::parse($PresFechaDesembolso);
+            $date_to = Carbon::parse($PresFechaDesembolso);
+            $date_to->hour = 23;
+            $date_to->minute = 59;
+            $date_to->second = 59;
+            array_push($conditions,array('Prestamos.PresFechaDesembolso','<=',$date_to));
+            array_push($conditions,array('Prestamos.PresFechaDesembolso','>=',$date_from));
         }
 
         if($PadMatricula != '')
@@ -86,7 +93,7 @@ class LoanController extends Controller
         {
             array_push($conditions,array('Padron.PadTipo','like',"%{$PadTipo}%"));
         }
-
+        Log::info('buscando '.$PresFechaDesembolso);
         // Log::info($PresFechaDesembolso);
         // $pres = DB::table('Prestamos')->where('PresFechaDesembolso','=',$PresFechaDesembolso)->first();
         // Log::info(json_encode($pres));
@@ -163,7 +170,7 @@ class LoanController extends Controller
                                         'Padron.IdPadron',
                                         'Producto.PrdDsc'
                                         )
-                        ->orderBy('Prestamos.PresNumero')
+                        ->orderBy('Prestamos.PresFechaDesembolso','Desc')
                         ->paginate($pagination_rows);
 
             $loans->getCollection()->transform(function ($item) {

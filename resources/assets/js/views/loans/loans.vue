@@ -79,8 +79,6 @@
                                         
                                         <v-list>
                                             <v-list-tile avatar>
-                                                
-
                                                 <v-list-tile-content>
                                                     <v-menu
                                                         
@@ -115,52 +113,6 @@
                                             </v-list-tile>
                                             </v-list>
 
-                                            <!-- <v-divider></v-divider>
-
-                                     
-                                            <v-card-actions>
-                                            <v-spacer></v-spacer>
-
-                                            <v-btn flat @click="header.menu = false">Cancel</v-btn>
-                                            <v-btn color="primary" flat @click="header.menu">Save</v-btn>
-                                            </v-card-actions> -->
-                                            <!-- <v-menu
-                                                
-                                                :close-on-content-click="false"
-                                                v-model="menu_date"
-                                                :nudge-right="40"
-                                                lazy
-                                                transition="scale-transition"
-                                                offset-y
-                                                full-width
-                                                max-width="290px"
-                                                min-width="290px"
-                                            >
-                                            
-                                            <v-text-field
-                                                hide-details
-                                                outline
-                                                slot="activator"
-                                                v-model="header.input"
-                                                label="Date"
-                                            ></v-text-field>
-                                            <v-date-picker v-model="header.input" no-title @input="menu_date = false"></v-date-picker>
-                                            <v-btn icon >
-                                                <v-icon>search</v-icon>
-                                            </v-btn>
-                                            </v-menu>                                   -->
-                                        <!-- <v-text-field 
-                                            outline
-                                            hide-details
-                                            v-model="header.input"
-                                            append-icon="search"
-                                            :label="`Buscar ${header.text}...`"
-                                            @keydown.enter="search()"
-                                            @keyup.delete="checkInput(header.input)"
-                                            @keyup.esc="header.menu=false"
-                                        ></v-text-field> -->
-                                        <!-- <v-date-picker v-model="header.input" no-title @input="closeDate(index)" ></v-date-picker> -->
-                                    
                                     </v-card>
                             </v-menu>
                             <!-- <v-icon small @click="toggleOrder(header.value)" v-if="header.value == filterName ">{{pagination.descending==false?'arrow_upward':'arrow_downward'}}</v-icon> -->
