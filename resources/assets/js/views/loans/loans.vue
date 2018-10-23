@@ -62,17 +62,104 @@
                                     >
                                     <v-icon  small :color="header.input!=''?'blue':'black'">fa-filter</v-icon>
                                     </v-btn>
-                                    <v-card  >
+                                    <v-card  v-if="header.type=='text'">
                                         <v-text-field
-                                         outline
-                                         hide-details
-                                        v-model="header.input"
-                                        append-icon="search"
-                                        :label="`Buscar ${header.text}...`"
-                                        @keydown.enter="search()"
-                                        @keyup.delete="checkInput(header.input)"
-                                        @keyup.esc="header.menu=false"
-                                    ></v-text-field>
+                                            outline
+                                            hide-details
+                                            v-model="header.input"
+                                            append-icon="search"
+                                            :label="`Buscar ${header.text}...`"
+                                            @keydown.enter="search()"
+                                            @keyup.delete="checkInput(header.input)"
+                                            @keyup.esc="header.menu=false"
+                                        ></v-text-field>
+                                    
+                                    </v-card>
+                                    <v-card  v-if="header.type=='date'">
+                                        
+                                        <v-list>
+                                            <v-list-tile avatar>
+                                                
+
+                                                <v-list-tile-content>
+                                                    <v-menu
+                                                        
+                                                        :close-on-content-click="false"
+                                                        v-model="menu_date"
+                                                        :nudge-right="40"
+                                                        lazy
+                                                        transition="scale-transition"
+                                                        offset-y
+                                                        full-width
+                                                        max-width="290px"
+                                                        min-width="290px"
+                                                    >
+                                                    
+                                                    <v-text-field
+                                                        hide-details
+                                                        slot="activator"
+                                                        v-model="header.input"
+                                                        :label="`Buscar ${header.text}...`"
+                                                        readonly
+                                                    ></v-text-field>
+                                                    <v-date-picker v-model="header.input" no-title @input="menu_date = false"></v-date-picker>
+                                                
+                                                    </v-menu>          
+                                                </v-list-tile-content>
+
+                                                <v-list-tile-avatar>
+                                                <v-icon @click="clearDate(index)">delete</v-icon>
+                                                <v-icon @click="search()">search</v-icon>
+                                                </v-list-tile-avatar>
+
+                                            </v-list-tile>
+                                            </v-list>
+
+                                            <!-- <v-divider></v-divider>
+
+                                     
+                                            <v-card-actions>
+                                            <v-spacer></v-spacer>
+
+                                            <v-btn flat @click="header.menu = false">Cancel</v-btn>
+                                            <v-btn color="primary" flat @click="header.menu">Save</v-btn>
+                                            </v-card-actions> -->
+                                            <!-- <v-menu
+                                                
+                                                :close-on-content-click="false"
+                                                v-model="menu_date"
+                                                :nudge-right="40"
+                                                lazy
+                                                transition="scale-transition"
+                                                offset-y
+                                                full-width
+                                                max-width="290px"
+                                                min-width="290px"
+                                            >
+                                            
+                                            <v-text-field
+                                                hide-details
+                                                outline
+                                                slot="activator"
+                                                v-model="header.input"
+                                                label="Date"
+                                            ></v-text-field>
+                                            <v-date-picker v-model="header.input" no-title @input="menu_date = false"></v-date-picker>
+                                            <v-btn icon >
+                                                <v-icon>search</v-icon>
+                                            </v-btn>
+                                            </v-menu>                                   -->
+                                        <!-- <v-text-field 
+                                            outline
+                                            hide-details
+                                            v-model="header.input"
+                                            append-icon="search"
+                                            :label="`Buscar ${header.text}...`"
+                                            @keydown.enter="search()"
+                                            @keyup.delete="checkInput(header.input)"
+                                            @keyup.esc="header.menu=false"
+                                        ></v-text-field> -->
+                                        <!-- <v-date-picker v-model="header.input" no-title @input="closeDate(index)" ></v-date-picker> -->
                                     
                                     </v-card>
                             </v-menu>
@@ -125,23 +212,25 @@ export default {
     data () {
       return {
         dialog: false,
+        menu_date: false,
+        // date:false,
         pagination: {
           sortBy: 'PresNumero'
         },
         headers: [
-            { text: 'Nro Prestamo', value: 'PresNumero',input:'' , menu:false},
-            { text: 'Fecha Desembolso', value: 'PresFechaDesembolso',input:'' , menu:false},
-            { text: 'Tipo', value: 'PadTipo',input:'', menu:false },
-            { text: 'Matricula', value: 'PadMatricula' ,input:'', menu:false},
-            { text: 'Matricula Titular', value: 'PadMatriculaTit' ,input:'', menu:false},
-            { text: 'CI', value: 'PadCedulaIdentidad',input:'' , menu:false},
-            { text: 'Exp', value: 'PadExpCedula',input:'' , menu:false},
-            { text: '1er Nombre', value: 'PadNombres',input:'' , menu:false},
-            { text: '2do Nombre', value: 'PadNombres2do',input:'' , menu:false},
-            { text: 'Ap. Paterno', value: 'PadPaterno',input:'', menu:false},
-            { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false},
-            { text: 'Nro Comprobante',value:'PresCtbNroCpte',input:'', menu:false},
-            { text: 'Accion',value:'actions',input:'', menu:false},
+            { text: 'Nro Prestamo', value: 'PresNumero',input:'' , menu:false,type:"text"},
+            { text: 'Fecha Desembolso', value: 'PresFechaDesembolso',input:'' , menu:false,type:"date"},
+            { text: 'Tipo', value: 'PadTipo',input:'', menu:false ,type:"text"},
+            { text: 'Matricula', value: 'PadMatricula' ,input:'', menu:false,type:"text"},
+            { text: 'Matricula Titular', value: 'PadMatriculaTit' ,input:'', menu:false,type:"text"},
+            { text: 'CI', value: 'PadCedulaIdentidad',input:'' , menu:false,type:"text"},
+            { text: 'Exp', value: 'PadExpCedula',input:'' , menu:false,type:"text"},
+            { text: '1er Nombre', value: 'PadNombres',input:'' , menu:false,type:"text"},
+            { text: '2do Nombre', value: 'PadNombres2do',input:'' , menu:false,type:"text"},
+            { text: 'Ap. Paterno', value: 'PadPaterno',input:'', menu:false,type:"text"},
+            { text: 'Ap. Materno',value:'PadMaterno',input:'', menu:false,type:"text"},
+            { text: 'Nro Comprobante',value:'PresCtbNroCpte',input:'', menu:false,type:"text"},
+            { text: 'Accion',value:'actions',input:'', menu:false,type:"text"},
         ],
         amortizations: [],
         loading: true,
@@ -149,7 +238,7 @@ export default {
         total:0,
         from:0,
         to:0,
-        page:2,
+        page:1,
         paginationRows: 10,
         pagination_select:[10,20,30]
       }
@@ -197,6 +286,16 @@ export default {
                 });
             });
         },
+        closeDate(index){
+            this.headers[index].menu = false;
+            this.search();
+            // console.log(this.headers[index]);
+            
+        },
+        clearDate(index){
+            this.headers[index].input='';
+            this.search();
+        },
         getParams(){
             let params={};
             this.headers.forEach(element => {
@@ -242,6 +341,18 @@ export default {
             return 'http://sismu.muserpol.gob.bo/musepol/akardex.aspx?'+id;
             //console.log(this.loans)
         },
+        formatDate (date) {
+            if (!date) return null
+
+            const [year, month, day] = date.split('-')
+            return `${month}/${day}/${year}`
+        },
+        parseDate (date) {
+            if (!date) return null
+
+            const [month, day, year] = date.split('/')
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+        }
         // toggleOrder (filter) {
         //     this.filterName = filter;
         //     this.search(filter).then(()=>{
