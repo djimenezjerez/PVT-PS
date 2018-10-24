@@ -14,8 +14,12 @@ import App from './views/App';
 import {routes} from './routes.js';
 import {storage} from './storage.js';
 
+
 window.Vue = require('vue');
 window.moment = require('moment');
+window.Chart = require('chart.js');
+
+
 require('moment/locale/en-ca');
 
 Vue.use(Vuetify);
