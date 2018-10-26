@@ -16,7 +16,26 @@ class LoanReportController extends Controller
     public function index()
     {
         //
-        return view('layout.app');
+        $prestamos_tipo = DB::select("select sum(dbo.Prestamos.PresSaldoAct) as sub_total,count(DISTINCT Padron.IdPadron) as cantidad,dbo.Padron.PadTipo as nombre from dbo.Padron
+        JOIN dbo.Prestamos on Prestamos.IdPadron = Padron.IdPadron
+        where  Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0
+        GROUP by dbo.Padron.PadTipo;");
+
+        $prestamos_producto = DB::select("SELECT count(Prestamos.PrdCod) as cantidad, Producto.PrdDsc  as nombre from dbo.Prestamos
+        join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0
+        GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
+
+        $prestamos = DB::select("select count(dbo.Prestamos.IdPrestamo) as cantidad, sum(dbo.Prestamos.PresSaldoAct) as total from dbo.Prestamos
+        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0;");
+
+        $data = array(
+                'prestamos_tipo'=> $prestamos_tipo,
+                'prestamos_producto'=> $prestamos_producto,
+                'prestamos' => $prestamos
+        );
+        return json_encode($data);
+        
     }
 
     /**

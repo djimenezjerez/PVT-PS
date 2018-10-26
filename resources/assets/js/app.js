@@ -18,7 +18,7 @@ import {storage} from './storage.js';
 window.Vue = require('vue');
 window.moment = require('moment');
 window.Chart = require('chart.js');
-
+window.numeral = require('numeral');
 
 require('moment/locale/en-ca');
 
