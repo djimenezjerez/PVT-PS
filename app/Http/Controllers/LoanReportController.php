@@ -29,10 +29,21 @@ class LoanReportController extends Controller
         $prestamos = DB::select("select count(dbo.Prestamos.IdPrestamo) as cantidad, sum(dbo.Prestamos.PresSaldoAct) as total from dbo.Prestamos
         where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0;");
 
+        $prestamos_estado = DB::select("select count(dbo.Prestamos.PresEstPtmo) as cantidad ,dbo.EstadoPrestamo.PresEstDsc as nombre from dbo.Prestamos
+        join dbo.EstadoPrestamo on Prestamos.PresEstPtmo = EstadoPrestamo.PresEstPtmo
+        GROUP by dbo.Prestamos.PresEstPtmo,EstadoPrestamo.PresEstDsc;");
+
+        $prestamos_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2018 
+        GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
+        ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
+
         $data = array(
                 'prestamos_tipo'=> $prestamos_tipo,
                 'prestamos_producto'=> $prestamos_producto,
-                'prestamos' => $prestamos
+                'prestamos_vigentes' => $prestamos[0],
+                'prestamos_estado' =>$prestamos_estado,
+                'prestamos_mes' =>$prestamos_mes
         );
         return json_encode($data);
         
