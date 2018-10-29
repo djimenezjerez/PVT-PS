@@ -62,7 +62,6 @@
               <canvas id="prestamos_estado" ></canvas>
             </v-card>
           </v-flex>
-        </v-layout>
           <v-flex xs12>
             <v-card >
               <v-card-title primary-title>
@@ -73,7 +72,7 @@
               <canvas id="prestamos_producto" ></canvas>
             </v-card>
           </v-flex>
-          <v-flex xs12>
+           <v-flex xs12>
             <v-card >
               <v-card-title primary-title>
               <div>
@@ -83,6 +82,8 @@
               <canvas id="prestamos_mes" ></canvas>
             </v-card>
           </v-flex>
+        </v-layout>
+         
       </v-container>
   
 
