@@ -42,6 +42,10 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CobranzasCancelados::class,
         \App\Console\Commands\CobranzasPendientes::class,
         \App\Console\Commands\CobranzasComprobantes::class,
+        \App\Console\Commands\ImportSigepMayor::class,
+        \App\Console\Commands\ImportSigepMayor::class,
+        \App\Console\Commands\ImportSaldosAnteriores::class,
+        \App\Console\Commands\ConciliadorTesoreria::class,
     ];
 
     /**
