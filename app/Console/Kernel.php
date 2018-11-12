@@ -46,6 +46,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ImportSigepMayor::class,
         \App\Console\Commands\ImportSaldosAnteriores::class,
         \App\Console\Commands\ConciliadorTesoreria::class,
+        \App\Console\Commands\SenasirCompleteData::class,
     ];
 
     /**
