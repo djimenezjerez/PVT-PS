@@ -15,11 +15,11 @@ use Illuminate\Http\Request;
 Route::resource('reporte','LoanReportController');
 Route::get('reporte_prestamos','LoanReportController@Loans');
 Route::get('negative_loans','LoanController@negative_loans');
-Route::get('loans_senasir','LoanController@loans_senasir');
-Route::get('loans_command','LoanController@loans_command');
+Route::resource('loans_senasir','SenasirController');
+// Route::get('loans_command','LoanController@loans_command');
 Route::get('loans_in_arrears','LoanController@loans_in_arrears');
 Route::get('loans_senasir_report','LoanReportController@loans_senasir_report');
-Route::get('loans_command_report','LoanReportController@loans_command_report');
+// Route::get('loans_command_report','LoanReportController@loans_command_report');
 Route::get('activos_cancelados','LoanReportController@activos_cancelados');
 Route::get('loans_pasivo_mora_report','LoanReportController@loans_pasivo_mora_report');
 Route::get('loans_activo_mora_report','LoanReportController@loans_activo_mora_report');
@@ -30,7 +30,7 @@ Route::resource('loans','LoanController');
 Route::resource('total_overdue_loans','TotalOverdueLoansController');
 
 Route::resource('eco_com_observations','EconomicComplementController');
-
+Route::resource('loan_comand','ComandController');
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
