@@ -28,6 +28,9 @@ Route::resource('partial_loans','PartialLoansController');
 Route::resource('overdue_loans','OverdueLoansController');
 Route::resource('loans','LoanController');
 Route::resource('total_overdue_loans','TotalOverdueLoansController');
+
+Route::resource('eco_com_observations','EconomicComplementController');
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
