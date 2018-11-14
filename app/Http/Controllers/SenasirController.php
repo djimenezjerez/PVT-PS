@@ -284,13 +284,16 @@ class SenasirController extends Controller
                                              ->where('Padron.PadTipo','=','PASIVO')
                                              ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
                                              ->where('PlanPagosPlan.PlanFechaPago','=',$date)
+                                             ->where('PlanPagosPlan.IdPlanNroCouta','=',1)
                                              ->whereNotExists(function ($query) {
                                                  $query->select(DB::raw(1))
                                                        ->from('Amortizacion')
                                                        ->whereRaw("Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AmrSts != 'X'");
                                              })
                                              ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Prestamos.SolEntChqCod',
-                                                     'Padron.IdPadron')
+                                                     'Padron.IdPadron',
+                                                     'PlanPagosPlan.PlanCuotaMensual'
+                                                     )
                                              ->paginate($pagination_rows);
  
              //completando informacion de afiliado problemas de codificacion utf-8                                        
@@ -309,13 +312,9 @@ class SenasirController extends Controller
                  $departamento = DB::table('Departamento')->where('DepCod','=',$item->SolEntChqCod)->first();
                  $item->Departamento = $departamento?$departamento->DepDsc:'';
  
-                 if($item->PresSaldoAct < $item->PresCuotaMensual)
-                 {
-                     $item->Discount = $item->PresSaldoAct;
-                 }else
-                 {
-                     $item->Discount = $item->PresCuotaMensual;
-                 }
+                 
+                 $item->Discount = $item->PlanCuotaMensual;
+                 
                  return $item;
              });
              return response()->json($loans->toArray());
@@ -329,17 +328,18 @@ class SenasirController extends Controller
                                          ->where('Padron.PadTipo','=','PASIVO')
                                          ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
                                          ->where('PlanPagosPlan.PlanFechaPago','=',$date)
+                                         ->where('PlanPagosPlan.IdPlanNroCouta','=',1)
                                          ->whereNotExists(function ($query) {
                                              $query->select(DB::raw(1))
                                                    ->from('Amortizacion')
                                                    ->whereRaw("Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AmrSts != 'X'");
                                          })
-                                         ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                         ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod','PlanPagosPlan.PlanCuotaMensual')
                                        //  ->take(40)
                                          ->get();
      
              global $prestamos;
-             $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','Frecuencia','SaldoActual','Cuota','Descuento','ciudad')];
+             $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','SaldoActual','Cuota','Descuento','ciudad')];
  
              foreach($loans as $loan)
              {
@@ -361,15 +361,8 @@ class SenasirController extends Controller
              }else{
                  $loan->City = '';
              }
-             
-                    
-             if($loan->PresSaldoAct < $loan->PresCuotaMensual)
-             {
-                 $loan->Discount = $loan->PresSaldoAct;
-             }else
-             {
-                 $loan->Discount = $loan->PresCuotaMensual;
-             }
+            
+             $loan->Discount = $loan->PlanCuotaMensual;
              //Log::info(json_encode($padron));
              array_push($prestamos,array(
                      $loan->PresFechaDesembolso,
