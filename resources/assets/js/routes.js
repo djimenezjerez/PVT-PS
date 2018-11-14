@@ -5,7 +5,7 @@ import Loans from './views/loans/loans';
 import LoansSenasir from './views/loans/LoansSenasir';
 import LoansInArrears from './views/loans/LoansInArrears';
 import PartialDeaultLoans from './views/loans/PartialDeaultLoans';
-import LoansCommand from './views/loans/IndexCommand';
+import LoansCommand from './views/loans/LoanCommand';
 import Amortization from './views/Amortization';
 import OverdueLoans from './views/loans/OverdueLoans';
 import TotalOverdueLoans from './views/loans/TotalOverdueLoans';

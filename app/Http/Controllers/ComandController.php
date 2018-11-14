@@ -96,80 +96,25 @@ class ComandController extends Controller
         // Log::info($PresFechaDesembolso);
         // $pres = DB::table('Prestamos')->where('PresFechaDesembolso','=',$PresFechaDesembolso)->first();
         // Log::info(json_encode($pres));
-        if($excel!='')//reporte excel hdp 
+        if($excel=='')//reporte excel hdp 
         {
-            global $rows_exacta;
-            $rows_exacta = Array();
-            //cabezera
-            array_push($rows_exacta,array('Nro Prestamo','Fecha de Solicitud','Fecha Desembolso','Monto Desembolsado','Saldo Actual','Nro Comprobante','Ampliacion',
-                                        'Producto',
-                                        'Tipo','Matricula','Matricula Titular',' CI','Extension','1er Nombre','2do Nombre','Paterno','Materno', 'Apellido de Casada'));
-
-                $loans = DB::table('Prestamos')
-                            ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
-                            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
-                            ->where($conditions)
-                            ->where('Padron.PadTipo','=','ACTIVO')
-                            ->where('Prestamos.PresEstPtmo','=','V')
-                            ->where('Prestamos.PresSaldoAct','>',0)
-                            ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
-                                            'Padron.IdPadron',
-                                            'Producto.PrdDsc'
-                                            )
-                            ->orderBy('Prestamos.PresNumero')
-                            ->get();
-
-            foreach($loans as $loan)
-            {
-
-                    $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->first();
-                    $loan->PadTipo = utf8_encode(trim($padron->PadTipo));
-                    $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
-                    $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
-                    $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
-                    $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
-                    $loan->PadApellidoCasada =utf8_encode(trim($padron->PadApellidoCasada));
-                    $loan->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
-                    $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
-                    $loan->PadMatricula =utf8_encode(trim($padron->PadMatricula));
-                    $loan->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
-
-                    array_push($rows_exacta,array($loan->PresNumero,$loan->PresFechaPrestamo,$loan->PresFechaDesembolso,$loan->PresMntDesembolso,$loan->PresSaldoAct,$loan->PresCtbNroCpte,$loan->PresAmp,
-                                                $loan->PrdDsc,
-                                                $loan->PadTipo,$loan->PadMatricula,$loan->PadMatriculaTit,$loan->PadCedulaIdentidad, $loan->PadExpCedula,$loan->PadNombres,$loan->PadNombres2do,$loan->PadPaterno,$loan->PadMaterno,$loan->PadApellidoCasada
-                                            ));    
-            }
-            Excel::create('prestamos',function($excel)
-            {
-                global $rows_exacta;
-                
-                        $excel->sheet('prestamos vigentes',function($sheet) {
-                                global $rows_exacta;
-                
-                                $sheet->fromModel($rows_exacta,null, 'A1', false, false);
-                                $sheet->cells('A1:R1', function($cells) {
-                                // manipulate the range of cells
-                                $cells->setBackground('#058A37');
-                                $cells->setFontColor('#ffffff');  
-                                $cells->setFontWeight('bold');
-                                });
-                            });
-    
-                      
-            })->download('xls');
-
-        }else{
-
             $loans = DB::table('Prestamos')
                         ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                         ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                         ->where($conditions)
                         ->where('Prestamos.PresEstPtmo','=','V')
                         ->where('Prestamos.PresSaldoAct','>',0)
-                        ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp',
-                                        'Padron.IdPadron',
-                                        'Producto.PrdDsc'
-                                        )
+                        ->where('Padron.PadTipo','=','ACTIVO')
+                        ->whereNotIn('Padron.PadTipRentAFPSENASIR',["SENASIR"])
+                        ->whereExists(function ($query) {
+                            $query->select(DB::raw(1))
+                                  ->from('Amortizacion')
+                                  ->whereRaw("Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AmrSts != 'X'");
+                        })
+                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Prestamos.SolEntChqCod',
+                                    'Padron.IdPadron',
+                                    'Producto.PrdDsc'
+                                    )
                         ->orderBy('Prestamos.PresFechaDesembolso','Desc')
                         ->paginate($pagination_rows);
 
@@ -184,10 +129,118 @@ class ComandController extends Controller
                 $item->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
                 $item->PadMatricula =utf8_encode(trim($padron->PadMatricula));
                 $item->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+                if($item->PresSaldoAct < $item->PresCuotaMensual)
+                {
+                    $item->Discount = $item->PresSaldoAct;
+                }else
+                {
+                    $item->Discount = $item->PresCuotaMensual;
+                }
                 return $item;
+
             });
 
             return response()->json($loans->toArray());
+
+        }else{
+
+            $loans = DB::table('Prestamos')
+                            ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                            ->where($conditions)
+                            ->where('Prestamos.PresEstPtmo','=','V')
+                            ->where('Prestamos.PresSaldoAct','>',0)
+                            ->where('Padron.PadTipo','=','ACTIVO')
+                            ->whereNotIn('Padron.PadTipRentAFPSENASIR',["SENASIR"])
+                            ->whereExists(function ($query) {
+                                $query->select(DB::raw(1))
+                                      ->from('Amortizacion')
+                                      ->whereRaw("Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AmrSts != 'X'");
+                            })
+                            ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Prestamos.SolEntChqCod',
+                                    'Padron.IdPadron',
+                                    'Producto.PrdDsc'
+                                    )
+                            ->orderBy('Prestamos.PresFechaDesembolso','Desc')
+                        //    ->take(2000)
+                            ->get();
+            // $this->info(sizeof($loans));
+
+            global $prestamos,$prestamos_sin_plan;
+            $prestamos_sin_plan = [];
+            $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','SaldoActual','Cuota','Descuento','ciudad')];
+            // $bar = $this->output->createProgressBar(count($loans));
+            $sw = false;
+            foreach($loans  as $loan)
+            {   
+            $padron = DB::table('Padron')->where('IdPadron','=',$loan->IdPadron)->first();
+            $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+            $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+            $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+            $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+            $loan->PadMatricula =utf8_encode(trim($padron->PadMatricula));
+            $loan->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+            $loan->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+            $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+            $loan->PadTipo =utf8_encode(trim($padron->PadTipo));
+            $departamento = DB::table('Departamento')->where('DepCod','=',$loan->SolEntChqCod)->first();
+       
+            if($departamento)
+            {
+
+                $loan->City =$departamento->DepDsc; 
+            }else{
+                $loan->City = '';
+            }
+              
+            if($loan->PresSaldoAct < $loan->PresCuotaMensual)
+            {
+                $loan->Discount = $loan->PresSaldoAct;
+            }else
+            {
+                $loan->Discount = $loan->PresCuotaMensual;
+            }
+                array_push($prestamos,array(
+                    $loan->PresFechaDesembolso,
+                    $loan->PresNumero,
+                    $loan->PadTipo,
+                    $loan->PadMatriculaTit,
+                    $loan->PadMatricula,
+                    $loan->PadCedulaIdentidad,
+                    $loan->PadExpCedula,
+                    $loan->PadNombres,
+                    $loan->PadNombres2do,
+                    $loan->PadPaterno,
+                    $loan->PadMaterno,
+                    $loan->PresSaldoAct,
+                    $loan->PresCuotaMensual,
+                    $loan->Discount,
+                    $loan->City,
+            ));
+
+            // $bar->advance();
+            }
+            // $bar->finish();
+
+            Excel::create('prestamos sin plan',function($excel)
+            {
+
+            global $prestamos,$prestamos_sin_plan;
+
+                    $excel->sheet('prestamo ',function($sheet) {
+                        global $prestamos,$prestamos_sin_plan;
+                            $sheet->fromModel($prestamos,null, 'A1', false, false);
+                            $sheet->cells('A1:N1', function($cells) {
+                            // manipulate the range of cells
+                            $cells->setBackground('#058A37');
+                            $cells->setFontColor('#ffffff');  
+                            $cells->setFontWeight('bold');
+                            });
+                        });
+                
+                
+            })->download('xls');  
+             
         }
     }
 
