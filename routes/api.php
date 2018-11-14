@@ -16,6 +16,7 @@ Route::resource('reporte','LoanReportController');
 Route::get('reporte_prestamos','LoanReportController@Loans');
 Route::get('negative_loans','LoanController@negative_loans');
 Route::resource('loans_senasir','SenasirController');
+Route::get('news_senasir','SenasirController@nuevos_senasir');
 // Route::get('loans_command','LoanController@loans_command');
 Route::get('loans_in_arrears','LoanController@loans_in_arrears');
 Route::get('loans_senasir_report','LoanReportController@loans_senasir_report');

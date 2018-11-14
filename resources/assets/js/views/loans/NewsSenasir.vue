@@ -1,7 +1,7 @@
 <template>
  <v-card class="elevation-12">
     <v-card-title>
-      <strong>Prestamos Recurrentes Senasir </strong>
+      <strong>Nuevos Senasir </strong>
         <v-btn small @click="download" 
             :disabled="dialog"
             :loading="dialog"
@@ -31,7 +31,31 @@
         </v-dialog>
 
       <v-spacer></v-spacer>
-      
+        <v-menu
+        :close-on-content-click="false"
+        v-model="menu2"
+        :nudge-right="40"
+        lazy
+        transition="scale-transition"
+        offset-y
+        full-width
+        max-width="290px"
+        min-width="290px"
+        >
+        <v-text-field
+            slot="activator"
+            v-model="date"
+            label="Fecha"
+            hint="Año-Mes-Dia"
+            persistent-hint
+            prepend-icon="event"
+            readonly
+        ></v-text-field>
+        <v-date-picker v-model="date" no-title @input="menu2 = false"></v-date-picker>
+        </v-menu>
+        <v-btn icon>
+            <v-icon color="success" @click="search()">refresh</v-icon>
+        </v-btn>
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -185,7 +209,10 @@ export default {
             to:0,
             page:1,
             paginationRows: 10,
-            pagination_select:[10,20,30]
+            pagination_select:[10,20,30],
+            date: moment().format('L'),
+            dateFormatted: null,
+            menu2: false
             }
     },
     mounted()
@@ -218,7 +245,7 @@ export default {
         search(){
             
             return new Promise((resolve,reject)=>{   
-                this.getData('/api/loans_senasir',this.getParams()).then((data)=>{
+                this.getData('/api/news_senasir',this.getParams()).then((data)=>{
                     this.loans = data.data;
                     this.last_page = data.last_page;
                     this.total = data.total;
@@ -248,6 +275,7 @@ export default {
             // params['order']=this.pagination.descending==true?'asc':'desc';
             params['page']=this.page;
             params['pagination_rows']=this.paginationRows;
+            params['date']=this.date;
             return params;
         },
         checkInput(search)
@@ -266,7 +294,7 @@ export default {
             parameters.excel =true;
             console.log(parameters);
             axios({
-                url: '/api/loans_senasir',
+                url: '/api/news_senasir',
                 method: 'GET',
                 params: parameters,
                 responseType: 'blob', // important
@@ -281,7 +309,7 @@ export default {
             });
         },
         generate_link(id){
-            return 'http://sismu.muserpol.gob.bo/musepol/akardex.aspx?'+id;
+            return 'http://sismu.muserpol.gob.bo/musepol/rptplanpagos.aspx?'+id;
             //console.log(this.loans)
         },
         formatDate (date) {

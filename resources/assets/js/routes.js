@@ -2,7 +2,7 @@ import Home from './views/Welcome';
 import Report from './views/Report';
 import NegativeLoans from './views/NegativeLoans';
 import Loans from './views/loans/loans';
-import LoansSenasir from './views/loans/Index';
+import LoansSenasir from './views/loans/LoansSenasir';
 import LoansInArrears from './views/loans/LoansInArrears';
 import PartialDeaultLoans from './views/loans/PartialDeaultLoans';
 import LoansCommand from './views/loans/IndexCommand';
@@ -12,6 +12,7 @@ import TotalOverdueLoans from './views/loans/TotalOverdueLoans';
 import Nav from './views/layout/Nav';
 import Toolbar from './views/layout/Toolbar';
 import Login from './views/user/Login';
+import NewsSenasir from './views/loans/NewsSenasir';
 export const routes = [
     {
         path: '/',
@@ -58,6 +59,16 @@ export const routes = [
         name: 'loans_senasir',
         components:{ 
             default: LoansSenasir,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
+    },
+    {
+        path: '/news_senasir',
+        name: 'news_senasir',
+        components:{ 
+            default: NewsSenasir,
             toolbar: Toolbar,
             nav: Nav
 
