@@ -315,8 +315,8 @@ class ComandController extends Controller
                                              ->where($conditions)
                                              ->where('Prestamos.PresEstPtmo','=','V')
                                              ->where('Prestamos.PresSaldoAct','>',0)
-                                             ->where('Padron.PadTipo','=','PASIVO')
-                                             ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
+                                             ->where('Padron.PadTipo','=','ACTIVO')
+                                             ->whereNotIn('Padron.PadTipRentAFPSENASIR',["SENASIR"])
                                              ->where('PlanPagosPlan.PlanFechaPago','=',$date)
                                              ->where('PlanPagosPlan.IdPlanNroCouta','=',1)
                                              ->whereNotExists(function ($query) {
@@ -359,8 +359,8 @@ class ComandController extends Controller
                                          ->join('PlanPagosPlan','PlanPagosPlan.IdPrestamo','=','Prestamos.IdPrestamo')
                                          ->where('Prestamos.PresEstPtmo','=','V')
                                          ->where('Prestamos.PresSaldoAct','>',0)
-                                         ->where('Padron.PadTipo','=','PASIVO')
-                                         ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
+                                         ->where('Padron.PadTipo','=','ACTIVO')
+                                         ->whereNotIn('Padron.PadTipRentAFPSENASIR',["SENASIR"])
                                          ->where('PlanPagosPlan.PlanFechaPago','=',$date)
                                          ->where('PlanPagosPlan.IdPlanNroCouta','=',1)
                                          ->whereNotExists(function ($query) {

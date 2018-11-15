@@ -245,7 +245,7 @@ export default {
         search(){
             
             return new Promise((resolve,reject)=>{   
-                this.getData('/api/news_senasir',this.getParams()).then((data)=>{
+                this.getData('/api/news_comand',this.getParams()).then((data)=>{
                     this.loans = data.data;
                     this.last_page = data.last_page;
                     this.total = data.total;
@@ -294,7 +294,7 @@ export default {
             parameters.excel =true;
             console.log(parameters);
             axios({
-                url: '/api/news_senasir',
+                url: '/api/news_comand',
                 method: 'GET',
                 params: parameters,
                 responseType: 'blob', // important
