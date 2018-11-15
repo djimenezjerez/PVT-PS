@@ -13,6 +13,7 @@ import Nav from './views/layout/Nav';
 import Toolbar from './views/layout/Toolbar';
 import Login from './views/user/Login';
 import NewsSenasir from './views/loans/NewsSenasir';
+import NewsComand from './views/loans/NewsComand';
 export const routes = [
     {
         path: '/',
@@ -69,6 +70,16 @@ export const routes = [
         name: 'news_senasir',
         components:{ 
             default: NewsSenasir,
+            toolbar: Toolbar,
+            nav: Nav
+
+        }
+    },
+    {
+        path: '/news_comand',
+        name: 'news_comand',
+        components:{ 
+            default: NewsComand,
             toolbar: Toolbar,
             nav: Nav
 

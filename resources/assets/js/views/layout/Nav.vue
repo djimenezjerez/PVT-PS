@@ -76,6 +76,7 @@ export default {
                 { icon: 'date_range', text: 'Prestamos en Mora' , link: '/overdue_loans' },
                 { icon: 'query_builder', text: 'Mora Total' , link: '/total_overdue_loans' },
                 { icon: 'card_travel', text: 'Mora Parcial' , link: '/partial_loans' },
+                { icon: 'insert_drive_file', text: 'Nuevos  Comando' , link: '/news_comand' },
                 { icon: 'folder_shared', text: 'Prestamos  Comando ' , link: '/loans_command' },
                 { icon: 'insert_drive_file', text: 'Nuevos  Senasir' , link: '/news_senasir' },
                 { icon: 'folder_shared', text: 'Recurrentes  Senasir' , link: '/loans_senasir' },
