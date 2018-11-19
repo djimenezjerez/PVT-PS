@@ -20,7 +20,7 @@ class NuevosPrestamos extends Command
      *
      * @var string
      */
-    protected $description = 'paso 4: para subida al sismu hdp';
+    protected $description = 'paso 4: para subida al sismu hdp Nota cambiar fecha de nuevos';
 
     /**
      * Create a new command instance.
@@ -66,7 +66,7 @@ class NuevosPrestamos extends Command
                                                     ->where('Prestamos.PresEstPtmo','=','V')
                                                     ->where('Prestamos.PresSaldoAnt','=',0)
                                                     ->where('Padron.PadCedulaIdentidad','=',''.$row->ci)
-                                                    ->whereRaw('day(PlanPagosPlan.PlanFechaPago) = 30 and MONTH(PlanPagosPlan.PlanFechaPago)=9 and YEAR(PlanPagosPlan.PlanFechaPago) = 2018 and PlanPagosPlan.IdPlanNroCouta = 1')
+                                                    ->whereRaw('day(PlanPagosPlan.PlanFechaPago) = 31 and MONTH(PlanPagosPlan.PlanFechaPago)=10 and YEAR(PlanPagosPlan.PlanFechaPago) = 2018 and PlanPagosPlan.IdPlanNroCouta = 1')
                                                     ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
                                                     // ->groupBy('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresSaldoAct','Prestamos.PresCuotaMensual','PlanPagosPlan.PlanCuotaMensual')
                                                     ->first();

@@ -41,7 +41,7 @@ class CheckGar extends Command
         //
 
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/import/POS_GAR.xls');
+        $path = storage_path('excel/import/Para Garantes.xls');
         Excel::selectSheetsByIndex(0)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();
