@@ -60,7 +60,7 @@ class OverdueLoansController extends Controller
                     foreach($garantes as $garante)
                     {
                         $padron_gar = DB::table('Padron')->where('Padron.IdPadron','=',$garante->IdPadronGar)->first();
-                        array_push($row,utf8_encode(trim($padron->PadMatricula)),utf8_encode(trim($padron->PadCedulaIdentidad)),utf8_encode(trim($padron->PadExpCedula)),utf8_encode(trim($padron->PadNombres)),utf8_encode(trim($padron->PadNombres2do)),utf8_encode(trim($padron->PadPaterno)),utf8_encode(trim($padron->PadMaterno)),utf8_encode(trim($padron->PadTipo)),'*');
+                        array_push($row,utf8_encode(trim($padron_gar->PadMatricula)),utf8_encode(trim($padron_gar->PadCedulaIdentidad)),utf8_encode(trim($padron_gar->PadExpCedula)),utf8_encode(trim($padron_gar->PadNombres)),utf8_encode(trim($padron_gar->PadNombres2do)),utf8_encode(trim($padron_gar->PadPaterno)),utf8_encode(trim($padron_gar->PadMaterno)),utf8_encode(trim($padron_gar->PadTipo)),'*');
 
                     }
                 }

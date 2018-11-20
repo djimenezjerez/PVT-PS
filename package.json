@@ -20,11 +20,13 @@
     },
     "dependencies": {
         "chart.js": "^2.7.3",
+        "exceljs": "^1.6.3",
         "moment": "^2.22.2",
         "numeral": "^2.0.6",
         "vue-router": "^3.0.1",
         "vuetify": "^1.2.3",
         "vuetify-daterange-picker": "^2.5.0",
-        "vuex": "^3.0.1"
+        "vuex": "^3.0.1",
+        "xlsx": "^0.14.1"
     }
 }
