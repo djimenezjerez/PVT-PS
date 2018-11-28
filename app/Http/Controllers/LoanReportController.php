@@ -38,12 +38,18 @@ class LoanReportController extends Controller
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
 
+        $prestamos_desembolsados_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
+        where YEAR(dbo.Prestamos.PresFechaDesembolso)=2018 
+        GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
+        ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
+
         $data = array(
                 'prestamos_tipo'=> $prestamos_tipo,
                 'prestamos_producto'=> $prestamos_producto,
                 'prestamos_vigentes' => $prestamos[0],
                 'prestamos_estado' =>$prestamos_estado,
-                'prestamos_mes' =>$prestamos_mes
+                'prestamos_mes' =>$prestamos_mes,
+                'prestamos_desembolsados' => $prestamos_desembolsados_mes
         );
         return json_encode($data);
         
