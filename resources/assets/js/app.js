@@ -13,7 +13,7 @@ import Vuex from 'vuex';
 import App from './views/App';
 import {routes} from './routes.js';
 import {storage} from './storage.js';
-
+// import XLSX from 'xlsx';
 
 window.Vue = require('vue');
 window.moment = require('moment');
