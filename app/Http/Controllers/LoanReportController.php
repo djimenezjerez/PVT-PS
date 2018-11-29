@@ -43,13 +43,30 @@ class LoanReportController extends Controller
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
 
+        $months  = array();
+        foreach($prestamos_desembolsados_mes as $mes){
+            $productos_activo = DB::select("SELECT count(Prestamos.PrdCod) as cantidad, Producto.PrdDsc as nombre, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto  from dbo.Prestamos
+            join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+            join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
+            where year(dbo.Prestamos.PresFechaDesembolso)= 2018 and month(dbo.Prestamos.PresFechaDesembolso)=".$mes->mes." and Padron.PadTipo = 'ACTIVO'
+            GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
+
+            $productos_pasivo = DB::select("SELECT count(Prestamos.PrdCod) as cantidad, Producto.PrdDsc as nombre, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto  from dbo.Prestamos
+            join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+            join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
+            where year(dbo.Prestamos.PresFechaDesembolso)= 2018 and month(dbo.Prestamos.PresFechaDesembolso)=".$mes->mes." and Padron.PadTipo = 'PASIVO'
+            GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
+            array_push($months,array('mes'=>$mes->mes,'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
+        }
+
         $data = array(
                 'prestamos_tipo'=> $prestamos_tipo,
                 'prestamos_producto'=> $prestamos_producto,
                 'prestamos_vigentes' => $prestamos[0],
                 'prestamos_estado' =>$prestamos_estado,
                 'prestamos_mes' =>$prestamos_mes,
-                'prestamos_desembolsados' => $prestamos_desembolsados_mes
+                'prestamos_desembolsados' => $prestamos_desembolsados_mes,
+                'productos_mes' => $months
         );
         return json_encode($data);
         

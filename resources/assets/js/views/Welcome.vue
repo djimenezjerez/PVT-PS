@@ -92,6 +92,40 @@
               <canvas id="prestamos_desembolsados_mes" ></canvas>
             </v-card>
           </v-flex>
+          <v-flex xs12>
+            <v-card >
+              <v-card-title primary-title>
+              <div>
+                <div class="headline"> Detalle Desembolsos por Mes </div>
+              </div>
+            </v-card-title>
+            <v-card-text>
+              <v-tabs
+                slot="extension"
+                v-model="tab"
+    
+                grow
+              >
+                <v-tabs-slider ></v-tabs-slider>
+
+                <v-tab
+                  v-for="(item, index) in productos_mes"
+                  :key="index"
+                  @click="graficarProducto(item)"
+                >
+                  {{ getMonth(item.mes)}}
+                </v-tab>
+              </v-tabs>
+              
+                <v-card flat xs6>
+                  <canvas id="productos_activo"  ></canvas>
+                </v-card>
+                <v-card flat xs6>
+                  <canvas id="productos_pasivo" ></canvas>
+                </v-card>
+            </v-card-text>
+            </v-card>
+          </v-flex>
         </v-layout>
          
       </v-container>
@@ -99,6 +133,8 @@
 
 </template>
 <script>
+var chartActivo;
+var chartPasivo;
 export default {
  
   data(){
@@ -109,7 +145,20 @@ export default {
         prestamosEstado:null,
         prestamosMes:null,
         prestamosDesembolsados:null,
-        items: []
+        productos_mes:null,
+        items: [],
+        tab:null,
+        config_activo:{
+          type: null,
+          data: null,
+          options: null,
+        },
+        config_pasivo:{
+          type: null,
+          data: null,
+          options: null,
+        },
+
       }
     }
   ,
@@ -222,10 +271,71 @@ export default {
       }];
       return {type: 'bar',data:{labels, datasets}};
     },
+    graficarProducto(item){
+      console.log(item);
+
+      let labels = [];
+      let data =[];
+      item.productos_activo.forEach(item => {
+        labels.push(item.nombre);
+        data.push(item.cantidad);
+      });
+      let datasets = [{
+        label: 'Activo',
+        data: data,
+        backgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365",
+
+        ],
+        hoverBackgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365" 
+        ],
+        borderWidth: 1
+      }];
+      this.config_activo.data = {labels, datasets};
+      chartActivo.update();
+      // this.createChart('productos_activo',this.getProducts('Activo',item.productos_activo));
+      // this.createChart('productos_pasivo',this.getProducts('Pasivo',item.productos_pasivo));
+      // this.createChart('prestamos_tipo',this.prestamosRender());
+    },
+    getProducts(label,items){
+      let labels = [];
+      let data =[];
+      items.forEach(item => {
+        labels.push(item.nombre);
+        data.push(item.cantidad);
+      });
+
+       let datasets = [{
+        label: label,
+        data: data,
+      
+        borderWidth: 1
+      }];
+      return {type: 'doughnut',data:{labels, datasets}}
+    },
     prestamosDesembolsadosMes(){
       let labels = [];
       let data =[];
-      this.prestamosMes.forEach(item => {
+      this.prestamosDesembolsados.forEach(item => {
         labels.push(this.getMonth(item.mes));
         data.push(item.cantidad);
       });
@@ -311,7 +421,8 @@ export default {
                 this.prestamosVigentes = data.prestamos_vigentes;
                 this.prestamosEstado = data.prestamos_estado;
                 this.prestamosMes = data.prestamos_mes;
-                this.prestamosDesembolsados = data.prestamos_desembolsados_mes;
+                this.prestamosDesembolsados = data.prestamos_desembolsados;
+                this.productos_mes = data.productos_mes;
                 console.log(data);
                 resolve();
             });
@@ -424,9 +535,27 @@ export default {
             title: 'Bs '+this.totalPrestamos,
             subtitle: 'Total',
           }
-        ]
+        ];
+        // this.config = this.getProducts('Activo',item.productos_activo)
+
+        let labels = [];
+        let data =[];
+        let datasets = [{
+          label: 'Activo',
+          data: data,
+          borderWidth: 1
+        }]; 
+        this.config_activo = {type: 'doughnut',data:{labels, datasets}}
+        const ctx = document.getElementById("productos_activo");
+        chartActivo = new Chart(ctx, this.config_activo);
+
+        this.config_pasivo = {type: 'doughnut',data:{labels, datasets}}
+        const ctx_p = document.getElementById("productos_pasivo");
+        chartActivo = new Chart(ctx_p, this.config_pasivo);
+
     });
     console.log(this.getMonth(2));
+  
     // console.log( moment().months(1));
   }
 }
