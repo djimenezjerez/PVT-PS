@@ -100,29 +100,32 @@
               </div>
             </v-card-title>
             <v-card-text>
-              <v-tabs
-                slot="extension"
-                v-model="tab"
-    
-                grow
-              >
-                <v-tabs-slider ></v-tabs-slider>
-
-                <v-tab
-                  v-for="(item, index) in productos_mes"
-                  :key="index"
-                  @click="graficarProducto(item)"
+              <v-layout row wrap>
+              <v-flex xs12>
+                <v-tabs
+                  slot="extension"
+                  v-model="tab"
+      
+                  grow
                 >
-                  {{ getMonth(item.mes)}}
-                </v-tab>
-              </v-tabs>
-              
-                <v-card flat xs6>
-                  <canvas id="productos_activo"  ></canvas>
-                </v-card>
-                <v-card flat xs6>
-                  <canvas id="productos_pasivo" ></canvas>
-                </v-card>
+                  <v-tabs-slider ></v-tabs-slider>
+
+                  <v-tab
+                    v-for="(item, index) in productos_mes"
+                    :key="index"
+                    @click="graficarProducto(item)"
+                  >
+                    {{ getMonth(item.mes)}}
+                  </v-tab>
+                </v-tabs>
+              </v-flex>
+              <v-flex xs6>
+                <canvas id="productos_activo"  ></canvas>
+              </v-flex>
+              <v-flex xs6>
+                 <canvas id="productos_pasivo" ></canvas>
+              </v-flex>
+              </v-layout>
             </v-card-text>
             </v-card>
           </v-flex>
@@ -276,12 +279,75 @@ export default {
 
       let labels = [];
       let data =[];
+      let cost=[];
       item.productos_activo.forEach(item => {
-        labels.push(item.nombre);
+        labels.push(item.nombre.trim());
         data.push(item.cantidad);
+        cost.push(item.monto);
       });
       let datasets = [{
         label: 'Activo',
+        data: data,
+        cost: cost,
+        backgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365",
+
+        ],
+        hoverBackgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365" 
+        ],
+        borderWidth: 1
+      }];
+      let options = {
+          tooltips: {
+            callbacks: {
+              title: function(tooltipItem, data) {
+                return data['labels'][tooltipItem[0]['index']];
+              },
+              label: function(tooltipItem, data) {
+                return data['datasets'][0]['data'][tooltipItem['index']];
+              },
+              afterLabel: function(tooltipItem, data) {
+                //var dataset = data['datasets'][0];
+                //var percent = Math.round((dataset['data'][tooltipItem['index']] / dataset["_meta"][0]['total']) * 100)		
+                var cost =  data['datasets'][0]['cost'][tooltipItem['index']];
+                return 'Bs '+cost;
+              }
+            },
+            
+            displayColors: true
+          }
+        };
+      this.config_activo.data = {labels, datasets,options};
+      chartActivo.update();
+      
+      labels = [];
+      data= [];
+      item.productos_pasivo.forEach(item => {
+        labels.push(' Bs '+item.monto+' '+item.nombre.trim());
+        data.push(item.cantidad);
+      });
+      
+      datasets = [{
+        label: 'Pasivo',
         data: data,
         backgroundColor: [
         "#f1c40f",
@@ -310,8 +376,8 @@ export default {
         ],
         borderWidth: 1
       }];
-      this.config_activo.data = {labels, datasets};
-      chartActivo.update();
+      this.config_pasivo.data = {labels, datasets};
+      chartPasivo.update();
       // this.createChart('productos_activo',this.getProducts('Activo',item.productos_activo));
       // this.createChart('productos_pasivo',this.getProducts('Pasivo',item.productos_pasivo));
       // this.createChart('prestamos_tipo',this.prestamosRender());
@@ -545,13 +611,13 @@ export default {
           data: data,
           borderWidth: 1
         }]; 
-        this.config_activo = {type: 'doughnut',data:{labels, datasets}}
+        this.config_activo = {type: 'doughnut',data:{labels, datasets},options:null }
         const ctx = document.getElementById("productos_activo");
         chartActivo = new Chart(ctx, this.config_activo);
 
         this.config_pasivo = {type: 'doughnut',data:{labels, datasets}}
         const ctx_p = document.getElementById("productos_pasivo");
-        chartActivo = new Chart(ctx_p, this.config_pasivo);
+        chartPasivo = new Chart(ctx_p, this.config_pasivo);
 
     });
     console.log(this.getMonth(2));
