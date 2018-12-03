@@ -122,7 +122,7 @@
               <v-flex xs6>
                 <v-card>
                   <v-card-title>
-                      <div class="headline"> Activo </div>
+                      <div class="headline"> Sector Activo </div>
                   </v-card-title>
                   <canvas id="productos_activo"  ></canvas>
                 </v-card>
@@ -130,7 +130,7 @@
               <v-flex xs6>
                 <v-card>
                   <v-card-title>
-                      <div class="headline"> Pasivo </div>
+                      <div class="headline"> Sector Pasivo </div>
                   </v-card-title>
                    <canvas id="productos_pasivo" ></canvas>
                 </v-card>
