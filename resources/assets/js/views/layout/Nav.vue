@@ -90,10 +90,10 @@ export default {
     computed:{
         drawer:{
           get(){
-            return this.$store.state.drawer;
+            return this.$store.state.template.drawer;
           },
           set(value){
-            this.$store.commit('updateDrawer',value);
+            this.$store.commit('template/updateDrawer',value);
           }
         }
     }

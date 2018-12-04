@@ -3,7 +3,7 @@
       <v-container fluid fill-height>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
-            
+            <v-form @submit.prevent="login">
             <v-card >
               <v-toolbar dark color="primary">
                 <v-toolbar-title>Sistema de Soporte</v-toolbar-title>
@@ -20,15 +20,16 @@
                       </div>
                 </div>
                 <v-form>
-                  <v-text-field prepend-icon="person" name="login" label="Login" type="text"></v-text-field>
-                  <v-text-field prepend-icon="lock" name="password" label="Password" id="password" type="password" @focus="owl_hide = true"  @blur="owl_hide = false" ></v-text-field>
+                  <v-text-field prepend-icon="person" v-model="username" label="Login" type="text"></v-text-field>
+                  <v-text-field prepend-icon="lock" v-model="password" label="Password" type="password" @focus="owl_hide = true"  @blur="owl_hide = false" ></v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary">Login</v-btn>
+                <v-btn color="primary" type="submit">Inciar Sesion</v-btn>
               </v-card-actions>
             </v-card>
+            </v-form>
           </v-flex>
         </v-layout>
       </v-container>
@@ -41,7 +42,23 @@ export default {
   data() {
     return {
       owl_hide: false,
+      username : "",
+      password : ""
     }
+  },
+  methods:{
+        login() {
+        console.log('enviando datos auth');
+        let username = this.username 
+        let password = this.password
+        console.log({ username, password });
+          this.$store.dispatch('auth/login', { username, password })
+          .then(() => {
+              console.log("autenticado")
+              this.$router.push('/')
+              })
+          .catch(err => console.log(err))
+        }
   }
 }
 </script>

@@ -19,32 +19,95 @@
       ></v-text-field> -->
       <v-spacer></v-spacer>
      
-      <v-btn  icon>
-        <v-icon>notifications</v-icon>
-      </v-btn>
-      <v-btn   icon large >
-         
-           <v-avatar size="32px" tile>
-              <v-icon > 
-                  person
-              </v-icon>
-            </v-avatar>
+      <v-menu
+        v-model="menu"
+        :close-on-content-click="false"
+        :nudge-width="100"
+        offset-x
+        v-if="user"
+      >
+        <v-btn 
+          slot="activator"
+          icon
+          large
+          
+        >
         
-       
+        <v-icon>person</v-icon>
+        
       </v-btn>
+
+      <v-card   light>
+        <v-list>
+          <v-list-tile avatar>
+            <v-list-tile-avatar>
+              <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+            </v-list-tile-avatar>
+
+            <v-list-tile-content >
+              <v-list-tile-title>{{user.first_name+' '+user.last_name}}</v-list-tile-title>
+              <v-list-tile-sub-title>{{user.position}}</v-list-tile-sub-title>
+              
+            </v-list-tile-content>
+
+          </v-list-tile>
+        </v-list>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-tooltip bottom>
+            <v-btn
+              slot="activator"
+              color="primary"
+              dark
+              flat @click="menu = false"
+            >
+             <v-icon>reply</v-icon> 
+            </v-btn>
+            <span>Regresar</span>
+          </v-tooltip>
+           <v-tooltip bottom>
+            <v-btn
+              slot="activator"
+              color="primary"
+              dark
+              flat @click="logout"
+            >
+             <v-icon>exit_to_app</v-icon> 
+            </v-btn>
+            <span>Cerrar Sesion</span>
+          </v-tooltip>
+        </v-card-actions>
+      </v-card>
+    </v-menu>
     </v-toolbar>
 </template>
 <script>
+import { mapState } from 'vuex';
 export default {
+    data: () => ({
+      menu: false, 
+    }),
     computed:{
-        drawer:{
+       drawer:{
           get(){
-            return this.$store.state.drawer;
+            return this.$store.state.template.drawer;
           },
           set(value){
-            this.$store.commit('updateDrawer',value);
+            this.$store.commit('template/updateDrawer',value);
           }
+        },
+        user(){
+          return this.$store.state.auth.user;
         }
+    },
+    methods:{
+      logout()
+      {
+        this.$store.dispatch('auth/logout')
+          .then(() => this.$router.push('/login'))
+          .catch(err => console.log(err))
+      }
     }
 }
 </script>

@@ -23,7 +23,10 @@ export const routes = [
             toolbar: Toolbar,
             nav: Nav
 
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/report',

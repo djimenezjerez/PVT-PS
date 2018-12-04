@@ -13,3 +13,26 @@
    
  </v-app>
 </template>
+<script>
+export default {
+        data: () => ({
+      dialog: false,
+    }),
+    computed:{
+      // currentUser(){
+      //   return this.$store.getters.currentUser;
+      // }
+      getToken(){
+        return this.$store.state.auth.token;
+      }
+    },
+    created(){
+      //console.log(this.getToken);
+      const user = localStorage.getItem('token');
+      // console.log(user['first_name']);
+      console.log("setteando token");
+      axios.defaults.headers.common['Authorization'] = 'Bearer '+this.getToken;
+    }
+}
+</script>
+

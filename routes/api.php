@@ -16,8 +16,8 @@ use Illuminate\Http\Request;
 Route::post('login', 'AuthController@login');
 Route::group(['middleware'=>'jwt.auth'],function($router){
     Route::resource('users','UserController');
+    Route::resource('reporte','LoanReportController');
 });
-Route::resource('reporte','LoanReportController');
 Route::get('reporte_prestamos','LoanReportController@Loans');
 Route::get('negative_loans','LoanController@negative_loans');
 Route::resource('loans_senasir','SenasirController');
@@ -38,6 +38,4 @@ Route::resource('loans','LoanController');
 Route::resource('total_overdue_loans','TotalOverdueLoansController');
 
 Route::resource('eco_com_observations','EconomicComplementController');
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
