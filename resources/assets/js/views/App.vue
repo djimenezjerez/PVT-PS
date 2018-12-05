@@ -28,9 +28,9 @@ export default {
     },
     created(){
       //console.log(this.getToken);
-      const user = localStorage.getItem('token');
-      // console.log(user['first_name']);
-      console.log("setteando token");
+      // const user = localStorage.getItem('user');
+      // console.log(JSON.parse(user));
+      // console.log("setteando token");
       axios.defaults.headers.common['Authorization'] = 'Bearer '+this.getToken;
     }
 }

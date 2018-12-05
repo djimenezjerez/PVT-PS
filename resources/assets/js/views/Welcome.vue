@@ -149,7 +149,6 @@
 var chartActivo;
 var chartPasivo;
 export default {
- 
   data(){
     return {
         prestamosTipo:null,

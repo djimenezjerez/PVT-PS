@@ -20,8 +20,8 @@
                       </div>
                 </div>
                 <v-form>
-                  <v-text-field prepend-icon="person" v-model="username" label="Login" type="text"></v-text-field>
-                  <v-text-field prepend-icon="lock" v-model="password" label="Password" type="password" @focus="owl_hide = true"  @blur="owl_hide = false" ></v-text-field>
+                  <v-text-field prepend-icon="person" v-model="username" label="Usuario" type="text"></v-text-field>
+                  <v-text-field prepend-icon="lock" v-model="password" label="Contraseña" type="password" @focus="owl_hide = true"  @blur="owl_hide = false" ></v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>

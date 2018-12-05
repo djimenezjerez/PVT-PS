@@ -1,9 +1,10 @@
+
 export const autentication = {
     namespaced: true,
     state:{
         status: '',
         token: localStorage.getItem('token') || '',
-        user : localStorage.getItem('user') || {}
+        user :  JSON.parse(localStorage.getItem('user'))
     },
     mutations: {
         auth_request(state){
@@ -39,7 +40,7 @@ export const autentication = {
                 console.log('imprimiendo variable');
                 console.log(user);
                 localStorage.setItem('token', token)
-                localStorage.setItem('user',user)//te amo nadia
+                localStorage.setItem('user',JSON.stringify(user))//te amo nadia
                 axios.defaults.headers.common['Authorization'] = 'Bearer '+token // para todas las consultas axios XD
                 commit('auth_success', {token, user});
                 resolve(resp)
