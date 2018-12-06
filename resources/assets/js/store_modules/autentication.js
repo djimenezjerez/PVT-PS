@@ -1,10 +1,20 @@
-
+let user ;
+try {
+    user =  JSON.parse(localStorage.getItem('user'));
+  }
+  catch(error) {
+    console.error(error);
+    user = {};
+    // expected output: SyntaxError: unterminated string literal
+    // Note - error messages will vary depending on browser
+  }
+  
 export const autentication = {
     namespaced: true,
     state:{
         status: '',
         token: localStorage.getItem('token') || '',
-        user :  JSON.parse(localStorage.getItem('user'))
+        user : user 
     },
     mutations: {
         auth_request(state){

@@ -26,12 +26,12 @@ import Vuex from 'vuex';
 import App from './views/App';
 import {routes} from './routes.js';
 // import {storage} from './storage.js';
-
+// import * as jsPDF  from 'jspdf';
 import {storage} from './store_modules/storage';
 import {autentication} from './store_modules/autentication';
 
 // import XLSX from 'xlsx';
-
+// window.jsPDF = require('jspdf');
 window.Vue = require('vue');
 window.moment = require('moment');
 window.Chart = require('chart.js');

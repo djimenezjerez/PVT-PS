@@ -55,8 +55,10 @@ export const routes = [
             default: Loans,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/loans_senasir',
@@ -65,8 +67,10 @@ export const routes = [
             default: LoansSenasir,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/news_senasir',
@@ -75,8 +79,10 @@ export const routes = [
             default: NewsSenasir,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/news_comand',
@@ -85,8 +91,10 @@ export const routes = [
             default: NewsComand,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/partial_loans',
@@ -95,8 +103,10 @@ export const routes = [
             default: PartialDeaultLoans,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/loans_in_arriears',
@@ -105,8 +115,10 @@ export const routes = [
             default: LoansInArrears,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/loans_command',
@@ -115,8 +127,10 @@ export const routes = [
             default: LoansCommand,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/amortization',
@@ -125,8 +139,11 @@ export const routes = [
             default: Amortization,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
+        
     },
     {
         path: '/overdue_loans',
@@ -135,8 +152,10 @@ export const routes = [
             default: OverdueLoans,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/total_overdue_loans',
@@ -145,8 +164,10 @@ export const routes = [
             default: TotalOverdueLoans,
             toolbar: Toolbar,
             nav: Nav
-
-        }
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/login',

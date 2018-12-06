@@ -134,7 +134,9 @@
             <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
            
             <td class="text-xs-left">{{ props.item.PresCtbNroCpte }}</td>
-            <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
+            <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> 
+                <v-btn icon @click="makePDF()"><v-icon color="info">insert_drive_file</v-icon></v-btn>
+            </td>
             
         </template>
 
@@ -156,9 +158,30 @@
 
         </div>
         <br>
+
+
+        <v-dialog v-model="show_certificate" max-width="800px" max-high="40px">
+            <v-card>
+            <v-card-title>
+                <span class="headline"> PDF</span>
+            </v-card-title>
+        
+            <v-card-text >
+                <v-container grid-list-md>
+                <div class="embed-container">
+                    <iframe frameborder="0" width="700" height="500" :src="cadena"></iframe>
+                </div>
+                </v-container>
+            </v-card-text>
+
+     
+            </v-card>
+        </v-dialog>  
+
     </v-card>
 </template>
 <script>
+import * as jsPDF from 'jspdf';
 export default {
     data () {
       return {
@@ -191,7 +214,9 @@ export default {
         to:0,
         page:1,
         paginationRows: 10,
-        pagination_select:[10,20,30]
+        pagination_select:[10,20,30],
+        show_certificate:false,
+        cadena:null,
       }
     },
     mounted()
@@ -303,6 +328,24 @@ export default {
 
             const [month, day, year] = date.split('/')
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+        },
+        makePDF(){
+            console.log('ingresando');
+            var d = new jsPDF();
+            this.show_certificate = true;
+            console.log('mostrando pdf hdp');
+            let leyenda = 'LA SUSCRITA ENCARGADO DE REGISTRO, CONTROL Y RECUPERACION DE PRESTAMOS, DE LA MUTUAL DE SERVICIOS AL POLICIA "MUSERPOL", EN USO DE SUS ATRIBUCIONES, EN CUANTO PUEDE Y EL DERECHO LE PERMITE:'; 
+            let splitTitle = d.splitTextToSize(leyenda, 150);
+            d.setFontSize(10)
+            d.text(90,10,splitTitle);
+            d.text('C E R T I F I C A:',20,40);
+            let p1 = 'Que, previa revisión y verificación de la base de datos del Sistema de Prétamo de la Endidad  "SISMU", de los señores afiliados del Sector Activo, se VERIFICO que:';
+            let spl1 = d.splitTextToSize(p1,180);
+            d.text(20,50,spl1);
+    
+            // d.text("INFORME  ",90,20);
+            this.cadena = d.output('datauristring');
+           // $('iframe').attr('src', cadena);
         }
         // toggleOrder (filter) {
         //     this.filterName = filter;
