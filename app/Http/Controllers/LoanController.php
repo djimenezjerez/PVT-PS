@@ -473,7 +473,11 @@ class LoanController extends Controller
         $id_prestamo = request('id_prestamo')??'';
         // return $id_prestamo;
 
-        $loan = DB::table('Prestamos')->where('IdPrestamo',$id_prestamo)->select('IdPadron','PresNumero')->first();
+        $loan = DB::table('Prestamos')->where('IdPrestamo',$id_prestamo)
+                                    ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                                    ->select('Prestamos.IdPadron','Prestamos.PresNumero','Prestamos.PresFechaPrestamo','Producto.PrdDsc as producto')
+                                    ->first();
+        $literal_date = Self::getDateFormat($loan->PresFechaPrestamo,'large');
         $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->select('PadCedulaIdentidad')->first();
         $affiliate = DB::connection('virtual_platform')->table('affiliates')
                                                         ->join('degrees','degrees.id','=','affiliates.degree_id')    
@@ -486,10 +490,13 @@ class LoanController extends Controller
                                                  ->select('AmrCap','AmrInt','AmrIntPen','AmrTotPag','AmrSldAnt')
                                                  ->orderBy('AmrNroPag', 'DESC')->first(); 
         $data = array(
-                'prestamo'=>$loan,
-                'padron'=>$padron,
-                'affiliate'=>$affiliate,
-                'amortizacion'=>$amortization
+                'prestamo'=> $loan,
+                'padron'=> $padron,
+                'affiliate'=> $affiliate,
+                'amortizacion'=> $amortization,
+                'literal_date' => $literal_date,
+                'literal_money' => Self::convertir($amortization->AmrSldAnt),
+                'literal_today' => Self::getDateFormat(Carbon::now(),'large')
         );
         return json_encode($data);
 
@@ -498,14 +505,11 @@ class LoanController extends Controller
     {
         setlocale(LC_TIME, 'es_ES.utf8');
         if ($date) {
-            if (self::verifyMonthYearDate($date) ) {
-                $date = Carbon::createFromFormat('d/m/Y', '01/'.$date)->toDateString();
-            }
             if ($size == 'short') {
                 // return 05 MAY. 1983 // change %d-> %e for 5 MAY. 1983
-                return Carbon::parse($date)->formatLocalized('%d %b. %Y'); //
+                return Carbon::parse($date)->formatLocalized('%d %b %Y'); //
             }elseif ($size == 'large') {
-                return Carbon::parse($date)->formatLocalized('%d %B. %Y'); //
+                return Carbon::parse($date)->formatLocalized('%d de %B de %Y'); //
             }
         }
         return 'sin fecha';
@@ -582,4 +586,50 @@ class LoanController extends Controller
         }
         return $output;
     }
+
+    private static $UNIDADES = [
+        '',
+        'UN ',
+        'DOS ',
+        'TRES ',
+        'CUATRO ',
+        'CINCO ',
+        'SEIS ',
+        'SIETE ',
+        'OCHO ',
+        'NUEVE ',
+        'DIEZ ',
+        'ONCE ',
+        'DOCE ',
+        'TRECE ',
+        'CATORCE ',
+        'QUINCE ',
+        'DIECISEIS ',
+        'DIECISIETE ',
+        'DIECIOCHO ',
+        'DIECINUEVE ',
+        'VEINTE '
+    ];
+    private static $DECENAS = [
+        'VEINTI',
+        'TREINTA ',
+        'CUARENTA ',
+        'CINCUENTA ',
+        'SESENTA ',
+        'SETENTA ',
+        'OCHENTA ',
+        'NOVENTA ',
+        'CIEN '
+    ];
+    private static $CENTENAS = [
+        'CIENTO ',
+        'DOSCIENTOS ',
+        'TRESCIENTOS ',
+        'CUATROCIENTOS ',
+        'QUINIENTOS ',
+        'SEISCIENTOS ',
+        'SETECIENTOS ',
+        'OCHOCIENTOS ',
+        'NOVECIENTOS '
+    ];
 }
