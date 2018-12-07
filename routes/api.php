@@ -19,6 +19,9 @@ Route::group(['middleware'=>'jwt.auth'],function($router){
     Route::resource('reporte','LoanReportController');
     Route::get('reporte_prestamos','LoanReportController@Loans');
     Route::get('negative_loans','LoanController@negative_loans');
+    
+    Route::get('certificate_info','LoanController@certificate_info');
+
     Route::resource('loans_senasir','SenasirController');
     Route::get('news_senasir','SenasirController@nuevos_senasir');
     Route::resource('loan_comand','ComandController');
