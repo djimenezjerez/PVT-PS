@@ -164,8 +164,8 @@ class LoanController extends Controller
                         ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                         ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                         ->where($conditions)
-                        ->where('Prestamos.PresEstPtmo','=','V')
-                        ->where('Prestamos.PresSaldoAct','>',0)
+                        ->where('Prestamos.PresEstPtmo','!=','X')
+                        // ->where('Prestamos.PresSaldoAct','>',0)
                         ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp',
                                         'Padron.IdPadron',
                                         'Producto.PrdDsc'
