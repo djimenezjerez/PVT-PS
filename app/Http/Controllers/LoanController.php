@@ -110,8 +110,8 @@ class LoanController extends Controller
                             ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                             ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                             ->where($conditions)
-                            ->where('Prestamos.PresEstPtmo','=','V')
-                            ->where('Prestamos.PresSaldoAct','>',0)
+                            ->where('Prestamos.PresEstPtmo','!=','X')
+                            // ->where('Prestamos.PresSaldoAct','>',0)
                             ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
                                             'Padron.IdPadron',
                                             'Producto.PrdDsc'
@@ -475,9 +475,9 @@ class LoanController extends Controller
 
         $loan = DB::table('Prestamos')->where('IdPrestamo',$id_prestamo)
                                     ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
-                                    ->select('Prestamos.IdPadron','Prestamos.PresNumero','Prestamos.PresFechaPrestamo','Producto.PrdDsc as producto')
+                                    ->select('Prestamos.IdPadron','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Producto.PrdDsc as producto')
                                     ->first();
-        $literal_date = Self::getDateFormat($loan->PresFechaPrestamo,'large');
+        $literal_date = Self::getDateFormat($loan->PresFechaDesembolso,'large');
         $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->select('PadCedulaIdentidad')->first();
         $affiliate = DB::connection('virtual_platform')->table('affiliates')
                                                         ->join('degrees','degrees.id','=','affiliates.degree_id')    
