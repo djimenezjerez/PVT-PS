@@ -76,7 +76,7 @@ class EconomicComplementController extends Controller
             //cabezera
             array_push($rows_exacta,array(
                                         'ID','CI','Extension','1er Nombre','2do Nombre','Paterno','Materno',
-                                        'Mensaje','Estado',
+                                        'Mensaje','Amortizacion','Estado',
                                         ));
 
             $observados = DB::connection('virtual_platform')->table('economic_complements')
@@ -87,14 +87,14 @@ class EconomicComplementController extends Controller
                 ->where('eco_com_observations.observation_type_id','=',2)
                 ->where('eco_com_observations.deleted_at',null)
                 ->where($conditions)
-                ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message","eco_com_observations.is_enabled")
+                ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message",'economic_complements.amount_loan',"eco_com_observations.is_enabled")
                 ->get();
             foreach($observados as $loan)
             {
 
                     array_push($rows_exacta,array(
                                                 $loan->id,$loan->ci, $loan->ext,$loan->primer_nombre,$loan->segundo_nombre,$loan->apellido_paterno,$loan->apellido_materno,
-                                                $loan->message,$loan->is_enabled?'subsanado':'vigente',
+                                                $loan->message,$loan->amount_loan,$loan->is_enabled?'subsanado':'vigente',
                                             ));    
             }
             Excel::create('Observados por Prestamos',function($excel)
@@ -126,7 +126,7 @@ class EconomicComplementController extends Controller
             ->where('eco_com_observations.observation_type_id','=',2)
             ->where('eco_com_observations.deleted_at',null)
             ->where($conditions)
-            ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message","eco_com_observations.is_enabled")
+            ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message",'economic_complements.amount_loan',"eco_com_observations.is_enabled")
             ->paginate($pagination_rows);
             
             return response()->json($observados->toArray());
