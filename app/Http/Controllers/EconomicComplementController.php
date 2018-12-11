@@ -35,6 +35,7 @@ class EconomicComplementController extends Controller
         $apellido_paterno = request('apellido_paterno')??'';
         $apellido_materno = request('apellido_materno')??'';
         $message = request('message')??'';
+        $amount_loan = request('amount_loan')??'';
         $is_enabled = request('is_enabled')??'';
 
         if($ci != '')
@@ -65,6 +66,10 @@ class EconomicComplementController extends Controller
         {
             $is_enabled = $is_enabled=='SUBSANADO'?true:false;
             array_push($conditions,array('eco_com_observations.is_enabled','=',$is_enabled));
+        }
+        if($amount_loan != '')
+        {
+            array_push($conditions,array('economic_complements.amount_loan','=',$amount_loan));
         }
 
        

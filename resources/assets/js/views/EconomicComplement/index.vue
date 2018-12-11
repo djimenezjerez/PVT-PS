@@ -174,7 +174,7 @@ export default {
               { text: 'Materno ', value: 'apellido_materno' ,input:'' , menu:false,type:"text" , search:true },
               // { text: 'Frecuencia ', value: 'State' ,input:'' , menu:false,type:"text" , search:false },
               { text: 'Mensaje', value: 'message' ,input:'' , menu:false,type:"text" , search:true },
-              { text: 'Amortizacion', value: 'amount_loan' ,input:'' , menu:false,type:"text" , search:false },
+              { text: 'Amortizacion', value: 'amount_loan' ,input:'' , menu:false,type:"text" , search:true },
               { text: 'Estado', value: 'is_enabled' ,input:'' , menu:false,type:"text" , search:true },
               { text: 'Accion',value:'actions',input:'', menu:false,type:"text" , search:false },
             ],
