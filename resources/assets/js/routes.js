@@ -14,6 +14,7 @@ import Toolbar from './views/layout/Toolbar';
 import Login from './views/user/Login';
 import NewsSenasir from './views/loans/NewsSenasir';
 import NewsComand from './views/loans/NewsComand';
+import Observations from './views/EconomicComplement/index'
 export const routes = [
     {
         path: '/',
@@ -162,6 +163,18 @@ export const routes = [
         name: 'total_overdue_loans',
         components:{ 
             default: TotalOverdueLoans,
+            toolbar: Toolbar,
+            nav: Nav
+        },
+        meta: { 
+            requiresAuth: true
+        } 
+    },
+    {
+        path: '/observations',
+        name: 'observations',
+        components:{ 
+            default: Observations,
             toolbar: Toolbar,
             nav: Nav
         },

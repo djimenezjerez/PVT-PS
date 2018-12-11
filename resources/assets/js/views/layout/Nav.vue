@@ -84,6 +84,7 @@ export default {
                 { icon: 'assignment_late', text: 'Prestamos en Mora Pasivos' , link: '/loans_in_arriears' },
                 // { icon: 'group', text: 'Reportes' , link: '/report' },
                 { icon: 'fa-money', text: 'Amortizaciones ' , link: '/amortization' },
+                { icon: 'fa-puzzle-piece', text: 'Observados Complemento ' , link: '/observations' },
             ]
         };
     },

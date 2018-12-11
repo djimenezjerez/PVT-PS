@@ -106,18 +106,18 @@ class LoanController extends Controller
                                         'Producto',
                                         'Tipo','Matricula','Matricula Titular',' CI','Extension','1er Nombre','2do Nombre','Paterno','Materno', 'Apellido de Casada'));
 
-                $loans = DB::table('Prestamos')
-                            ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
-                            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
-                            ->where($conditions)
-                            ->where('Prestamos.PresEstPtmo','!=','X')
-                            // ->where('Prestamos.PresSaldoAct','>',0)
-                            ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
-                                            'Padron.IdPadron',
-                                            'Producto.PrdDsc'
-                                            )
-                            ->orderBy('Prestamos.PresNumero')
-                            ->get();
+            $loans = DB::table('Prestamos')
+                        ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                        ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                        ->where($conditions)
+                        ->where('Prestamos.PresEstPtmo','!=','X')
+                        // ->where('Prestamos.PresSaldoAct','>',0)
+                        ->select('Prestamos.IdPrestamo','Prestamos.PresNumero','Prestamos.PresFechaDesembolso','Prestamos.PresFechaPrestamo','Prestamos.PresCtbNroCpte','Prestamos.PresAmp','Prestamos.PresSaldoAct','Prestamos.PresMntDesembolso',
+                                        'Padron.IdPadron',
+                                        'Producto.PrdDsc'
+                                        )
+                        ->orderBy('Prestamos.PresNumero')
+                        ->get();
 
             foreach($loans as $loan)
             {
