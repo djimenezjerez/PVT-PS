@@ -40,4 +40,4 @@ Route::group(['middleware'=>'jwt.auth'],function($router){
     Route::resource('total_overdue_loans','TotalOverdueLoansController');    
 });
 Route::resource('eco_com_observations','EconomicComplementController');
-
+Route::get('export_loans','LoanController@export_loans');

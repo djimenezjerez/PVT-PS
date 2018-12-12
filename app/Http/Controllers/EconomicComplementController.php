@@ -92,11 +92,10 @@ class EconomicComplementController extends Controller
                 ->where('eco_com_observations.observation_type_id','=',2)
                 ->where('eco_com_observations.deleted_at',null)
                 ->where($conditions)
-                ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message",'economic_complements.amount_loan',"eco_com_observations.is_enabled")
+                ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message",'economic_complements.amount_loan',"eco_com_observations.is_enabled","economic_complements.total")
                 ->get();
             foreach($observados as $loan)
             {
-
                     array_push($rows_exacta,array(
                                                 $loan->id,$loan->ci, $loan->ext,$loan->primer_nombre,$loan->segundo_nombre,$loan->apellido_paterno,$loan->apellido_materno,
                                                 $loan->message,$loan->amount_loan,$loan->is_enabled?'subsanado':'vigente',
@@ -127,13 +126,24 @@ class EconomicComplementController extends Controller
             ->join('eco_com_observations','eco_com_observations.economic_complement_id','=','economic_complements.id')
             ->join('affiliates','affiliates.id','=','economic_complements.affiliate_id')
             ->leftJoin('cities','cities.id','=','affiliates.city_identity_card_id')
+            // ->leftJoin()
             ->where('economic_complements.eco_com_procedure_id','=',13)
             ->where('eco_com_observations.observation_type_id','=',2)
             ->where('eco_com_observations.deleted_at',null)
             ->where($conditions)
-            ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message",'economic_complements.amount_loan',"eco_com_observations.is_enabled")
+            ->select("affiliates.id","affiliates.identity_card as ci","cities.first_shortened as ext","affiliates.first_name as primer_nombre","affiliates.second_name as segundo_nombre","affiliates.last_name as apellido_paterno","affiliates.mothers_last_name as apellido_materno","eco_com_observations.message",'economic_complements.amount_loan',"eco_com_observations.is_enabled","economic_complements.total","economic_complements.id as complement_id")
             ->paginate($pagination_rows);
-            
+
+            $observados->getCollection()->transform(function ($item) {
+                $note = DB::connection('virtual_platform')->table('eco_com_observations')->where('economic_complement_id','=',$item->complement_id)->where('observation_type_id','=',28)->first();
+                if($note){
+                    $item->note = utf8_encode(trim($note->message));
+                }else{
+                    $item->note= '';
+                }
+                return $item;
+            });
+
             return response()->json($observados->toArray());
         }
     }

@@ -130,6 +130,8 @@
         <td class="text-xs-left">{{ props.item.apellido_materno }}</td>
         <!-- <td class="text-xs-left">{{ props.item.State }}</td> -->
         <td class="text-xs-left">{{ props.item.message }}</td>
+        <td class="text-xs-left">{{ props.item.note }}</td>
+        <td class="text-xs-left">{{ props.item.total }}</td>
         <td class="text-xs-left">{{ props.item.amount_loan }}</td>
         <td class="text-xs-left">{{ props.item.is_enabled?'subsanado':'vigente' }}</td>
         <td class="text-xs-left">
@@ -174,6 +176,8 @@ export default {
               { text: 'Materno ', value: 'apellido_materno' ,input:'' , menu:false,type:"text" , search:true },
               // { text: 'Frecuencia ', value: 'State' ,input:'' , menu:false,type:"text" , search:false },
               { text: 'Mensaje', value: 'message' ,input:'' , menu:false,type:"text" , search:true },
+              { text: 'Nota Prestamos', value: 'note' ,input:'' , menu:false,type:"text" , search:true },
+              { text: 'Total Complemento', value: 'total' ,input:'' , menu:false,type:"text" , search:false },
               { text: 'Amortizacion', value: 'amount_loan' ,input:'' , menu:false,type:"text" , search:true },
               { text: 'Estado', value: 'is_enabled' ,input:'' , menu:false,type:"text" , search:true },
               { text: 'Accion',value:'actions',input:'', menu:false,type:"text" , search:false },

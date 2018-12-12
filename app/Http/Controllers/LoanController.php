@@ -469,6 +469,29 @@ class LoanController extends Controller
 
         return json_encode($prestamos);
     }
+    public function export_loans(){
+        $gestion= 'PTMO-18';  
+
+        // select count(dbo.Prestamos.PresEstPtmo) as cantidad ,dbo.EstadoPrestamo.PresEstDsc as nombre,dbo.EstadoPrestamo.PresEstPtmo as id from dbo.Prestamos
+        // join dbo.EstadoPrestamo on Prestamos.PresEstPtmo = EstadoPrestamo.PresEstPtmo
+        // where dbo.Prestamos.PresNumero like 'PTMO-1800%'
+        // GROUP by dbo.Prestamos.PresEstPtmo,EstadoPrestamo.PresEstDsc,dbo.EstadoPrestamo.PresEstPtmo;
+
+        $states_loan = DB::table('Prestamos')
+                                ->join('EstadoPrestamo','EstadoPrestamo.PresEstPtmo','=','EstadoPrestamo.PresEstPtmo') 
+                                ->where('Prestamos.PresNumero','like',$gestion.'%')
+                                ->select('Prestamos.PresEstPtmo','EstadoPrestamo.PresEstPtmo')
+                                // ->select('EstadoPrestamo.PresEstDsc as nombre','dbo.EstadoPrestamo.PresEstPtmo as id')
+                                // ->select(DB::raw("count(dbo.Prestamos.PresEstPtmo) as cantidad ,dbo.EstadoPrestamo.PresEstDsc as nombre,dbo.EstadoPrestamo.PresEstPtmo as id"))
+                                ->groupBy('Prestamos.PresEstPtmo','EstadoPrestamo.PresEstPtmo')
+                                ->get();
+        $loans = array();
+        foreach($states_loan as $state){
+            // $prestamo DB::table('Prestamo')->
+            // $prestamo = DB::table('Prestamos')->join('Prestamos.P')
+        }
+        return json_encode($loans_by_type);
+    }
     public function certificate_info(){
         $id_prestamo = request('id_prestamo')??'';
         // return $id_prestamo;
