@@ -86,7 +86,35 @@
             <v-card >
               <v-card-title primary-title>
               <div>
-                <div class="headline"> Prestamos Desembolsados 2018 </div>
+                <div class="headline"> Prestamos Desembolsados 2018
+                  <v-btn small @click="download" 
+                      :disabled="dialog"
+                      :loading="dialog"
+                      icon
+                  ><v-icon color="green">fa-file-excel-o</v-icon>
+                  </v-btn>
+                   </div> 
+                 
+                  <v-dialog
+                    v-model="dialog"
+                    hide-overlay
+                    persistent
+                    width="300"
+                  >
+                  <v-card
+                  color="primary"
+                  dark
+                  >
+                  <v-card-text>
+                      Por favor espere
+                      <v-progress-linear
+                      indeterminate
+                      color="white"
+                      class="mb-0"
+                      ></v-progress-linear>
+                  </v-card-text>
+                  </v-card>
+                  </v-dialog>
               </div>
             </v-card-title>
               <canvas id="prestamos_desembolsados_mes" ></canvas>
@@ -170,6 +198,8 @@ export default {
           data: null,
           options: null,
         },
+        dialog: false,
+        loading: true,
 
       }
     }
@@ -205,6 +235,29 @@ export default {
       // console.log({labels,datasets}); 
       return {type: 'pie',data:{labels, datasets}};
     },
+    download: function (event) {
+            // `this` inside methods point to the Vue instance
+          self = this;
+          self.dialog = true
+          //  self.dialog = true;
+          // let parameters = this.getParams();
+          // parameters.excel =true;
+          // console.log(parameters);
+          axios({
+              url: '/api/export_loans',
+              method: 'GET',
+              // params: parameters,
+              responseType: 'blob', // important
+          }).then((response) => {
+              const url = window.URL.createObjectURL(new Blob([response.data]));
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', 'Prestamos'+moment().format()+'.xls');
+              document.body.appendChild(link);
+              link.click();
+              self.dialog = false;
+          });
+      },
     productData(){
       let labels = [];
       let data =[];

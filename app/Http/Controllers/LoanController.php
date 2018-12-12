@@ -470,8 +470,8 @@ class LoanController extends Controller
         return json_encode($prestamos);
     }
     public function export_loans(){
+        global $states_loan,$gestion;
         $gestion= 'PTMO-18';  
-
         // select count(dbo.Prestamos.PresEstPtmo) as cantidad ,dbo.EstadoPrestamo.PresEstDsc as nombre,dbo.EstadoPrestamo.PresEstPtmo as id from dbo.Prestamos
         // join dbo.EstadoPrestamo on Prestamos.PresEstPtmo = EstadoPrestamo.PresEstPtmo
         // where dbo.Prestamos.PresNumero like 'PTMO-1800%'
@@ -480,17 +480,60 @@ class LoanController extends Controller
         $states_loan = DB::table('Prestamos')
                                 ->join('EstadoPrestamo','EstadoPrestamo.PresEstPtmo','=','EstadoPrestamo.PresEstPtmo') 
                                 ->where('Prestamos.PresNumero','like',$gestion.'%')
-                                ->select('Prestamos.PresEstPtmo','EstadoPrestamo.PresEstPtmo')
+                                ->select('Prestamos.PresEstPtmo')
                                 // ->select('EstadoPrestamo.PresEstDsc as nombre','dbo.EstadoPrestamo.PresEstPtmo as id')
                                 // ->select(DB::raw("count(dbo.Prestamos.PresEstPtmo) as cantidad ,dbo.EstadoPrestamo.PresEstDsc as nombre,dbo.EstadoPrestamo.PresEstPtmo as id"))
-                                ->groupBy('Prestamos.PresEstPtmo','EstadoPrestamo.PresEstPtmo')
+                                ->groupBy('Prestamos.PresEstPtmo')
                                 ->get();
-        $loans = array();
+        
+        Excel::create('Prestamos 2018', function($excel) {
+            global $loans_details,$states_loan,$gestion;
         foreach($states_loan as $state){
             // $prestamo DB::table('Prestamo')->
-            // $prestamo = DB::table('Prestamos')->join('Prestamos.P')
-        }
-        return json_encode($loans_by_type);
+
+                global $estado ;
+                $estado = DB::table('EstadoPrestamo')
+                            ->where('PresEstPtmo',$state->PresEstPtmo)
+                            ->first();
+                $prestamos = DB::table('Prestamos')
+                            // ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
+                            ->where('Prestamos.PresNumero','like',$gestion.'%')
+                            ->where('Prestamos.PresEstPtmo','=',$state->PresEstPtmo)
+                            ->select('Prestamos.PresSaldoAct','Prestamos.PresPresupNroCpte','Prestamos.PresMntDesembolso','Prestamos.PresEstPtmo','Prestamos.PresAmp','Prestamos.IdPadron'
+                                    //  'Padron.PadCedulaIdentidad','Padron.PadExpCedula','Padron.PadMaterno'
+                                    )
+                            ->get();
+                $loans_details = array(array('1er Nombre','2do Nombre','Ap. Paterno','Ap. Materno','CI','Exp','Saldo Actual','Nro Comprobante','Monto Desembolsado','Estado','Ampliacion'));
+                foreach($prestamos as $prestamo){
+                    $padron = DB::table('Padron')->where('IdPadron',$prestamo->IdPadron)->first();
+                    $prestamo->PadTipo = utf8_encode(trim($padron->PadTipo));
+                    $prestamo->PadNombres = utf8_encode(trim($padron->PadNombres));
+                    $prestamo->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                    $prestamo->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                    $prestamo->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                    $prestamo->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                    $prestamo->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+                    // $item->PadMatricula =utf8_encode(trim($padron->PadMatricula));
+                    // $item->PadMatriculaTit =utf8_encode(trim($padron->PadMatriculaTit));
+                    // array_push($loans_details,array('PadTipo'=> $prestamo->PadTipo,'PadNombres'=>$prestamo->PadNombres,'PadNombres2do'=>$prestamo->PadNombres2do,'PadPaterno'=>$prestamo->PadPaterno,'PadMaterno'=>$prestamo->PadMaterno,'PadCedulaIdentidad'=>$prestamo->PadCedulaIdentidad,
+                    //                                 'PresSaldoAct' => $prestamo->PresSaldoAct, 'PresPresupNroCpte' => $prestamo->PresPresupNroCpte,'PresMntDesembolso'=>$prestamo->PresMntDesembolso,'PresEstPtmo'=>$prestamo->PresEstPtmo,'PresAmp'=>$prestamo->PresAmp
+                    //                                 ));
+                    array_push($loans_details,array($prestamo->PadNombres,$prestamo->PadNombres2do,$prestamo->PadPaterno,$prestamo->PadMaterno,$prestamo->PadCedulaIdentidad,$prestamo->PadExpCedula,
+                                                    $prestamo->PresSaldoAct,$prestamo->PresPresupNroCpte,$prestamo->PresMntDesembolso,$prestamo->PresEstPtmo,$prestamo->PresAmp
+                                                    ));
+                    
+
+                }
+
+                $excel->sheet('Prestamos '.$estado->PresEstDsc, function($sheet) {
+                    global $loans_details;
+                    $sheet->fromArray($loans_details);
+            
+                });
+                
+            }
+        })->download('xls');
+        // return json_encode($loans);
     }
     public function certificate_info(){
         $id_prestamo = request('id_prestamo')??'';
