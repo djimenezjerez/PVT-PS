@@ -41,7 +41,7 @@ class PrestamosExactos extends Command
     {
         //
         global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
-        $path = storage_path('excel/import/comando octubre.xls');
+        $path = storage_path('excel/import/lista_comando_noviembre.xls');
         Excel::selectSheetsByIndex(0)->load($path, function($reader) {
             global $rows_exacta,$rows_not_found,$rows_desc_mayor,$rows_desc_menor,$rows_segundo_prestamo,$prestamos_noreg,$rows_gar;
             $rows_exacta = Array();

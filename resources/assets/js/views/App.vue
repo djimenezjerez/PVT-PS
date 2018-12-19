@@ -32,6 +32,19 @@ export default {
       // console.log(JSON.parse(user));
       // console.log("setteando token");
       axios.defaults.headers.common['Authorization'] = 'Bearer '+this.getToken;
+      axios.interceptors.response.use(undefined,(err) => {
+        return new Promise( (resolve, reject) => {
+          console.log(err.response.status);
+          if (err.response.status === 401) {
+          // if you ever get an unauthorized, logout the user
+            this.$store.dispatch('auth/logout')
+            .then(() => this.$router.push('/login'))
+            .catch(err => console.log(err))
+          // you can also redirect to /login if needed !
+          }
+          throw err;
+        });
+      });
     }
 }
 </script>
