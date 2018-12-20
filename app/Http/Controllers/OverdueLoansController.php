@@ -22,7 +22,7 @@ class OverdueLoansController extends Controller
         join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
         join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
         join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo AND Amortizacion.AMRSTS <>'X' ))
-        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('".$date."' as datetime) and Padron.PadTipo ='PASIVO'
+        where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('".$date."' as datetime)
         order by meses_mora DESC;");
         // $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron from dbo.Prestamos
         // join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
