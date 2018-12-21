@@ -499,11 +499,11 @@ class LoanController extends Controller
                             // ->join('Padron','Padron.IdPadron','=','Prestamos.IdPadron')
                             ->where('Prestamos.PresNumero','like',$gestion.'%')
                             ->where('Prestamos.PresEstPtmo','=',$state->PresEstPtmo)
-                            ->select('Prestamos.PresSaldoAct','Prestamos.PresPresupNroCpte','Prestamos.PresFechaDesembolso','Prestamos.PresMntDesembolso','Prestamos.PresEstPtmo','Prestamos.PresAmp','Prestamos.IdPadron'
+                            ->select('Prestamos.PresSaldoAct','Prestamos.PresPresupNroCpte','Prestamos.PresFechaPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresMntDesembolso','Prestamos.PresEstPtmo','Prestamos.PresAmp','Prestamos.IdPadron'
                                     //  'Padron.PadCedulaIdentidad','Padron.PadExpCedula','Padron.PadMaterno'
                                     )
                             ->get();
-                $loans_details = array(array('1er Nombre','2do Nombre','Ap. Paterno','Ap. Materno','CI','Exp','Saldo Actual','Nro Comprobante','Fecha de Desembolso','Monto Desembolsado','Estado','Ampliacion'));
+                $loans_details = array(array('1er Nombre','2do Nombre','Ap. Paterno','Ap. Materno','CI','Exp','Saldo Actual','Nro Comprobante','Fecha de Prestamo','Fecha de Desembolso','Monto Desembolsado','Estado','Ampliacion'));
                 foreach($prestamos as $prestamo){
                     $padron = DB::table('Padron')->where('IdPadron',$prestamo->IdPadron)->first();
                     $prestamo->PadTipo = utf8_encode(trim($padron->PadTipo));
@@ -519,7 +519,7 @@ class LoanController extends Controller
                     //                                 'PresSaldoAct' => $prestamo->PresSaldoAct, 'PresPresupNroCpte' => $prestamo->PresPresupNroCpte,'PresMntDesembolso'=>$prestamo->PresMntDesembolso,'PresEstPtmo'=>$prestamo->PresEstPtmo,'PresAmp'=>$prestamo->PresAmp
                     //                                 ));
                     array_push($loans_details,array($prestamo->PadNombres,$prestamo->PadNombres2do,$prestamo->PadPaterno,$prestamo->PadMaterno,$prestamo->PadCedulaIdentidad,$prestamo->PadExpCedula,
-                                                    $prestamo->PresSaldoAct,$prestamo->PresPresupNroCpte,$prestamo->PresFechaDesembolso,$prestamo->PresMntDesembolso,$prestamo->PresEstPtmo,$prestamo->PresAmp
+                                                    $prestamo->PresSaldoAct,$prestamo->PresPresupNroCpte, $prestamo->PresFechaPrestamo, $prestamo->PresFechaDesembolso,$prestamo->PresMntDesembolso,$prestamo->PresEstPtmo,$prestamo->PresAmp
                                                     ));
                     
 
