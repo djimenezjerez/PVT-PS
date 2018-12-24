@@ -135,7 +135,7 @@ class AmortizationController extends Controller
                             ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                             ->where($conditions)
                             ->where('Prestamos.PresEstPtmo','!=','N')
-                            ->where('Prestamos.PresSaldoAct','>',0)
+                            // ->where('Prestamos.PresSaldoAct','>',0)
                             ->where('Amortizacion.AmrSts','!=','X')
                             ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                      'Padron.IdPadron',
@@ -183,12 +183,13 @@ class AmortizationController extends Controller
 
         
             //flujo normal
+           // Log::info($conditions);
             $amortizaciones = DB::table('Prestamos')
                                 ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
                                 ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                                 ->where($conditions)
                                 ->where('Prestamos.PresEstPtmo','!=','N')
-                                ->where('Prestamos.PresSaldoAct','>',0)
+                                // ->where('Prestamos.PresSaldoAct','>',0)
                                
                                 ->where('Amortizacion.AmrSts','!=','X')
                                 ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
