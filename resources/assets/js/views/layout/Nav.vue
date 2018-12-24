@@ -72,7 +72,7 @@ export default {
         return {
             items: [
                 { icon: 'dashboard', text: 'Inicio' , link: '/' },
-                { icon: 'work', text: 'Prestamos Vigentes' , link: '/loans' },
+                { icon: 'work', text: 'Prestamos' , link: '/loans' },
                 { icon: 'date_range', text: 'Prestamos en Mora' , link: '/overdue_loans' },
                 { icon: 'query_builder', text: 'Mora Total' , link: '/total_overdue_loans' },
                 { icon: 'card_travel', text: 'Mora Parcial' , link: '/partial_loans' },

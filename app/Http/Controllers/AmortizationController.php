@@ -134,9 +134,9 @@ class AmortizationController extends Controller
                             ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                             ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
                             ->where($conditions)
-                            ->where('Prestamos.PresEstPtmo','=','V')
+                            ->where('Prestamos.PresEstPtmo','!=','N')
                             ->where('Prestamos.PresSaldoAct','>',0)
-                            // ->where('Amortizacion.AmrSts','!=','X')
+                            ->where('Amortizacion.AmrSts','!=','X')
                             ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                      'Padron.IdPadron',
                                      'Producto.PrdDsc',
@@ -187,10 +187,10 @@ class AmortizationController extends Controller
                                 ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
                                 ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
                                 ->where($conditions)
-                                ->where('Prestamos.PresEstPtmo','=','V')
+                                ->where('Prestamos.PresEstPtmo','!=','N')
                                 ->where('Prestamos.PresSaldoAct','>',0)
                                
-                                // ->where('Amortizacion.AmrSts','!=','X')
+                                ->where('Amortizacion.AmrSts','!=','X')
                                 ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                         'Padron.IdPadron',
                                         'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte','Amortizacion.AmrSts'
