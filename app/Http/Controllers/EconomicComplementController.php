@@ -37,6 +37,7 @@ class EconomicComplementController extends Controller
         $message = request('message')??'';
         $amount_loan = request('amount_loan')??'';
         $is_enabled = request('is_enabled')??'';
+        $procedure_id = request('procedure_id')??'';
 
         if($ci != '')
         {
@@ -71,6 +72,10 @@ class EconomicComplementController extends Controller
         {
             array_push($conditions,array('economic_complements.amount_loan','=',$amount_loan));
         }
+        if($procedure_id != '')
+        {
+            array_push($conditions,array('economic_complements.eco_com_procedure_id','=',$procedure_id));
+        }
 
        
         
@@ -88,7 +93,7 @@ class EconomicComplementController extends Controller
                 ->join('eco_com_observations','eco_com_observations.economic_complement_id','=','economic_complements.id')
                 ->join('affiliates','affiliates.id','=','economic_complements.affiliate_id')
                 ->leftJoin('cities','cities.id','=','affiliates.city_identity_card_id')
-                ->where('economic_complements.eco_com_procedure_id','=',13)
+                // ->where('economic_complements.eco_com_procedure_id','=',13)
                 ->where('eco_com_observations.observation_type_id','=',2)
                 ->where('eco_com_observations.deleted_at',null)
                 ->where($conditions)
@@ -127,7 +132,7 @@ class EconomicComplementController extends Controller
             ->join('affiliates','affiliates.id','=','economic_complements.affiliate_id')
             ->leftJoin('cities','cities.id','=','affiliates.city_identity_card_id')
             // ->leftJoin()
-            ->where('economic_complements.eco_com_procedure_id','=',13)
+            // ->where('economic_complements.eco_com_procedure_id','=',13)
             ->where('eco_com_observations.observation_type_id','=',2)
             ->where('eco_com_observations.deleted_at',null)
             ->where($conditions)
@@ -148,6 +153,11 @@ class EconomicComplementController extends Controller
         }
     }
 
+    public function getProcedures()
+    {
+        $procedures = DB::connection('virtual_platform')->table('eco_com_procedures')->select('id',DB::raw("concat_ws(' ',date_part('year', eco_com_procedures.year),eco_com_procedures.semester) as semester "))->orderBy('sequence','DESC')->get();
+        return response()->json($procedures->toArray());
+    }
     /**
      * Show the form for creating a new resource.
      *

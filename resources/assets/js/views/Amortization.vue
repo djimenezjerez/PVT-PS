@@ -135,6 +135,7 @@
             <td class="text-xs-left">{{ props.item.AmrTotPag }}</td>
             <td class="text-xs-left">{{ props.item.AmrNroCpte }}</td>
             <td class="text-xs-left">{{ props.item.AmrTipPAgo }}</td>
+            <td class="text-xs-left">{{ props.item.AmrSts }}</td>
             <!-- <td class="justify-center layout px-0">
                 <v-icon
                     small
@@ -177,6 +178,7 @@ export default {
     data () {
       return {
         dialog: false,
+        menu_date:false,
         pagination: {
           sortBy: 'PresNumero'
         },
@@ -193,6 +195,7 @@ export default {
             { text: 'Total Pagado',value:'AmrTotPag',input:'', menu:false , type:"text"},
             { text: 'Nro Comprobante',value:'AmrNroCpte',input:'', menu:false , type:"text"},
             { text: 'Tipo Descuento',value:'AmrTipPAgo',input:'', menu:false , type:"text"},
+            { text: 'Estado',value:'AmrSts',input:'', menu:false , type:"text"},
         ],
         amortizations: [],
         loading: true,

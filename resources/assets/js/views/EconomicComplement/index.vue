@@ -1,4 +1,5 @@
 <template>
+ 
  <v-card class="elevation-12">
     <v-card-title>
       <strong>Observados con Complemento  </strong>
@@ -8,7 +9,7 @@
             icon
         ><v-icon color="green">fa-file-excel-o</v-icon>
         </v-btn>
-      
+     
         <v-dialog
           v-model="dialog"
           hide-overlay
@@ -31,7 +32,19 @@
         </v-dialog>
 
       <v-spacer></v-spacer>
-      
+         <v-select
+          :items="procedures"
+          label="Gestion"
+          item-text="semester"
+          item-value="id"
+          v-model="procedure_select"
+          @change="search()"
+        ></v-select>
+
+        <v-btn icon>
+            <v-icon color="success" @click="search()">refresh</v-icon>
+        </v-btn>
+    
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -192,14 +205,32 @@ export default {
             paginationRows: 10,
             pagination_select:[10,20,30],
             date: moment().format('L'),
+            procedures: [],
+            procedure_select:null,
             }
     },
     mounted()
     {
-        this.search();
+         this.getData('/api/eco_com_procedures',{}).then((data)=>{
+            
+            let p=  new Promise((resolve,reject)=>{
+                this.procedures = data;
+                this.procedure_select = this.procedures[0].id;
+                console.log(this.procedure_select);
+                
+                resolve();
+            })
+            
+            p.then(()=>{
+                // console.log('terminado');
+                this.search();
+            });
+                 
+        });
+     
     },
     created(){
-       
+        
   
     },
     
@@ -250,10 +281,11 @@ export default {
             this.headers.forEach(element => {
                 params[element.value] = element.input.toUpperCase();
             });
-            // params['sorted']=this.filterName;
+            params['procedure_id']=this.procedure_select;
             // params['order']=this.pagination.descending==true?'asc':'desc';
             params['page']=this.page;
             params['pagination_rows']=this.paginationRows;
+            console.log(params);
             return params;
         },
         checkInput(search)

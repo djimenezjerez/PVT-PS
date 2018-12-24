@@ -63,6 +63,7 @@ class AmortizationController extends Controller
         $PadMaterno = request('PadMaterno')??'';
         $PadTipo = request('PadTipo')??'';
         $AmrTipPAgo = request('AmrTipPAgo')??'';
+        $AmrSts = request('AmrSts')??'';
         
         $conditions = [];
         if($PresNumero != '')
@@ -83,6 +84,10 @@ class AmortizationController extends Controller
         if($AmrTipPAgo != '')
         {
             array_push($conditions,array('Amortizacion.AmrTipPAgo','=',$AmrTipPAgo));
+        }
+        if($AmrSts != '')
+        {
+            array_push($conditions,array('Amortizacion.AmrSts','=',$AmrSts));
         }
         if($AmrNroCpte != '')
         {
@@ -123,7 +128,7 @@ class AmortizationController extends Controller
             global $rows_exacta;
             $rows_exacta = Array();
             //cabezera
-            array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Tipo','Fecha Pago','Fecha Transaccion','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do', 'Capital','Interes','Interes penal','otros cobros','Amortizacion.AmrTotPag','Tipo Descuento','Numero Comprobante'));
+            array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Tipo','Fecha Pago','Fecha Transaccion','Estado Amortizacion','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do', 'Capital','Interes','Interes penal','otros cobros','Amortizacion.AmrTotPag','Tipo Descuento','Numero Comprobante'));
             $amortizaciones = DB::table('Prestamos')
                             ->join('Amortizacion','Prestamos.IdPrestamo','=','Amortizacion.IdPrestamo')
                             ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
@@ -131,11 +136,11 @@ class AmortizationController extends Controller
                             ->where($conditions)
                             ->where('Prestamos.PresEstPtmo','=','V')
                             ->where('Prestamos.PresSaldoAct','>',0)
-                            ->where('Amortizacion.AmrSts','!=','X')
+                            // ->where('Amortizacion.AmrSts','!=','X')
                             ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                      'Padron.IdPadron',
                                      'Producto.PrdDsc',
-                                     'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte'
+                                     'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte','Amortizacion.AmrSts'
                                     )
                             ->orderBy('Prestamos.PresNumero')
                             ->get();
@@ -153,7 +158,7 @@ class AmortizationController extends Controller
                     $amortizacion->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
                     $amortizacion->PadMatricula =utf8_encode(trim($padron->PadMatricula));
 
-                    array_push($rows_exacta,array($amortizacion->PresNumero,$amortizacion->PresFechaDesembolso,$amortizacion->PadTipo,$amortizacion->AmrFecPag,$amortizacion->AmrFecTrn,$amortizacion->PrdDsc,$amortizacion->PadMatricula,$amortizacion->PadCedulaIdentidad,$amortizacion->PadPaterno,$amortizacion->PadMaterno,$amortizacion->PadNombres,$amortizacion->PadNombres2do, $amortizacion->AmrCap,$amortizacion->AmrInt,$amortizacion->AmrIntPen,$amortizacion->AmrOtrCob,$amortizacion->AmrTotPag,$amortizacion->AmrTipPAgo,$amortizacion->AmrNroCpte));    
+                    array_push($rows_exacta,array($amortizacion->PresNumero,$amortizacion->PresFechaDesembolso,$amortizacion->PadTipo,$amortizacion->AmrFecPag,$amortizacion->AmrFecTrn,$amortizacion->AmrSts,$amortizacion->PrdDsc,$amortizacion->PadMatricula,$amortizacion->PadCedulaIdentidad,$amortizacion->PadPaterno,$amortizacion->PadMaterno,$amortizacion->PadNombres,$amortizacion->PadNombres2do, $amortizacion->AmrCap,$amortizacion->AmrInt,$amortizacion->AmrIntPen,$amortizacion->AmrOtrCob,$amortizacion->AmrTotPag,$amortizacion->AmrTipPAgo,$amortizacion->AmrNroCpte));    
             }
             Excel::create('Amortizaciones',function($excel)
             {
@@ -185,10 +190,10 @@ class AmortizationController extends Controller
                                 ->where('Prestamos.PresEstPtmo','=','V')
                                 ->where('Prestamos.PresSaldoAct','>',0)
                                
-                                ->where('Amortizacion.AmrSts','!=','X')
+                                // ->where('Amortizacion.AmrSts','!=','X')
                                 ->select('Prestamos.PresNumero','Prestamos.PresFechaDesembolso',
                                         'Padron.IdPadron',
-                                        'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte'
+                                        'Amortizacion.AmrFecPag', 'Amortizacion.AmrFecTrn','Amortizacion.AmrCap','Amortizacion.AmrInt','Amortizacion.AmrIntPen','Amortizacion.AmrOtrCob','Amortizacion.AmrTotPag','Amortizacion.AmrTipPAgo' ,'Amortizacion.AmrNroCpte','Amortizacion.AmrSts'
                                         )
                                 ->orderBy('Prestamos.PresNumero')
                                 ->paginate($pagination_rows);
