@@ -76,6 +76,26 @@
             <v-card >
               <v-card-title primary-title>
               <div>
+                <div class="headline"> Prestamos Realizados 2017 </div>
+              </div>
+            </v-card-title>
+              <canvas id="prestamos_mes_2017" ></canvas>
+            </v-card>
+          </v-flex>
+          <v-flex xs6>
+            <v-card>
+              <v-card-title>
+                <div>
+                  <div class="headline"> Prestamos Desembolsados 2017 </div>
+                </div>
+              </v-card-title>
+              <canvas id="prestamos_desembolsados_mes_2017" ></canvas>
+            </v-card>
+          </v-flex>
+          <v-flex xs6>
+            <v-card >
+              <v-card-title primary-title>
+              <div>
                 <div class="headline"> Prestamos Realizados 2018 </div>
               </div>
             </v-card-title>
@@ -184,6 +204,8 @@ export default {
         prestamosVigentes:null,
         prestamosEstado:null,
         prestamosMes:null,
+        prestamosDesembolsados2017:null,
+        prestamosMes2017:null,
         prestamosDesembolsados:null,
         productos_mes:null,
         items: [],
@@ -301,6 +323,45 @@ export default {
       let labels = [];
       let data =[];
       this.prestamosMes.forEach(item => {
+        labels.push(this.getMonth(item.name));
+        data.push(item.cantidad);
+      });
+      let datasets = [{
+        label: '' ,
+        data: data,
+        backgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365",
+
+        ],
+        hoverBackgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365" 
+        ],
+        borderWidth: 1
+      }];
+      return {type: 'bar',data:{labels, datasets}};
+    },
+    prestamosMeses2017(){
+      let labels = [];
+      let data =[];
+      this.prestamosMes2017.forEach(item => {
         labels.push(this.getMonth(item.name));
         data.push(item.cantidad);
       });
@@ -489,6 +550,66 @@ export default {
             displayColors: true
           }} };
     },
+    prestamosDesembolsadosMes2017(){
+      let labels = [];
+      let data =[];
+      let cost=[]; 
+      // console.log(this.prestamosDesembolsadosMes2017);
+      this.prestamosDesembolsados2017.forEach(item => {
+        labels.push(this.getMonth(item.mes));
+        data.push(item.cantidad);
+        cost.push(item.monto);
+      });
+      let datasets = [{
+        label: '' ,
+        data: data,
+        cost: cost,
+        backgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365",
+
+        ],
+        hoverBackgroundColor: [
+        "#f1c40f",
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#9b59b6",
+        "#34495e",
+        "#95a5a6",
+        "#FF6384",
+        "#1AB394",
+        "#FFA365" 
+        ],
+        borderWidth: 1
+      }];
+      
+      return {type: 'bar',data:{labels, datasets},options:{tooltips: {
+            callbacks: {
+              title: function(tooltipItem, data) {
+                return data['labels'][tooltipItem[0]['index']];
+              },
+              label: function(tooltipItem, data) {
+                return data['datasets'][0]['data'][tooltipItem['index']];
+              },
+              afterLabel: function(tooltipItem, data) {
+         
+                var cost =  data['datasets'][0]['cost'][tooltipItem['index']];
+                return 'Bs '+cost;
+              }
+            },
+            
+            displayColors: true
+          }} };
+    },
     productState(){
       let labels = [];
       let data =[];
@@ -540,8 +661,10 @@ export default {
                 this.prestamosEstado = data.prestamos_estado;
                 this.prestamosMes = data.prestamos_mes;
                 this.prestamosDesembolsados = data.prestamos_desembolsados;
+                this.prestamosMes2017 = data.prestamos_mes_2017;
+                this.prestamosDesembolsados2017 = data.prestamos_desembolsados_2017;
                 this.productos_mes = data.productos_mes;
-                console.log(data);
+                console.log(this.prestamosDesembolsados2017);
                 resolve();
             });
         });
@@ -632,8 +755,10 @@ export default {
         this.createChart('prestamos_tipo',this.prestamosRender());
         this.createChart('prestamos_producto',this.productData());
         this.createChart('prestamos_estado',this.productState());
-        this.createChart('prestamos_mes',this.prestamosMeses());
+        this.createChart('prestamos_mes',this.prestamosMeses());//2018
+        this.createChart('prestamos_mes_2017',this.prestamosMeses2017());//2018
         this.createChart('prestamos_desembolsados_mes',this.prestamosDesembolsadosMes());
+        this.createChart('prestamos_desembolsados_mes_2017',this.prestamosDesembolsadosMes2017());
         this.items = [
           { header: 'Prestamos Vigentes' },
           {
