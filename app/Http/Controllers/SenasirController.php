@@ -92,7 +92,7 @@ class SenasirController extends Controller
                                                       ->whereRaw("Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AmrSts != 'X'");
                                             })
                                             ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Prestamos.SolEntChqCod',
-                                                    'Padron.IdPadron')
+                                                    'Padron.IdPadron','Prestamos.Prestasaint')
                                             ->paginate($pagination_rows);
 
             //completando informacion de afiliado problemas de codificacion utf-8                                        
@@ -134,12 +134,12 @@ class SenasirController extends Controller
                                                   ->from('Amortizacion')
                                                   ->whereRaw("Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AmrSts != 'X'");
                                         })
-                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod','Prestamos.Prestasaint')
                                     //    ->take(40)
                                         ->get();
     
             global $prestamos;
-            $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','SaldoActual','Cuota','Descuento','ciudad')];
+            $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','SaldoActual','Cuota','Descuento','ciudad','Interes')];
 
             foreach($loans as $loan)
             {
@@ -187,6 +187,7 @@ class SenasirController extends Controller
                     $loan->PresCuotaMensual,
                     $loan->Discount,
                     $loan->City,
+                    $loan->Prestasaint,
                 ));
             }
             

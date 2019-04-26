@@ -57,6 +57,7 @@
         <!-- <td class="text-xs-left">{{ props.item.State }}</td> -->
         <!-- <td class="text-xs-left">{{ props.item.City }}</td> -->
         <td class="text-xs-left">{{ props.item.Diff }}</td>
+        <td class="text-xs-left">{{ Number(props.item.prestasaint).toFixed(2) }}</td>
         <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
       </template>
       <v-alert slot="no-results" :value="true" color="error" icon="warning">
@@ -86,6 +87,7 @@ export default {
             //   { text: 'Departamento', value: 'City' },
             //   { text: 'Descuento ', value: 'Discount' },
               { text: 'Mese Mora ', value: 'Diff' },
+              { text: 'Interes ', value: 'prestasaint' },
               { text: 'Accion ' }
             ],
             dialog: false,

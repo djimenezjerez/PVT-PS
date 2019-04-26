@@ -113,7 +113,8 @@ class ComandController extends Controller
                         })
                         ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Prestamos.SolEntChqCod',
                                     'Padron.IdPadron',
-                                    'Producto.PrdDsc'
+                                    'Producto.PrdDsc',
+                                    'Prestamos.prestasaint'
                                     )
                         ->orderBy('Prestamos.PresFechaDesembolso','Desc')
                         ->paginate($pagination_rows);
@@ -159,7 +160,8 @@ class ComandController extends Controller
                             })
                             ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Prestamos.SolEntChqCod',
                                     'Padron.IdPadron',
-                                    'Producto.PrdDsc'
+                                    'Producto.PrdDsc',
+                                    'Prestamos.prestasaint'
                                     )
                             ->orderBy('Prestamos.PresFechaDesembolso','Desc')
                         //    ->take(2000)
@@ -168,7 +170,7 @@ class ComandController extends Controller
 
             global $prestamos,$prestamos_sin_plan;
             $prestamos_sin_plan = [];
-            $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','SaldoActual','Cuota','Descuento','ciudad')];
+            $prestamos =[ array('FechaDesembolso','Numero','Tipo','MatriculaTitular','MatriculaDerechohabiente','CI','Extension','PrimerNombre','SegundoNombre','Paterno','Materno','SaldoActual','Cuota','Descuento','ciudad','Interes')];
             // $bar = $this->output->createProgressBar(count($loans));
             $sw = false;
             foreach($loans  as $loan)
@@ -200,7 +202,7 @@ class ComandController extends Controller
             {
                 $loan->Discount = $loan->PresCuotaMensual;
             }
-                array_push($prestamos,array(
+            array_push($prestamos,array(
                     $loan->PresFechaDesembolso,
                     $loan->PresNumero,
                     $loan->PadTipo,
@@ -216,6 +218,7 @@ class ComandController extends Controller
                     $loan->PresCuotaMensual,
                     $loan->Discount,
                     $loan->City,
+                    $loan->prestasaint,
             ));
 
             // $bar->advance();

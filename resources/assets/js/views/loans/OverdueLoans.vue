@@ -82,6 +82,7 @@
         <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
         <td class="text-xs-left">{{ props.item.PadTipo }}</td>
         <td class="text-xs-left">{{ props.item.meses_mora }}</td>
+        <td class="text-xs-left">{{ Number(props.item.prestasaint).toFixed(2) }}</td>
         
         <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
       </template>
@@ -108,6 +109,7 @@ export default {
               { text: 'Materno ', value: 'PadMaterno' },
               { text: 'Tipo ', value: 'PadTipo' },
               { text: 'Mora ', value: 'meses_mora' },
+              { text: 'Interes ', value: 'prestasaint' },
               { text: 'Accion ' }
             ],
             dialog: false,

@@ -342,7 +342,7 @@ class LoanController extends Controller
                                         ->where('Padron.PadTipo','=','PASIVO')
                                         // ->where('Prestamos.IdPrestamo','=',53251)
                                         // ->where('Padron.PadTipRentAFPSENASIR','=','SENASIR')
-                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod')
+                                        ->select('Prestamos.IdPrestamo','Prestamos.PresFechaDesembolso','Prestamos.PresNumero','Prestamos.PresCuotaMensual','Prestamos.PresSaldoAct','Padron.PadTipo','Padron.PadCedulaIdentidad','Padron.PadNombres','Padron.PadNombres2do','Padron.IdPadron','Padron.PadMatricula','Prestamos.SolEntChqCod','Prestamos.prestasaint')
                                     //  ->take(40)
                                         ->get();
         $prestamos = [];

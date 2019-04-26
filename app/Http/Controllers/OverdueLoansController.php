@@ -18,7 +18,7 @@ class OverdueLoansController extends Controller
         $excel = request('excel')??'';
         $date = request('date')??'2018-08-31';
         // Log::info($excel);
-        $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '".$date."') as meses_mora from dbo.Prestamos
+        $loans = DB::select("SELECT dbo.Prestamos.IdPrestamo,dbo.Prestamos.PresSaldoAct,dbo.Prestamos.PresCuotaMensual,dbo.Prestamos.PresFechaDesembolso,Producto.PrdDsc,dbo.Prestamos.PresNumero,dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '".$date."') as meses_mora,dbo.Prestamos.prestasaint from dbo.Prestamos
         join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
         join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
         join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo AND Amortizacion.AMRSTS <>'X' ))
@@ -34,7 +34,7 @@ class OverdueLoansController extends Controller
         $prestamos= [];
         global $rows_exacta;
         $rows_exacta = Array();
-        array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Cutoa Mensual','Saldo Actual','Tipo','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do','Meses Mora','matricula','ci','ext','nom1','nom2','paterno','materno','tipo'));
+        array_push($rows_exacta,array('Prestamos.PresNumero','PresFechaDesembolso','Cutoa Mensual','Saldo Actual','Tipo','Producto','Padron.PadMatricula',' Padron.PadCedulaIdentidad',' Padron.PadPaterno','Padron.PadMaterno',' Padron.PadNombres','Padron.PadNombres2do','Meses Mora','matricula','ci','ext','nom1','nom2','paterno','materno','tipo','Interes'));
         foreach($loans as $loan)
         {
             $padron = DB::table('Padron')->where('IdPadron',$loan->IdPadron)->first();
@@ -52,7 +52,7 @@ class OverdueLoansController extends Controller
             
             if($excel!='')//reporte excel hdp 
             {
-                $row = array($loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual,$loan->PresSaldoAct,$loan->PadTipo,$loan->PrdDsc,$loan->PadMatricula,$loan->PadCedulaIdentidad,$loan->PadPaterno,$loan->PadMaterno,$loan->PadNombres,$loan->PadNombres2do,$loan->meses_mora);
+                $row = array($loan->PresNumero,$loan->PresFechaDesembolso,$loan->PresCuotaMensual,$loan->PresSaldoAct,$loan->PadTipo,$loan->PrdDsc,$loan->PadMatricula,$loan->PadCedulaIdentidad,$loan->PadPaterno,$loan->PadMaterno,$loan->PadNombres,$loan->PadNombres2do,$loan->meses_mora,$loan->prestasaint);
                 
                 $garantes = DB::table('PrestamosLevel1')->where('IdPrestamo','=',$loan->IdPrestamo)->get();
                 if(sizeof($garantes)>0)
