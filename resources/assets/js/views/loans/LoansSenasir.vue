@@ -133,6 +133,7 @@
         <td class="text-xs-left">{{ props.item.PresSaldoAct }}</td>
         <td class="text-xs-left">{{ props.item.PresCuotaMensual }}</td>
         <td class="text-xs-left">{{ props.item.Discount }}</td>
+        <td class="text-xs-left">{{ Number(props.item.Prestasaint).toFixed(2) }}</td>
         <td class="text-xs-left"> <a  v-bind:href="generate_link(props.item.IdPrestamo)"><v-icon>assignment</v-icon></a> </td>
       </template>
 
@@ -175,6 +176,7 @@ export default {
               { text: 'Saldo', value: 'PresSaldoAct' ,input:'' , menu:false,type:"text" , search:false },
               { text: 'Cuota', value: 'PresCuotaMensual' ,input:'' , menu:false,type:"text" , search:false },
               { text: 'Descuento ', value: 'Discount' ,input:'' , menu:false,type:"text" , search:false },
+              { text: 'Interes ', value: 'Prestasaint' ,input:'' , menu:false,type:"text" , search:false },
               { text: 'Accion',value:'actions',input:'', menu:false,type:"text" , search:false },
             ],
             dialog: false,
