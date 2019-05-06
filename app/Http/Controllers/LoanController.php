@@ -471,7 +471,7 @@ class LoanController extends Controller
     }
     public function export_loans(){
         global $states_loan,$gestion;
-        $gestion= 'PTMO-18';  
+        $gestion= 'PTMO-19';  
         // select count(dbo.Prestamos.PresEstPtmo) as cantidad ,dbo.EstadoPrestamo.PresEstDsc as nombre,dbo.EstadoPrestamo.PresEstPtmo as id from dbo.Prestamos
         // join dbo.EstadoPrestamo on Prestamos.PresEstPtmo = EstadoPrestamo.PresEstPtmo
         // where dbo.Prestamos.PresNumero like 'PTMO-1800%'
@@ -486,7 +486,7 @@ class LoanController extends Controller
                                 ->groupBy('Prestamos.PresEstPtmo')
                                 ->get();
         
-        Excel::create('Prestamos 2018', function($excel) {
+        Excel::create('Prestamos 2019', function($excel) {
             global $loans_details,$states_loan,$gestion;
         foreach($states_loan as $state){
             // $prestamo DB::table('Prestamo')->
