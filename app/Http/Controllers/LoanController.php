@@ -191,6 +191,154 @@ class LoanController extends Controller
         }
     }
 
+    public function accounting()
+    {
+        // aumenta el tiempo máximo de ejecución de este script a 150 min: 
+        ini_set ('max_execution_time', 9000); 
+        // aumentar el tamaño de memoria permitido de este script: 
+        ini_set ('memory_limit', '960M');
+        
+        $excel = request('excel')??'';
+        $order = request('order')??'';
+        $pagination_rows = request('pagination_rows')??10;
+        $conditions = [];
+        //filtros
+        $PrimerNombre = request('PrimerNombre')??'';
+        $SegundoNombre = request('SegundoNombre')??'';
+        $Paterno = request('Paterno')??'';
+        $Materno = request('Materno')??'';
+        $ApCasada = request('ApCasada')??'';
+        $ci = request('ci')??'';  
+        $NroPrestamo = request('NroPrestamo')?? '';
+
+        if($PrimerNombre != '')
+        {
+            array_push($conditions,array('Padron.padnombres','like',"%{$PrimerNombre}%"));
+        }
+        if($SegundoNombre != '')
+        {
+            array_push($conditions,array('Padron.padnombres2do','like',"%{$SegundoNombre}%"));
+        }
+        if($Paterno != '')
+        {
+            array_push($conditions,array('Padron.padpaterno','like',"%{$Paterno}%"));
+        }
+        if($Materno != '')
+        {
+            array_push($conditions,array('Padron.padmaterno','like',"%{$Materno}%"));
+        }
+        if($ApCasada != '')
+        {
+            array_push($conditions,array('Padron.padapellidocasada','like',"%{$ApCasada}%"));
+        }
+        if($ci != '')
+        {
+            array_push($conditions,array('Padron.padcedulaidentidad','like',"%{$ci}%"));
+        }
+        if($NroPrestamo != '')
+        {
+            array_push($conditions,array('Prestamos.PresNumero','like',"%{$NroPrestamo}%"));
+        }
+        // Log::info($PresFechaDesembolso);
+        // $pres = DB::table('Prestamos')->where('PresFechaDesembolso','=',$PresFechaDesembolso)->first();
+        // Log::info(json_encode($pres));
+        if($excel!='')//reporte excel hdp 
+        {
+            global $rows_exacta;
+            $rows_exacta = Array();
+            //cabezera
+            array_push($rows_exacta,array('PrimerNombre','SegundoNombre','Paterno','Materno','ApCasada','CI','Expd','TipoBeneficiario','TipoPrestamo','FechaPrestamo','Monto',' NroPrestamo'));
+
+            $loans = DB::table('Prestamos')
+                        ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+                        ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+                        ->where($conditions)
+                        ->where('Prestamos.PresEstPtmo','=','A')
+                        ->where('Prestamos.presEstFlujo','=',5)
+                        ->where('prestamos.presamp','=','N')
+                        // ->where('Prestamos.PresSaldoAct','>',0)
+                        ->select(DB::raw("Padron.Idpadron,Padron.padnombres,Padron.padnombres2do,Padron.padpaterno,Padron.padmaterno,Padron.padapellidocasada,Padron.padcedulaidentidad,Padron.padexpcedula,
+                                        Padron.padtipo, case
+                                                        when producto.prddsc = 'GARANTIA PERSONAL'then 'LARGO PLAZO'
+                                                        when producto.prddsc = 'CORTO PLAZO' then 'CORTO PLAZO'
+                                                        ELSE producto.prddsc
+                                                        END AS TipoPrestamo,
+                                        Prestamos.PresFechaPrestamo,
+                                        Prestamos.PresMontoSol,
+                                        Prestamos.PresNumero"))
+                        ->orderBy('Prestamos.PresNumero')
+                        ->get();
+            
+            foreach($loans as $loan)
+            {
+                    $padron = DB::table('Padron')->where('IdPadron',$loan->Idpadron)->first();
+                    $loan->PadNombres = utf8_encode(trim($padron->PadNombres));
+                    $loan->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                    $loan->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                    $loan->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                    $loan->PadApellidoCasada =utf8_encode(trim($padron->PadApellidoCasada));
+                    $loan->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                    $loan->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+                    $loan->PadTipo = utf8_encode(trim($padron->PadTipo));
+                   
+                    array_push($rows_exacta,array($loan->PadNombres,$loan->PadNombres2do,$loan->PadPaterno,$loan->PadMaterno,$loan->PadApellidoCasada,$loan->PadCedulaIdentidad,$loan->PadExpCedula,
+                                                $loan->PadTipo,$loan->TipoPrestamo,$loan->PresFechaPrestamo,$loan->PresMontoSol,$loan->PresNumero));
+            }
+            
+            Excel::create('prestamos',function($excel)
+            {
+                global $rows_exacta;
+                        $excel->sheet('prestamos presupuesto',function($sheet) {
+                                global $rows_exacta;
+                                $sheet->fromModel($rows_exacta,null, 'A1', false, false);
+                                $sheet->cells('A1:R1', function($cells) {
+                                // manipulate the range of cells
+                                $cells->setBackground('#058A37');
+                                $cells->setFontColor('#ffffff');  
+                                $cells->setFontWeight('bold');
+                                });
+                            });
+            })->download('xls');
+        }
+        else
+        {
+            $loans = DB::table('Prestamos')
+            ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
+            ->join('Producto','Producto.PrdCod','=','Prestamos.PrdCod')
+            ->where($conditions)
+            ->where('Prestamos.PresEstPtmo','=','A')
+            ->where('Prestamos.presEstFlujo','=',5)
+            ->where('prestamos.presamp','=','N')
+            ->select(DB::raw("Padron.IdPadron,Padron.padnombres,Padron.padnombres2do,Padron.padpaterno,Padron.padmaterno,Padron.padapellidocasada,Padron.padcedulaidentidad,Padron.padexpcedula,
+                            Padron.padtipo, case
+                                            when producto.prddsc = 'GARANTIA PERSONAL'then 'LARGO PLAZO'
+                                            when producto.prddsc = 'CORTO PLAZO' then 'CORTO PLAZO'
+                                            ELSE producto.prddsc
+                                            END AS TipoPrestamo,
+                            Prestamos.PresFechaPrestamo,
+                            Prestamos.PresMontoSol,
+                            Prestamos.PresNumero"))
+            ->orderBy('Prestamos.PresNumero','Desc')
+            ->paginate($pagination_rows);
+
+            $loans->getCollection()->transform(function ($item) {                
+                $padron = DB::table('Padron')->where('IdPadron',$item->IdPadron)->first();
+                //return response()->json($padron->toArray());
+                $item->PadNombres = utf8_encode(trim($padron->PadNombres));
+                $item->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
+                $item->PadPaterno =utf8_encode(trim($padron->PadPaterno));
+                $item->PadMaterno =utf8_encode(trim($padron->PadMaterno));
+                $item->PadApellidoCasada =utf8_encode(trim($padron->PadApellidoCasada));
+                $item->PadCedulaIdentidad =utf8_encode(trim($padron->PadCedulaIdentidad));
+                $item->PadExpCedula =utf8_encode(trim($padron->PadExpCedula));
+                $item->PadTipo = utf8_encode(trim($padron->PadTipo));
+                return $item;
+            });
+
+          return response()->json($loans->toArray());
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *

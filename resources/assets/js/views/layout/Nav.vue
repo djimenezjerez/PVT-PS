@@ -85,6 +85,7 @@ export default {
                 // { icon: 'group', text: 'Reportes' , link: '/report' },
                 { icon: 'fa-money', text: 'Amortizaciones ' , link: '/amortization' },
                 { icon: 'fa-puzzle-piece', text: 'Observados Complemento ' , link: '/observations' },
+                { icon: 'fa-money', text: 'Contabilidad' , link: '/accounting' },
             ]
         };
     },

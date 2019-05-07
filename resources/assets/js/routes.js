@@ -14,7 +14,8 @@ import Toolbar from './views/layout/Toolbar';
 import Login from './views/user/Login';
 import NewsSenasir from './views/loans/NewsSenasir';
 import NewsComand from './views/loans/NewsComand';
-import Observations from './views/EconomicComplement/index'
+import Observations from './views/EconomicComplement/index';
+import Accounting from './views/loans/Accounting';
 export const routes = [
     {
         path: '/',
@@ -175,6 +176,18 @@ export const routes = [
         name: 'observations',
         components:{ 
             default: Observations,
+            toolbar: Toolbar,
+            nav: Nav
+        },
+        meta: { 
+            requiresAuth: true
+        } 
+    },
+    {
+        path: '/accounting',
+        name: 'accounting',
+        components:{ 
+            default: Accounting,
             toolbar: Toolbar,
             nav: Nav
         },
