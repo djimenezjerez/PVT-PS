@@ -14,7 +14,7 @@ class LoanReportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
         //
         $prestamos_tipo = DB::select("select sum(dbo.Prestamos.PresSaldoAct) as sub_total,count(DISTINCT Padron.IdPadron) as cantidad,dbo.Padron.PadTipo as nombre from dbo.Padron
         JOIN dbo.Prestamos on Prestamos.IdPadron = Padron.IdPadron
@@ -34,21 +34,22 @@ class LoanReportController extends Controller
         GROUP by dbo.Prestamos.PresEstPtmo,EstadoPrestamo.PresEstDsc;");
 
         $prestamos_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2018 
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2019
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
+        Log::info($prestamos_mes);
 
         $prestamos_desembolsados_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
         where YEAR(dbo.Prestamos.PresFechaDesembolso)=2019 
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
-        $prestamos_mes_2017 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2017 
+        $prestamos_mes_2018 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2018
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
 
-        $prestamos_desembolsados_mes_2017 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaDesembolso)=2017 
+        $prestamos_desembolsados_mes_2018 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
+        where YEAR(dbo.Prestamos.PresFechaDesembolso)=2018
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
 
@@ -75,8 +76,8 @@ class LoanReportController extends Controller
                 'prestamos_estado' =>$prestamos_estado,
                 'prestamos_mes' =>$prestamos_mes,
                 'prestamos_desembolsados' => $prestamos_desembolsados_mes,
-                'prestamos_mes_2017' =>$prestamos_mes_2017,
-                'prestamos_desembolsados_2017' => $prestamos_desembolsados_mes_2017,
+                'prestamos_mes_2018' =>$prestamos_mes_2018,
+                'prestamos_desembolsados_2018' => $prestamos_desembolsados_mes_2018,
                 'productos_mes' => $months
         );
         return json_encode($data);
