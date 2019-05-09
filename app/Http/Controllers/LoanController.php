@@ -321,9 +321,8 @@ class LoanController extends Controller
             ->orderBy('Prestamos.PresNumero','Desc')
             ->paginate($pagination_rows);
 
-            $loans->getCollection()->transform(function ($item) {                
+            $loans->getCollection()->transform(function ($item) {
                 $padron = DB::table('Padron')->where('IdPadron',$item->IdPadron)->first();
-                //return response()->json($padron->toArray());
                 $item->PadNombres = utf8_encode(trim($padron->PadNombres));
                 $item->PadNombres2do =utf8_encode(trim($padron->PadNombres2do));
                 $item->PadPaterno =utf8_encode(trim($padron->PadPaterno));
