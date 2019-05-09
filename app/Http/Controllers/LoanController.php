@@ -247,7 +247,7 @@ class LoanController extends Controller
             global $rows_exacta;
             $rows_exacta = Array();
             //cabezera
-            array_push($rows_exacta,array('PrimerNombre','SegundoNombre','Paterno','Materno','ApCasada','CI','Expd','TipoBeneficiario','TipoPrestamo','FechaPrestamo','Monto',' NroPrestamo'));
+            array_push($rows_exacta,array('PrimerNombre','SegundoNombre','Paterno','Materno','ApCasada','CI','Expd','TipoBeneficiario','TipoPrestamo','FechaPrestamo','Saldo_Amortizar','Monto',' NroPrestamo'));
 
             $loans = DB::table('Prestamos')
                         ->join('Padron','Prestamos.IdPadron','=','Padron.IdPadron')
@@ -282,7 +282,7 @@ class LoanController extends Controller
                     $loan->PadTipo = utf8_encode(trim($padron->PadTipo));
                    
                     array_push($rows_exacta,array($loan->PadNombres,$loan->PadNombres2do,$loan->PadPaterno,$loan->PadMaterno,$loan->PadApellidoCasada,$loan->PadCedulaIdentidad,$loan->PadExpCedula,
-                                                $loan->PadTipo,$loan->TipoPrestamo,$loan->PresFechaPrestamo,$loan->PresMontoSol,$loan->PresNumero));
+                                                $loan->PadTipo,$loan->TipoPrestamo,$loan->PresFechaPrestamo,0,$loan->PresMontoSol,$loan->PresNumero));
             }
             
             Excel::create('prestamos',function($excel)
