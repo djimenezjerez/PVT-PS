@@ -86,7 +86,7 @@
             <v-card>
               <v-card-title>
                 <div>
-                  <div class="headline"> Prestamos Desembolsados 2017 </div>
+                  <div class="headline"> Prestamos Desembolsados 2018 </div>
                 </div>
               </v-card-title>
               <canvas id="prestamos_desembolsados_mes_2017" ></canvas>
@@ -106,8 +106,8 @@
             <v-card >
               <v-card-title primary-title>
               <div>
-                <div class="headline"> Prestamos Desembolsados 2018
-                  <v-btn small @click="download" 
+                <div class="headline"> Prestamos Desembolsados 2019
+                  <v-btn small @click="download"
                       :disabled="dialog"
                       :loading="dialog"
                       icon
