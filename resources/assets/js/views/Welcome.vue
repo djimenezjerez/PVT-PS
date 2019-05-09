@@ -76,7 +76,7 @@
             <v-card >
               <v-card-title primary-title>
               <div>
-                <div class="headline"> Prestamos Realizados 2017 </div>
+                <div class="headline"> Prestamos Realizados 2018 </div>
               </div>
             </v-card-title>
               <canvas id="prestamos_mes_2017" ></canvas>
@@ -96,7 +96,7 @@
             <v-card >
               <v-card-title primary-title>
               <div>
-                <div class="headline"> Prestamos Realizados 2018 </div>
+                <div class="headline"> Prestamos Realizados 2019 </div>
               </div>
             </v-card-title>
               <canvas id="prestamos_mes" ></canvas>

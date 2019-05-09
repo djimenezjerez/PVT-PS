@@ -34,7 +34,7 @@ class LoanReportController extends Controller
         GROUP by dbo.Prestamos.PresEstPtmo,EstadoPrestamo.PresEstDsc;");
 
         $prestamos_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2018 
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2019
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
 
@@ -43,7 +43,7 @@ class LoanReportController extends Controller
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
         $prestamos_mes_2017 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2017 
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2018 
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
 
