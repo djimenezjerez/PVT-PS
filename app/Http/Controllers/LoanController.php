@@ -288,7 +288,7 @@ class LoanController extends Controller
             Excel::create('prestamos',function($excel)
             {
                 global $rows_exacta;
-                        $excel->sheet('prestamos presupuesto',function($sheet) {
+                        $excel->sheet('presupuesto',function($sheet) {
                                 global $rows_exacta;
                                 $sheet->fromModel($rows_exacta,null, 'A1', false, false);
                                 $sheet->cells('A1:R1', function($cells) {
