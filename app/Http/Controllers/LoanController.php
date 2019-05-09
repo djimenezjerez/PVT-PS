@@ -282,7 +282,7 @@ class LoanController extends Controller
                     $loan->PadTipo = utf8_encode(trim($padron->PadTipo));
                    
                     array_push($rows_exacta,array($loan->PadNombres,$loan->PadNombres2do,$loan->PadPaterno,$loan->PadMaterno,$loan->PadApellidoCasada,$loan->PadCedulaIdentidad,$loan->PadExpCedula,
-                                                $loan->PadTipo,$loan->TipoPrestamo,$loan->PresFechaPrestamo,0,$loan->PresMontoSol,$loan->PresNumero));
+                                                $loan->PadTipo,$loan->TipoPrestamo,$loan->PresFechaPrestamo,'0',$loan->PresMontoSol,$loan->PresNumero));
             }
             
             Excel::create('prestamos',function($excel)
