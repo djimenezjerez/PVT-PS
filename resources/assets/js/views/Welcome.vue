@@ -505,7 +505,7 @@ export default {
         data: data,
         cost: cost,
         backgroundColor: [
-        "#f1c40f",
+        "#f1c41f",
         "#e74c3c",
         "#3498db",
         "#2ecc71",
