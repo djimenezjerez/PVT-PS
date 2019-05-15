@@ -83,7 +83,7 @@ class LoanReportController extends Controller
             GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
         array_push($months,array('mes'=> $meses[date('n')-1],'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
 
-        return $months;
+       // return $months;
         $data = array(
                 'prestamos_tipo'=> $prestamos_tipo,
                 'prestamos_producto'=> $prestamos_producto,
