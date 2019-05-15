@@ -14,8 +14,7 @@ class LoanReportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        //
+    {  $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
         $prestamos_tipo = DB::select("select sum(dbo.Prestamos.PresSaldoAct) as sub_total,count(DISTINCT Padron.IdPadron) as cantidad,dbo.Padron.PadTipo as nombre from dbo.Padron
         JOIN dbo.Prestamos on Prestamos.IdPadron = Padron.IdPadron
         where  Prestamos.PresEstPtmo = 'V' 
@@ -82,9 +81,9 @@ class LoanReportController extends Controller
             join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
             where year(dbo.Prestamos.PresFechaDesembolso)= ".date("Y")." and month(dbo.Prestamos.PresFechaDesembolso)=".date("n")." and Padron.PadTipo = 'PASIVO'
             GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
-        array_push($months,array('mes'=>date("n"),'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
+        array_push($months,array('mes'=> $meses[date('n')-1],'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
 
-        //return $months;
+        return $months;
         $data = array(
                 'prestamos_tipo'=> $prestamos_tipo,
                 'prestamos_producto'=> $prestamos_producto,
