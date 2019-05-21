@@ -40,7 +40,7 @@
             <v-list-tile
               v-for="(child, i) in item.children"
               :key="i"
-           
+
             >
               <v-list-tile-action v-if="child.icon">
                 <v-icon>{{ child.icon }}</v-icon>
@@ -86,6 +86,7 @@ export default {
                 { icon: 'fa-money', text: 'Amortizaciones ' , link: '/amortization' },
                 { icon: 'fa-puzzle-piece', text: 'Observados Complemento ' , link: '/observations' },
                 { icon: 'fa-money', text: 'Contabilidad' , link: '/accounting' },
+                { icon: 'fa-university', text: 'Financiera' , link: '/financial' },
             ]
         };
     },
