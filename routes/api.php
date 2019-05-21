@@ -38,7 +38,7 @@ Route::group(['middleware' => 'jwt.auth'], function ($router) {
   Route::resource('overdue_loans', 'OverdueLoansController');
   Route::resource('loans', 'LoanController');
   Route::get('accounting', 'LoanController@accounting');
-  Route::get('financial', 'LoanController@financial');
+  Route::get('treasury', 'LoanController@treasury');
   Route::resource('total_overdue_loans', 'TotalOverdueLoansController');
 });
 Route::resource('eco_com_observations', 'EconomicComplementController');

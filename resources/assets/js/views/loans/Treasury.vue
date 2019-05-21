@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Financiera
+      Tesorería
       <v-btn icon  @click="download" :disabled="!selected.length">
         <v-icon color="gray">
           fa-file-text
@@ -205,7 +205,7 @@ export default {
   },
   methods:{
     async search() {
-      let data = await this.getData('/api/financial',this.getParams())
+      let data = await this.getData('/api/treasury',this.getParams())
       this.loans = data.data
       this.last_page = data.last_page
       this.total = data.total
@@ -265,7 +265,7 @@ export default {
     async download() {
       try {
         this.loading = true
-        let res = await axios.get('/api/financial', {
+        let res = await axios.get('/api/treasury', {
           params: {
             txt: true,
             ids: this.selected.map(o => parseInt(o.id))

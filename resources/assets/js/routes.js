@@ -16,7 +16,7 @@ import NewsSenasir from './views/loans/NewsSenasir';
 import NewsComand from './views/loans/NewsComand';
 import Observations from './views/EconomicComplement/index';
 import Accounting from './views/loans/Accounting';
-import Financial from './views/loans/Financial';
+import Treasury from './views/loans/Treasury';
 export const routes = [
     {
         path: '/',
@@ -197,10 +197,10 @@ export const routes = [
         }
     },
     {
-        path: '/financial',
-        name: 'financial',
+        path: '/treasury',
+        name: 'Treasury',
         components:{
-            default: Financial,
+            default: Treasury,
             toolbar: Toolbar,
             nav: Nav
         },

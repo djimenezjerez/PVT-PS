@@ -86,7 +86,7 @@ export default {
                 { icon: 'fa-money', text: 'Amortizaciones ' , link: '/amortization' },
                 { icon: 'fa-puzzle-piece', text: 'Observados Complemento ' , link: '/observations' },
                 { icon: 'fa-money', text: 'Contabilidad' , link: '/accounting' },
-                { icon: 'fa-university', text: 'Financiera' , link: '/financial' },
+                { icon: 'fa-university', text: 'Tesorería' , link: '/treasury' },
             ]
         };
     },
