@@ -9,6 +9,7 @@ use DB;
 use Log;
 use Datetime;
 use Carbon\Carbon;
+use Response;
 
 class LoanController extends Controller
 {
@@ -345,63 +346,107 @@ class LoanController extends Controller
         $ci = request('ci') ?? '';
         $NroPrestamo = request('NroPrestamo') ?? '';
 
-        if ($PrimerNombre != '') {
-            array_push($conditions, array('Padron.padnombres', 'like', "%{$PrimerNombre}%"));
+        if (json_decode(request('txt'))) {
+            $ids = request('ids');
+            if (count($ids) > 0) {
+                $loans = DB::table('Prestamos')->select('PresObs as account', 'PresEncMntAut as payable')->whereIn('IdPrestamo', $ids)->get();
+
+                return $this->build_txt($loans);
+            } else {
+                return response()->json([
+                    'message' => 'IDs array cannot be empty'
+                ], 409);
+            }
+        } else {
+            if ($PrimerNombre != '') {
+                array_push($conditions, array('Padron.padnombres', 'like', "%{$PrimerNombre}%"));
+            }
+            if ($SegundoNombre != '') {
+                array_push($conditions, array('Padron.padnombres2do', 'like', "%{$SegundoNombre}%"));
+            }
+            if ($Paterno != '') {
+                array_push($conditions, array('Padron.padpaterno', 'like', "%{$Paterno}%"));
+            }
+            if ($Materno != '') {
+                array_push($conditions, array('Padron.padmaterno', 'like', "%{$Materno}%"));
+            }
+            if ($ApCasada != '') {
+                array_push($conditions, array('Padron.padapellidocasada', 'like', "%{$ApCasada}%"));
+            }
+            if ($ci != '') {
+                array_push($conditions, array('Padron.padcedulaidentidad', 'like', "%{$ci}%"));
+            }
+            if ($NroPrestamo != '') {
+                array_push($conditions, array('Prestamos.PresNumero', 'like', "%{$NroPrestamo}%"));
+            }
+
+            $loans = DB::table('Prestamos')
+                ->join('Padron', 'Prestamos.IdPadron', '=', 'Padron.IdPadron')
+                ->join('Producto', 'Producto.PrdCod', '=', 'Prestamos.PrdCod')
+                ->where($conditions)
+                ->where('Prestamos.PresEstPtmo', '=', 'A')
+                ->where('Prestamos.presEstFlujo', '=', 7)
+                ->where('Prestamos.SolEntChqCod', '=', 13)
+                ->select(DB::raw("Padron.IdPadron,Padron.padnombres,Padron.padnombres2do,Padron.padpaterno,Padron.padmaterno,Padron.padapellidocasada,Padron.padcedulaidentidad,Padron.padexpcedula,
+                            Padron.padtipo, case
+                                            when producto.prddsc = 'GARANTIA PERSONAL'then 'LARGO PLAZO'
+                                            when producto.prddsc = 'CORTO PLAZO' then 'CORTO PLAZO'
+                                            ELSE producto.prddsc
+                                            END AS TipoPrestamo,
+                            Prestamos.PresFechaPrestamo,
+                            Prestamos.PresMontoSol,
+                            Prestamos.PresEncMntAut,
+                            Prestamos.PresNumero,
+                            Prestamos.IdPrestamo as id,
+                            Prestamos.PresObs as Account"))
+                ->orderBy('Prestamos.PresNumero', 'Desc')
+                ->paginate($pagination_rows);
+
+            $loans->getCollection()->transform(function ($item) {
+                $padron = DB::table('Padron')->where('IdPadron', $item->IdPadron)->first();
+                //return response()->json($padron->toArray());
+                $item->PadNombres = utf8_encode(trim($padron->PadNombres));
+                $item->PadNombres2do = utf8_encode(trim($padron->PadNombres2do));
+                $item->PadPaterno = utf8_encode(trim($padron->PadPaterno));
+                $item->PadMaterno = utf8_encode(trim($padron->PadMaterno));
+                $item->PadApellidoCasada = utf8_encode(trim($padron->PadApellidoCasada));
+                $item->PadCedulaIdentidad = utf8_encode(trim($padron->PadCedulaIdentidad));
+                $item->PadExpCedula = utf8_encode(trim($padron->PadExpCedula));
+                $item->PadTipo = utf8_encode(trim($padron->PadTipo));
+                return $item;
+            });
+
+            return response()->json($loans->toArray());
         }
-        if ($SegundoNombre != '') {
-            array_push($conditions, array('Padron.padnombres2do', 'like', "%{$SegundoNombre}%"));
-        }
-        if ($Paterno != '') {
-            array_push($conditions, array('Padron.padpaterno', 'like', "%{$Paterno}%"));
-        }
-        if ($Materno != '') {
-            array_push($conditions, array('Padron.padmaterno', 'like', "%{$Materno}%"));
-        }
-        if ($ApCasada != '') {
-            array_push($conditions, array('Padron.padapellidocasada', 'like', "%{$ApCasada}%"));
-        }
-        if ($ci != '') {
-            array_push($conditions, array('Padron.padcedulaidentidad', 'like', "%{$ci}%"));
-        }
-        if ($NroPrestamo != '') {
-            array_push($conditions, array('Prestamos.PresNumero', 'like', "%{$NroPrestamo}%"));
+    }
+
+    private function build_txt($loans)
+    {
+        $primary_account = '10000013809229';
+        $total_loans = count($loans);
+        $total_payable = number_format(floatval($loans->sum('payable')), 2, '.', '');
+
+        $content = "";
+        $content .= "desembolso de prestamos " . strtolower(Carbon::now()->format('d_F_Y_H_i')) . " " . str_pad($total_loans, 4, "0", STR_PAD_LEFT) . Carbon::now()->format('dmY') . "\r\n";
+
+        $content .= $primary_account . str_pad(strval($total_payable), 12, "0", STR_PAD_LEFT) . "\r\n";
+
+        foreach ($loans as $i => $loan) {
+            $content .= $loan->account . str_pad(number_format(floatval($loan->payable), 2, '.', ''), 12, "0", STR_PAD_LEFT) . "1";
+
+            if ($i < ($total_loans - 1)) {
+                $content .= "\r\n";
+            }
         }
 
-        $loans = DB::table('Prestamos')
-            ->join('Padron', 'Prestamos.IdPadron', '=', 'Padron.IdPadron')
-            ->join('Producto', 'Producto.PrdCod', '=', 'Prestamos.PrdCod')
-            ->where($conditions)
-            ->where('Prestamos.PresEstPtmo', '=', 'A')
-            ->where('Prestamos.presEstFlujo', '=', 7)
-            ->where('Prestamos.SolEntChqCod', '=', 13)
-            ->select(DB::raw("Padron.IdPadron,Padron.padnombres,Padron.padnombres2do,Padron.padpaterno,Padron.padmaterno,Padron.padapellidocasada,Padron.padcedulaidentidad,Padron.padexpcedula,
-                        Padron.padtipo, case
-                                        when producto.prddsc = 'GARANTIA PERSONAL'then 'LARGO PLAZO'
-                                        when producto.prddsc = 'CORTO PLAZO' then 'CORTO PLAZO'
-                                        ELSE producto.prddsc
-                                        END AS TipoPrestamo,
-                        Prestamos.PresFechaPrestamo,
-                        Prestamos.PresMontoSol,
-                        Prestamos.PresEncMntAut,
-                        Prestamos.PresNumero"))
-            ->orderBy('Prestamos.PresNumero', 'Desc')
-            ->paginate($pagination_rows);
+        $filename = implode('_', ["desembolso_prestamos", Carbon::now()->format('d_F_Y_H_i')]) . ".txt";
 
-        $loans->getCollection()->transform(function ($item) {
-            $padron = DB::table('Padron')->where('IdPadron', $item->IdPadron)->first();
-            //return response()->json($padron->toArray());
-            $item->PadNombres = utf8_encode(trim($padron->PadNombres));
-            $item->PadNombres2do = utf8_encode(trim($padron->PadNombres2do));
-            $item->PadPaterno = utf8_encode(trim($padron->PadPaterno));
-            $item->PadMaterno = utf8_encode(trim($padron->PadMaterno));
-            $item->PadApellidoCasada = utf8_encode(trim($padron->PadApellidoCasada));
-            $item->PadCedulaIdentidad = utf8_encode(trim($padron->PadCedulaIdentidad));
-            $item->PadExpCedula = utf8_encode(trim($padron->PadExpCedula));
-            $item->PadTipo = utf8_encode(trim($padron->PadTipo));
-            return $item;
-        });
+        $headers = [
+            'Content-type' => 'text/plain',
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $filename)
+        ];
 
-        return response()->json($loans->toArray());
+        return Response::make($content, 200, $headers);
     }
 
     /**

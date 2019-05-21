@@ -2,7 +2,7 @@
   <v-card>
     <v-card-title>
       Financiera
-      <v-btn icon  @click="download">
+      <v-btn icon  @click="download" :disabled="!selected.length">
         <v-icon color="gray">
           fa-file-text
         </v-icon>
@@ -29,21 +29,32 @@
       </v-dialog>
       <v-spacer></v-spacer>
       <v-flex xs1 sm1 md1>
-        <v-combobox
-        v-model="paginationRows"
-        :items="pagination_select"
-        label="Mostrar Registros"
-        @change="search()"
-        ></v-combobox>
+        <v-select
+          :items="['TODO', 10, 20, 30]"
+          v-model="paginationRows"
+          @change="search()"
+          label="Mostrar Registros"
+        ></v-select>
       </v-flex>
     </v-card-title>
     <v-data-table
+      v-model="selected"
       :headers="headers"
       :items="loans"
       hide-actions
+      select-all
     >
       <template slot="headers" slot-scope="props" >
         <tr>
+          <th>
+            <v-checkbox
+              :input-value="props.all"
+              :indeterminate="props.indeterminate"
+              primary
+              hide-details
+              @click.stop="toggleAll"
+            ></v-checkbox>
+          </th>
           <th v-for="(header,index) in props.headers" :key="index" class="text-xs-left">
             <v-flex v-if="header.value!='actions'">
               <v-tooltip bottom>
@@ -110,19 +121,30 @@
         </tr>
       </template>
       <template slot="items"  slot-scope="props">
-        <td class="text-xs-left">{{ props.item.PadNombres }}</td>
-        <td class="text-xs-left">{{ props.item.PadNombres2do }}</td>
-        <td class="text-xs-left">{{ props.item.PadPaterno }}</td>
-        <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
-        <td class="text-xs-left">{{ props.item.padapellidocasada }}</td>
-        <td class="text-xs-left">{{ props.item.padcedulaidentidad }}</td>
-        <td class="text-xs-left">{{ props.item.padexpcedula }}</td>
-        <td class="text-xs-left">{{ props.item.padtipo }}</td>
-        <td class="text-xs-left">{{ props.item.TipoPrestamo }}</td>
-        <td class="text-xs-left">{{ props.item.PresFechaPrestamo | formatDate }}</td>
-        <td class="text-xs-left">{{ props.item.PresMontoSol }}</td>
-        <td class="text-xs-left">{{ props.item.PresEncMntAut }}</td>
-        <td class="text-xs-left">{{ props.item.PresNumero }}</td>
+        <tr @click="toggleSelected(props)" :class="props.item.Account.length != 14 ? 'red white--text' : ''">
+          <td>
+            <v-checkbox
+              :input-value="props.selected"
+              primary
+              hide-details
+              :disabled="props.item.Account.length != 14"
+            ></v-checkbox>
+          </td>
+          <td class="text-xs-left">{{ props.item.PadNombres }}</td>
+          <td class="text-xs-left">{{ props.item.PadNombres2do }}</td>
+          <td class="text-xs-left">{{ props.item.PadPaterno }}</td>
+          <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
+          <td class="text-xs-left">{{ props.item.padapellidocasada }}</td>
+          <td class="text-xs-left">{{ props.item.Account }}</td>
+          <td class="text-xs-left">{{ props.item.padcedulaidentidad }}</td>
+          <td class="text-xs-left">{{ props.item.padexpcedula }}</td>
+          <td class="text-xs-left">{{ props.item.padtipo }}</td>
+          <td class="text-xs-left">{{ props.item.TipoPrestamo }}</td>
+          <td class="text-xs-left">{{ props.item.PresFechaPrestamo | formatDate }}</td>
+          <td class="text-xs-left">{{ props.item.PresMontoSol | money }}</td>
+          <td class="text-xs-left">{{ props.item.PresEncMntAut | money }}</td>
+          <td class="text-xs-left">{{ props.item.PresNumero }}</td>
+        </tr>
       </template>
     </v-data-table>
     <div class="text-xs-center">
@@ -142,7 +164,6 @@
 </template>
 
 <script>
-require('jspdf-autotable');
 export default {
   data () {
     return {
@@ -157,6 +178,7 @@ export default {
         { text: 'Paterno', value: 'Paterno',input:'', menu:false ,type:"text"},
         { text: 'Materno', value: 'Materno' ,input:'', menu:false,type:"text"},
         { text: 'ApCasada', value: 'ApCasada' ,input:'', menu:false,type:"text"},
+        { text: 'Nro Cuenta', value: 'Account' ,input:'', menu:false,type:"text"},
         { text: 'CI', value: 'ci',input:'' , menu:false,type:"text"},
         { text: 'Exp', value: 'padexpcedula',input:'' , menu:false,type:"text"},
         { text: 'TipoBeneficiario', value: 'padtipo',input:'' , menu:false,type:"text"},
@@ -173,64 +195,104 @@ export default {
       from:0,
       to:0,
       page:1,
-      paginationRows: 10,
-      pagination_select:[10,20,30],
+      paginationRows: 'TODO',
+      selected: [],
     }
   },
   mounted()
   {
-    this.search();
+    this.search()
   },
   methods:{
     async search() {
       let data = await this.getData('/api/financial',this.getParams())
-      this.loans = data.data;
-      this.last_page = data.last_page;
-      this.total = data.total;
-      this.from = data.from;
-      this.to = data.to;
+      this.loans = data.data
+      this.last_page = data.last_page
+      this.total = data.total
+      this.from = data.from
+      this.to = data.to
     },
     async getData(url, parameters) {
       try {
-        this.loading = true;
+        this.loading = true
         let res = await axios.get(url, { params:parameters })
-        this.loading = false;
+        this.loading = false
         return res.data
       } catch (e) {
-        this.loading = false;
+        this.loading = false
         console.log(e)
       }
     },
     next(page){
-      this.page = page;
-      this.search();
+      this.page = page
+      this.search()
     },
     closeDate(index){
-      this.headers[index].menu = false;
-      this.search();
+      this.headers[index].menu = false
+      this.search()
     },
     clearDate(index){
-      this.headers[index].input='';
-      this.search();
+      this.headers[index].input=''
+      this.search()
     },
     getParams(){
-      let params={};
+      let params={}
       this.headers.forEach(element => {
-        params[element.value] = element.input.toUpperCase();
-      });
-      params['page']=this.page;
-      params['pagination_rows']=this.paginationRows;
-      return params;
+        params[element.value] = element.input.toUpperCase()
+      })
+      params['page']=this.page
+      if (this.paginationRows == 'TODO') {
+        params['pagination_rows']=1000
+      } else {
+        params['pagination_rows']=this.paginationRows
+      }
+      return params
     },
     checkInput(search)
     {
       if (search=='')
       {
-        this.search();
+        this.search()
       }
     },
-    download() {
-      console.log('download')
+    toggleAll () {
+      if (this.selected.length) this.selected = []
+      else this.selected = this.loans.filter(o => o.Account.length == 14)
+    },
+    toggleSelected(props) {
+      if (props.item.Account.length == 14) props.selected = !props.selected
+    },
+    async download() {
+      try {
+        this.loading = true
+        let res = await axios.get('/api/financial', {
+          params: {
+            txt: true,
+            ids: this.selected.map(o => parseInt(o.id))
+          }
+        })
+        const blob = new Blob([res.data], {
+          type: res.headers["content-type"]
+        })
+        let link = document.createElement("a")
+        link.href = window.URL.createObjectURL(blob)
+        let fileName = `desembolsos_${new Date().toString().split('GMT')[0]}`
+        const contentDisposition = res.headers["content-disposition"]
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename="(.+)"/)
+          if (fileNameMatch.length === 2) {
+            fileName = fileNameMatch[1]
+          }
+        }
+        link.download = fileName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        this.loading = false
+      } catch (e) {
+        this.loading = false
+        console.log(e)
+      }
     },
   },
   filters: {
@@ -238,6 +300,9 @@ export default {
       const [formattedDate, time] = date.split(' ')
       const [year, month, day] = formattedDate.split('-')
       return `${month}/${day}/${year}`
+    },
+    money(value) {
+      return parseFloat(value).toFixed(2)
     }
   }
 }
