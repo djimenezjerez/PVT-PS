@@ -426,9 +426,8 @@ class LoanController extends Controller
     $total_loans = count($loans);
     $total_payable = number_format(floatval($loans->sum('payable')), 2, '.', '');
 
-    $content = "";
-    $content .= "desembolso de prestamos " . strtolower(Carbon::now()->format('d_F_Y_H_i')) . " " . str_pad($total_loans, 4, "0", STR_PAD_LEFT) . Carbon::now()->format('dmY') . "\r\n";
-
+    $content = "DESEMBOLSO PRESTAMO MUSERPOL  ";
+    $content .= str_pad($total_loans, 5, "0", STR_PAD_LEFT) . Carbon::now()->format('dmY') . "\r\n";
     $content .= $primary_account . str_pad(strval($total_payable), 12, "0", STR_PAD_LEFT) . "\r\n";
 
     foreach ($loans as $i => $loan) {
