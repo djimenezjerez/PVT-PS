@@ -14,8 +14,8 @@ class LoanReportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   
-        //
+    {  
+        $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
         $prestamos_tipo = DB::select("select sum(dbo.Prestamos.PresSaldoAct) as sub_total,count(DISTINCT Padron.IdPadron) as cantidad,dbo.Padron.PadTipo as nombre from dbo.Padron
         JOIN dbo.Prestamos on Prestamos.IdPadron = Padron.IdPadron
         where  Prestamos.PresEstPtmo = 'V' 
@@ -33,28 +33,33 @@ class LoanReportController extends Controller
         join dbo.EstadoPrestamo on Prestamos.PresEstPtmo = EstadoPrestamo.PresEstPtmo
         GROUP by dbo.Prestamos.PresEstPtmo,EstadoPrestamo.PresEstDsc;");
 
+        //gestion actual prestamos realizados
         $prestamos_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2019
+
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=".date("Y")."
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
-        Log::info($prestamos_mes);
+        //gestion actual prestamos desembolsados
 
         $prestamos_desembolsados_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaDesembolso)=2019 
+        where YEAR(dbo.Prestamos.PresFechaDesembolso)=".date("Y")."
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
-        $prestamos_mes_2018 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaPrestamo)=2018
+       
+        //gestion anterior - prestamos realizados
+        $prestamos_mes_2017 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
+        where YEAR(dbo.Prestamos.PresFechaPrestamo)=".date('Y', strtotime('-1 year')) ."  
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
+        //gestion anterior - prestamos desembolsados
+        $prestamos_desembolsados_mes_2017 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
+        where YEAR(dbo.Prestamos.PresFechaDesembolso)=".date('Y', strtotime('-1 year')) ."
 
-        $prestamos_desembolsados_mes_2018 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
-        where YEAR(dbo.Prestamos.PresFechaDesembolso)=2018
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
 
         $months  = array();
-        foreach($prestamos_desembolsados_mes as $mes){
+      /* foreach($prestamos_desembolsados_mes as $mes){
             $productos_activo = DB::select("SELECT count(Prestamos.PrdCod) as cantidad, Producto.PrdDsc as nombre, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto  from dbo.Prestamos
             join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
             join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
@@ -66,9 +71,23 @@ class LoanReportController extends Controller
             join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
             where year(dbo.Prestamos.PresFechaDesembolso)= 2019 and month(dbo.Prestamos.PresFechaDesembolso)=".$mes->mes." and Padron.PadTipo = 'PASIVO'
             GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
-            array_push($months,array('mes'=>$mes->mes,'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
-        }
+           // array_push($months,array('mes'=>$mes->mes,'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
+        }*/
 
+        $productos_activo = DB::select("SELECT count(Prestamos.PrdCod) as cantidad, Producto.PrdDsc as nombre, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto  from dbo.Prestamos
+            join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+            join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
+            where year(dbo.Prestamos.PresFechaDesembolso)= ".date("Y")." and month(dbo.Prestamos.PresFechaDesembolso)=".date("n")." and Padron.PadTipo = 'ACTIVO'
+            GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
+        
+        $productos_pasivo = DB::select("SELECT count(Prestamos.PrdCod) as cantidad, Producto.PrdDsc as nombre, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto  from dbo.Prestamos
+            join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod
+            join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron
+            where year(dbo.Prestamos.PresFechaDesembolso)= ".date("Y")." and month(dbo.Prestamos.PresFechaDesembolso)=".date("n")." and Padron.PadTipo = 'PASIVO'
+            GROUP by Prestamos.PrdCod, Producto.PrdDsc;");
+        array_push($months,array('mes'=> $meses[date('n')-1],'productos_activo'=>$productos_activo,'productos_pasivo'=>$productos_pasivo));
+
+       // return $months;
         $data = array(
                 'prestamos_tipo'=> $prestamos_tipo,
                 'prestamos_producto'=> $prestamos_producto,

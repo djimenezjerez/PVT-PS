@@ -17,6 +17,7 @@ import NewsComand from './views/loans/NewsComand';
 import Observations from './views/EconomicComplement/index';
 import Accounting from './views/loans/Accounting';
 import Treasury from './views/loans/Treasury';
+
 export const routes = [
     {
         path: '/',
@@ -207,6 +208,18 @@ export const routes = [
         meta: {
             requiresAuth: true
         }
+    },
+    {
+        path: '/accounting',
+        name: 'accounting',
+        components:{ 
+            default: Accounting,
+            toolbar: Toolbar,
+            nav: Nav
+        },
+        meta: { 
+            requiresAuth: true
+        } 
     },
     {
         path: '/login',
