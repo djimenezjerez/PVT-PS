@@ -16,24 +16,26 @@ import NewsSenasir from './views/loans/NewsSenasir';
 import NewsComand from './views/loans/NewsComand';
 import Observations from './views/EconomicComplement/index';
 import Accounting from './views/loans/Accounting';
+import Treasury from './views/loans/Treasury';
+
 export const routes = [
     {
         path: '/',
         name: 'home',
-        components:{ 
+        components:{
             default: Home,
             toolbar: Toolbar,
             nav: Nav
 
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/report',
         name: 'report',
-        components:{ 
+        components:{
             default: Report,
             toolbar: Toolbar,
             nav: Nav
@@ -43,7 +45,7 @@ export const routes = [
     {
         path: '/negative_loans',
         name: 'negavitve_loans',
-        components:{ 
+        components:{
             default: NegativeLoans,
             toolbar: Toolbar,
             nav: Nav
@@ -53,135 +55,159 @@ export const routes = [
     {
         path: '/loans',
         name: 'loans',
-        components:{ 
+        components:{
             default: Loans,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/loans_senasir',
         name: 'loans_senasir',
-        components:{ 
+        components:{
             default: LoansSenasir,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/news_senasir',
         name: 'news_senasir',
-        components:{ 
+        components:{
             default: NewsSenasir,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/news_comand',
         name: 'news_comand',
-        components:{ 
+        components:{
             default: NewsComand,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/partial_loans',
         name: 'partial_loans',
-        components:{ 
+        components:{
             default: PartialDeaultLoans,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/loans_in_arriears',
         name: 'loans_in_arriears',
-        components:{ 
+        components:{
             default: LoansInArrears,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/loans_command',
         name: 'loans_command',
-        components:{ 
+        components:{
             default: LoansCommand,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/amortization',
         name: 'amortization',
-        components:{ 
+        components:{
             default: Amortization,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
-        
+        }
+
     },
     {
         path: '/overdue_loans',
         name: 'overdue_loans',
-        components:{ 
+        components:{
             default: OverdueLoans,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/total_overdue_loans',
         name: 'total_overdue_loans',
-        components:{ 
+        components:{
             default: TotalOverdueLoans,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
     },
     {
         path: '/observations',
         name: 'observations',
-        components:{ 
+        components:{
             default: Observations,
             toolbar: Toolbar,
             nav: Nav
         },
-        meta: { 
+        meta: {
             requiresAuth: true
-        } 
+        }
+    },
+    {
+        path: '/accounting',
+        name: 'accounting',
+        components:{
+            default: Accounting,
+            toolbar: Toolbar,
+            nav: Nav
+        },
+        meta: {
+            requiresAuth: true
+        }
+    },
+    {
+        path: '/treasury',
+        name: 'Treasury',
+        components:{
+            default: Treasury,
+            toolbar: Toolbar,
+            nav: Nav
+        },
+        meta: {
+            requiresAuth: true
+        }
     },
     {
         path: '/accounting',
@@ -198,7 +224,7 @@ export const routes = [
     {
         path: '/login',
         name: 'login',
-        components:{ 
+        components:{
             nomenu: Login,
         }
     },

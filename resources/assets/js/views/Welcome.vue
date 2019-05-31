@@ -79,7 +79,7 @@
                 <div class="headline"> Prestamos Realizados 2018 </div>
               </div>
             </v-card-title>
-              <canvas id="prestamos_mes_2017" ></canvas>
+              <canvas id="prestamos_mes_2018" ></canvas>
             </v-card>
           </v-flex>
           <v-flex xs6>
@@ -89,7 +89,7 @@
                   <div class="headline"> Prestamos Desembolsados 2018 </div>
                 </div>
               </v-card-title>
-              <canvas id="prestamos_desembolsados_mes_2017" ></canvas>
+              <canvas id="prestamos_desembolsados_mes_2018" ></canvas>
             </v-card>
           </v-flex>
           <v-flex xs6>
@@ -107,7 +107,9 @@
               <v-card-title primary-title>
               <div>
                 <div class="headline"> Prestamos Desembolsados 2019
+
                   <v-btn small @click="download"
+
                       :disabled="dialog"
                       :loading="dialog"
                       icon
@@ -661,10 +663,10 @@ export default {
                 this.prestamosEstado = data.prestamos_estado;
                 this.prestamosMes = data.prestamos_mes;
                 this.prestamosDesembolsados = data.prestamos_desembolsados;
-                this.prestamosMes2017 = data.prestamos_mes_2017;
-                this.prestamosDesembolsados2017 = data.prestamos_desembolsados_2017;
+                this.prestamosMes2018 = data.prestamos_mes_2018;
+                this.prestamosDesembolsados2018 = data.prestamos_desembolsados_2018;
                 this.productos_mes = data.productos_mes;
-                console.log(this.prestamosDesembolsados2017);
+                console.log(this.prestamosDesembolsados2018);
                 resolve();
             });
         });

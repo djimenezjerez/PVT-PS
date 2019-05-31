@@ -14,14 +14,11 @@ use Illuminate\Http\Request;
 */
 
 Route::post('login', 'AuthController@login');
-Route::group(['middleware'=>'jwt.auth'],function($router){
-    Route::resource('users','UserController');
-    Route::resource('reporte','LoanReportController');
-    Route::get('reporte_prestamos','LoanReportController@Loans');
-    Route::get('negative_loans','LoanController@negative_loans');
-    
-    Route::get('certificate_info','LoanController@certificate_info');
-
+Route::group(['middleware' => 'jwt.auth'], function ($router) {
+  Route::resource('users', 'UserController');
+  Route::resource('reporte', 'LoanReportController');
+  Route::get('reporte_prestamos', 'LoanReportController@Loans');
+  Route::get('negative_loans', 'LoanController@negative_loans');
     Route::resource('loans_senasir','SenasirController');
     Route::get('news_senasir','SenasirController@nuevos_senasir');
     Route::resource('loan_comand','ComandController');
@@ -37,9 +34,12 @@ Route::group(['middleware'=>'jwt.auth'],function($router){
     Route::resource('partial_loans','PartialLoansController');
     Route::resource('overdue_loans','OverdueLoansController');
     Route::resource('loans','LoanController');
-    Route::get('accounting','LoanController@accounting');
-    Route::resource('total_overdue_loans','TotalOverdueLoansController');    
+    Route::get('accounting','LoanController@accounting')
+    Route::get('treasury', 'LoanController@treasury');
+    Route::resource('total_overdue_loans','TotalOverdueLoansController');   
+    Route::get('certificate_info', 'LoanController@certificate_info');
+
 });
-Route::resource('eco_com_observations','EconomicComplementController');
-Route::get('eco_com_procedures','EconomicComplementController@getProcedures');
-Route::get('export_loans','LoanController@export_loans');
+Route::resource('eco_com_observations', 'EconomicComplementController');
+Route::get('eco_com_procedures', 'EconomicComplementController@getProcedures');
+Route::get('export_loans', 'LoanController@export_loans');

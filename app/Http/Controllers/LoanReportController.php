@@ -14,7 +14,8 @@ class LoanReportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {  $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+    {  
+        $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
         $prestamos_tipo = DB::select("select sum(dbo.Prestamos.PresSaldoAct) as sub_total,count(DISTINCT Padron.IdPadron) as cantidad,dbo.Padron.PadTipo as nombre from dbo.Padron
         JOIN dbo.Prestamos on Prestamos.IdPadron = Padron.IdPadron
         where  Prestamos.PresEstPtmo = 'V' 
@@ -34,10 +35,12 @@ class LoanReportController extends Controller
 
         //gestion actual prestamos realizados
         $prestamos_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaPrestamo) as name from dbo.Prestamos
+
         where YEAR(dbo.Prestamos.PresFechaPrestamo)=".date("Y")."
         GROUP by MONTH(dbo.Prestamos.PresFechaPrestamo)
         ORDER by MONTH(dbo.Prestamos.PresFechaPrestamo);");
         //gestion actual prestamos desembolsados
+
         $prestamos_desembolsados_mes = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
         where YEAR(dbo.Prestamos.PresFechaDesembolso)=".date("Y")."
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
@@ -51,6 +54,7 @@ class LoanReportController extends Controller
         //gestion anterior - prestamos desembolsados
         $prestamos_desembolsados_mes_2017 = DB::select("select count(*) as cantidad ,  MONTH(dbo.Prestamos.PresFechaDesembolso) as mes, CONVERT(VARCHAR, CAST(sum(dbo.Prestamos.PresMntDesembolso) as MONEY), 1) as monto from dbo.Prestamos
         where YEAR(dbo.Prestamos.PresFechaDesembolso)=".date('Y', strtotime('-1 year')) ."
+
         GROUP by MONTH(dbo.Prestamos.PresFechaDesembolso)
         ORDER by MONTH(dbo.Prestamos.PresFechaDesembolso);");
 
@@ -91,8 +95,8 @@ class LoanReportController extends Controller
                 'prestamos_estado' =>$prestamos_estado,
                 'prestamos_mes' =>$prestamos_mes,
                 'prestamos_desembolsados' => $prestamos_desembolsados_mes,
-                'prestamos_mes_2017' =>$prestamos_mes_2017,
-                'prestamos_desembolsados_2017' => $prestamos_desembolsados_mes_2017,
+                'prestamos_mes_2018' =>$prestamos_mes_2018,
+                'prestamos_desembolsados_2018' => $prestamos_desembolsados_mes_2018,
                 'productos_mes' => $months
         );
         return json_encode($data);
