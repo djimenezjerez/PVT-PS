@@ -400,12 +400,12 @@ export default {
                     var y =60;
 
                     d.text('C E R T I F I C A:',x,y);
-                    let p1 = 'Que, previa revisión y verificación de la base de datos del Sistema de Prétamo de la Endidad  "SISMU", de los señores afiliados del Sector Activo, se VERIFICO que:';
+                    let p1 = 'Que, previa revisión y verificación de la base de datos del Sistema de Préstamo de la Entidad  "SISMU", del Señor(a) afiliado, se VERIFICO que:';
                     let spl1 = d.splitTextToSize(p1,180);
                     d.text(x,y+10,spl1);
                     y+=10
                     d.setFontType("bold");
-                    d.text('El (la) Sr (a). '+this.certification.grado+' '+this.certification.nombre ,x+20,y+10,);
+                    d.text('El (la) Sr (a). '+this.certification.nombre ,x+20,y+10,);
                     y+=10
                     d.setFontType("normal");
                     let p2 = 'Siendo así se encuentra en situación de mora su préstamo con garantia '+this.certification.producto.trim()+ ' registrado con el Nro. '
@@ -415,7 +415,7 @@ export default {
                     y+=10;
                     // d.text("INFORME  ",90,20);
 
-                    let p3 = 'En cumplimiento con lo previsto en el Reglamento del Beneficio del Complemento Económico de la gestión 2018, en su Artículo 25° párrafo 2, e instructivo MUSERPOL/DESI/UIP/RyC/N°06/2016, en caso de amortizar su deuda con el beneficio del Complemento Econónmico.'
+                    let p3 = 'En cumplimiento con lo previsto en el Reglamento del Beneficio del Complemento Económico de la gestión 2018, en su Artículo 25° párrafo 2, y Reglamento de Prestamos 2019 en su Artículo 120°, en caso de amortizar su deuda con el beneficio del Complemento Econónmico.'
                     let spl3 = d.splitTextToSize(p3,180);
                     d.text(x,y+15,spl3);
                     y+=15;
@@ -427,7 +427,7 @@ export default {
                         y+=15;
                     }
 
-                    let p35 = 'Mediante la nota presentada en fecha '+this.certification.fecha_texto+' Hoja de Tramite No. '+this.certification.hoja+', solicita que el '+this.certification.porcentaje+' del monto del beneficio complemento económico 2do Semestre 2018 pase a cubrir '+this.certification.texto_mediante+' de su préstamo.'
+                    let p35 = 'Mediante la nota presentada en fecha '+this.certification.fecha_texto+' Hoja de Tramite No. '+this.certification.hoja+', solicita que el '+this.certification.porcentaje+' del monto del Beneficio Complemento Económico 1er Semestre 2019 pase a cubrir '+this.certification.texto_mediante+' de su préstamo.'
                     let spl35 = d.splitTextToSize(p35,180);
                     d.text(x,y+15,spl35);
                     y+=15;
