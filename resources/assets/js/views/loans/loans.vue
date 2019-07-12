@@ -405,7 +405,7 @@ export default {
                     d.text(x,y+10,spl1);
                     y+=10
                     d.setFontType("bold");
-                    d.text('El (la) Sr (a). '+this.certification.grado+' '+this.certification.nombre ,x+20,y+10,);
+                    d.text('El (la) Sr (a). '+this.certification.nombre ,x+20,y+10,);
                     y+=10
                     d.setFontType("normal");
                     let p2 = 'Siendo así se encuentra en situación de mora su préstamo con garantia '+this.certification.producto.trim()+ ' registrado con el Nro. '
