@@ -13,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        \Carbon\Carbon::setLocale('es');
+        date_default_timezone_set('America/La_Paz');
     }
 
     /**

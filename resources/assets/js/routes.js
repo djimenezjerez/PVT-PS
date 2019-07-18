@@ -1,21 +1,23 @@
-import Home from './views/Welcome';
-import Report from './views/Report';
-import NegativeLoans from './views/NegativeLoans';
-import Loans from './views/loans/loans';
-import LoansSenasir from './views/loans/LoansSenasir';
-import LoansInArrears from './views/loans/LoansInArrears';
-import PartialDeaultLoans from './views/loans/PartialDeaultLoans';
-import LoansCommand from './views/loans/LoanCommand';
-import Amortization from './views/Amortization';
-import OverdueLoans from './views/loans/OverdueLoans';
-import TotalOverdueLoans from './views/loans/TotalOverdueLoans';
-import Nav from './views/layout/Nav';
-import Toolbar from './views/layout/Toolbar';
-import Login from './views/user/Login';
-import NewsSenasir from './views/loans/NewsSenasir';
-import NewsComand from './views/loans/NewsComand';
-import Observations from './views/EconomicComplement/index';
-import Accounting from './views/loans/Accounting';
+import Home from './views/Welcome'
+import Report from './views/Report'
+import NegativeLoans from './views/NegativeLoans'
+import Loans from './views/loans/loans'
+import LoansSenasir from './views/loans/LoansSenasir'
+import LoansInArrears from './views/loans/LoansInArrears'
+import PartialDeaultLoans from './views/loans/PartialDeaultLoans'
+import LoansCommand from './views/loans/LoanCommand'
+import Amortization from './views/Amortization'
+import OverdueLoans from './views/loans/OverdueLoans'
+import TotalOverdueLoans from './views/loans/TotalOverdueLoans'
+import Nav from './views/layout/Nav'
+import Toolbar from './views/layout/Toolbar'
+import Login from './views/user/Login'
+import NewsSenasir from './views/loans/NewsSenasir'
+import NewsComand from './views/loans/NewsComand'
+import Observations from './views/EconomicComplement/index'
+import Accounting from './views/loans/Accounting'
+import Treasury from './views/loans/Treasury'
+
 export const routes = [
     {
         path: '/',
@@ -194,12 +196,22 @@ export const routes = [
         meta: { 
             requiresAuth: true
         } 
-    },
-    {
+    }, {
+        path: '/treasury',
+        name: 'treasury',
+        components:{
+            default: Treasury,
+            toolbar: Toolbar,
+            nav: Nav
+        },
+        meta: {
+            requiresAuth: true
+        }
+    }, {
         path: '/login',
         name: 'login',
         components:{ 
             nomenu: Login,
         }
     },
-];
+]
