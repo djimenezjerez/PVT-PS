@@ -1,79 +1,136 @@
 <?php
-
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use DB;
 use JWTAuth;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\User;
 use Validator;
-use Auth; 
+use Ldap;
+
+/** @resource Authenticate
+ *
+ * Resource to authenticate via username/password credentials
+ */
 class AuthController extends Controller
 {
-     //
-     /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function login(Request $request)
-    {
-        $credentials = $request->only('username', 'password');
-        $rules = [
-            'username' => 'required',
-            'password' => 'required',
-        ];
-        $validator = Validator::make($credentials, $rules);
-        if($validator->fails()) {
-            return response()->json([
-                'status' => 'error', 
-                'message' => $validator->messages()
-            ]);
-        }
-        try {
-            // Attempt to verify the credentials and create a token for the user
-            if (! $token = JWTAuth::attempt($credentials)) {
-                return response()->json([
-                    'status' => 'error', 
-                    'message' => 'We can`t find an account with this credentials.'
-                ], 401);
+  /**
+   * Get a JWT via given credentials.
+   *
+   * Login, return a JsonWebToken to request as "Bearer" Authorization header
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function login(Request $request)
+  {
+    $token = null;
+    $credentials = $request->only('username', 'password');
+    $rules = [
+      'username' => 'required',
+      'password' => 'required',
+    ];
+    $validator = Validator::make($credentials, $rules);
+    if($validator->fails()) {
+      return response()->json([
+        'status' => 'error',
+        'message' => $validator->messages()
+      ]);
+    }
+
+    try {
+      if ($credentials['username'] == 'admin') {
+        $token = JWTAuth::attempt($credentials);
+      } else {
+        $user = User::whereUsername($credentials['username'])->whereStatus('active')->first();
+        if ($user) {
+          if (!env("LDAP_AUTHENTICATION")) {
+            $token = JWTAuth::attempt($credentials);
+          } else {
+            $ldap = new Ldap();
+            if ($ldap->connection && $ldap->verify_open_port()) {
+              if ($ldap->bind($credentials['username'], $credentials['password'])) {
+                if (!Hash::check($request['password'], $user->password)) {
+                  $user->password = Hash::make($request['password']);
+                  $user->save();
+                }
+                $token = JWTAuth::attempt($credentials);
+                $ldap->unbind();
+              }
             }
-        } catch (JWTException $e) {
-            // Something went wrong with JWT Auth.
-            return response()->json([
-                'status' => 'error', 
-                'message' => 'Failed to login, please try again.'
-            ], 500);
+          }
         }
-        // All good so return the token
+      }
+    } catch(JWTException $e) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'No autorizado',
+        'errors' => [
+          'type' => ['Usuario desactivado'],
+        ],
+      ], 500);
+    } finally {
+      if ($token) {
+        return $this->respondWithToken($token);
+      } else {
         return response()->json([
-            'status' => 'success', 
-            'token' => $token,
-            'user' => Auth::user(),
-            
-        ]);
+          'status' => 'error',
+          'message' => 'No autorizado',
+          'errors' => [
+            'type' => ['Usuario desactivado'],
+          ],
+        ], 401);
+      }
     }
-    /**
-     * Logout
-     * Invalidate the token. User have to relogin to get a new token.
-     * @param Request $request 'header'
-     */
-    public function logout(Request $request) 
-    {
-        // Get JWT Token from the request header key "Authorization"
-        $token = $request->header('Authorization');
-        // Invalidate the token
-        try {
-            JWTAuth::invalidate($token);
-            return response()->json([
-                'status' => 'success', 
-                'message'=> "User successfully logged out."
-            ]);
-        } catch (JWTException $e) {
-            // something went wrong whilst attempting to encode the token
-            return response()->json([
-              'status' => 'error', 
-              'message' => 'Failed to logout, please try again.'
-            ], 500);
-        }
+  }
+
+  /**
+   * Log the user out (Invalidate the token).
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
+  public function logout(Request $request)
+  {
+    $token = $request->header('Authorization');
+    try {
+      JWTAuth::invalidate($token);
+      return response()->json([
+          'status' => 'success',
+          'message'=> "User successfully logged out."
+      ]);
+    } catch (JWTException $e) {
+      return response()->json([
+        'status' => 'error',
+        'message' => 'Failed to logout, please try again.'
+      ], 500);
     }
+  }
+
+  /**
+   * Get the token array structure.
+   *
+   * @param  string $token
+   *
+   * @return \Illuminate\Http\JsonResponse
+   */
+  protected function respondWithToken($token)
+  {
+    $user = Auth::user();
+    $username = $user->username;
+    $ip = request()->ip();
+    \Log::info("Usuario ".$username." autenticado desde la dirección ".$ip);
+
+    return response()->json([
+      'status' => 'success',
+      'token' => $token,
+      'user' => $user,
+      'token_type' => 'Bearer',
+      'message' => 'Indentidad verificada',
+    ], 200);
+  }
+
+  public function guard()
+  {
+    return Auth::Guard('api');
+  }
 }

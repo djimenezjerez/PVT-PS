@@ -190,6 +190,7 @@ services:
         - backend
       links:
         - docker-in-docker
+      restart: always
 
 ### PHP Worker ############################################
     php-worker:

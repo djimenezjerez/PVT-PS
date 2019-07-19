@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 Route::post('login', 'AuthController@login');
 Route::group(['middleware'=>'jwt.auth'],function($router){
+    Route::delete('logout', 'AuthController@logout');
     Route::resource('users','UserController');
     Route::resource('reporte','LoanReportController');
     Route::get('reporte_prestamos','LoanReportController@Loans');

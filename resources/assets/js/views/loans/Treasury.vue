@@ -130,10 +130,8 @@
               :disabled="props.item.Account.length != 14"
             ></v-checkbox>
           </td>
-          <td class="text-xs-left">{{ props.item.PadNombres }}</td>
-          <td class="text-xs-left">{{ props.item.PadNombres2do }}</td>
-          <td class="text-xs-left">{{ props.item.PadPaterno }}</td>
-          <td class="text-xs-left">{{ props.item.PadMaterno }}</td>
+          <td class="text-xs-left">{{ `${props.item.PadNombres} ${props.item.PadNombres2do}` }}</td>
+          <td class="text-xs-left">{{ `${props.item.PadPaterno} ${props.item.PadMaterno}` }}</td>
           <td class="text-xs-left">{{ props.item.padapellidocasada }}</td>
           <td class="text-xs-left">{{ props.item.Account }}</td>
           <td class="text-xs-left">{{ props.item.padcedulaidentidad }}</td>
@@ -173,10 +171,8 @@ export default {
         sortBy: 'PresNumero'
       },
       headers: [
-        { text: '1er Nombre', value: 'PrimerNombre',input:'' , menu:false,type:"text"},
-        { text: '2do Nombre', value: 'SegundoNombre',input:'' , menu:false,type:"text"},
-        { text: 'Paterno', value: 'Paterno',input:'', menu:false ,type:"text"},
-        { text: 'Materno', value: 'Materno' ,input:'', menu:false,type:"text"},
+        { text: 'Nombres', value: 'PrimerNombre',input:'' , menu:false,type:"text"},
+        { text: 'Apellidos', value: 'Paterno',input:'', menu:false ,type:"text"},
         { text: 'ApCasada', value: 'ApCasada' ,input:'', menu:false,type:"text"},
         { text: 'Nro Cuenta', value: 'Account' ,input:'', menu:false,type:"text"},
         { text: 'CI', value: 'ci',input:'' , menu:false,type:"text"},
@@ -207,7 +203,6 @@ export default {
     async search() {
       let data = await this.getData('/api/treasury',this.getParams())
       this.loans = data.data
-      console.log(this.loans)
       this.last_page = data.last_page
       this.total = data.total
       this.from = data.from
