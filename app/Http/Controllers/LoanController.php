@@ -337,7 +337,7 @@ class LoanController extends Controller
       if (json_decode(request('txt'))) {
         $ids = request('ids');
         if (count($ids) > 0) {
-          $loans = DB::table('Prestamos')->select('PresObs as account', 'PresEncMntAut as payable')->whereIn('IdPrestamo', $ids)->get();
+          $loans = DB::table('Prestamos')->select('PresObs as account', 'PresMontoSol as payable')->whereIn('IdPrestamo', $ids)->get();
           return $this->build_txt($loans);
         } else {
           return response()->json([
